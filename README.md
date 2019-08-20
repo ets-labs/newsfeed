@@ -1,2 +1,3 @@
-# newsfeed
-NewsFeed cloud service
+# NewsFeed Service
+
+NewsFeed cloud service.
