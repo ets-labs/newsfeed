@@ -15,6 +15,12 @@ def web_app():
 
 
 @fixture
+def infrastructure(web_app):
+    """Return infrastructure container."""
+    return web_app.infrastructure
+
+
+@fixture
 async def web_client(aiohttp_client, web_app):
     """Create test application client."""
     return await aiohttp_client(web_app)

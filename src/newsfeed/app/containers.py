@@ -99,6 +99,7 @@ class WebApi(containers.DeclarativeContainer):
                 path='/events/',
                 handler=providers.Coroutine(
                     webapi.handlers.events.post_event_handler,
+                    event_dispatcher_service=domain.event_dispatcher_service,
                 ),
             ),
 

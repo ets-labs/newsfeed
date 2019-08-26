@@ -1,6 +1,6 @@
 """Application module."""
 
-from .containers import DomainModel, WebApi
+from .containers import Infrastructure, DomainModel, WebApi
 
 
 class Application:
@@ -8,9 +8,10 @@ class Application:
 
     def create_web_app(self):
         """Create web application."""
-        domain_model, web_api = self.create_containers()
+        infrastructure, domain_model, web_api = self.create_containers()
 
         web_app = web_api.web_app()
+        web_app.infrastructure = infrastructure
         web_app.domain_model = domain_model
         web_app.web_api = web_api
 
@@ -18,7 +19,17 @@ class Application:
 
     def create_containers(self):
         """Create application containers."""
-        domain_model = DomainModel()
+        # TODO: find out better way of configuring containers
+        from dependency_injector import providers
+        from newsfeed.packages.infrastructure.event_queues import AsyncInMemoryEventQueue
+
+        infrastructure = Infrastructure(
+            event_queue=providers.Singleton(
+                AsyncInMemoryEventQueue,
+                **Infrastructure.event_queue.kwargs,
+            )
+        )
+        domain_model = DomainModel(infra=infrastructure)
         web_api = WebApi(domain=domain_model)
 
-        return domain_model, web_api
+        return infrastructure, domain_model, web_api
