@@ -93,6 +93,16 @@ class WebApi(containers.DeclarativeContainer):
     web_app = providers.Factory(
         webapi.app.create_web_app,
         routes=[
+            # Events
+            webapi.app.route(
+                method='POST',
+                path='/events/',
+                handler=providers.Coroutine(
+                    webapi.handlers.events.post_event_handler,
+                    event_dispatcher_service=domain.event_dispatcher_service,
+                ),
+            ),
+
             # Miscellaneous
             webapi.app.route(
                 method='GET',
