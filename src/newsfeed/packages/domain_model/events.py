@@ -52,7 +52,7 @@ class EventFactory:
         assert issubclass(cls, Event)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, data):
+    def create_new(self, newsfeed_id, data) -> Event:
         """Create new event."""
         return self._cls(
             id=uuid4(),
@@ -60,6 +60,18 @@ class EventFactory:
             data=data,
             first_seen_at=datetime.utcnow(),
             published_at=None,
+        )
+
+    def create_from_serialized(self, data) -> Event:
+        """Create new event from serialized data."""
+        return self._cls(
+            id=UUID(data['id']),
+            newsfeed_id=data['newsfeed_id'],
+            data=data['data'],
+            first_seen_at=datetime.utcfromtimestamp(data['first_seen_at']),
+            published_at=(
+                datetime.utcfromtimestamp(data['published_at']) if data['published_at'] else None
+            ),
         )
 
 
@@ -84,6 +96,14 @@ class EventRepository:
 
         assert isinstance(storage, EventStorage)
         self._storage = storage
+
+    async def add(self, event: Event):
+        """Add event to repository."""
+        await self._storage.add(event.serialized_data)
+
+    async def get_newsfeed(self, newsfeed_id):
+        """Return newsfeed events."""
+        return await self._storage.get_newsfeed(newsfeed_id)
 
 
 class EventDispatcherService:
@@ -114,15 +134,25 @@ class EventPublisherService:
     """Event publisher service."""
 
     def __init__(self,
-                 queue: EventQueue,
+                 event_queue: EventQueue,
+                 event_factory: EventFactory,
                  event_repository: EventRepository,
                  subscription_repository: SubscriptionRepository):
         """Initialize service."""
-        assert isinstance(queue, EventQueue)
-        self._queue = queue
+        assert isinstance(event_queue, EventQueue)
+        self._event_queue = event_queue
+
+        assert isinstance(event_factory, EventFactory)
+        self._event_factory = event_factory
 
         assert isinstance(event_repository, EventRepository)
         self._event_repository = event_repository
 
         assert isinstance(subscription_repository, SubscriptionRepository)
         self._subscription_repository = subscription_repository
+
+    async def process_event(self):
+        """Process event."""
+        event_data = await self._event_queue.get()
+        event = self._event_factory.create_from_serialized(event_data)
+        await self._event_repository.add(event)

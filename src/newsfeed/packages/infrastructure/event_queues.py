@@ -14,6 +14,10 @@ class EventQueue:
         """Put event data to queue."""
         raise NotImplementedError()
 
+    async def get(self):
+        """Get event data from queue."""
+        raise NotImplementedError()
+
 
 class AsyncInMemoryEventQueue(EventQueue):
     """Async event queue that stores events in memory."""

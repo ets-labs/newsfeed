@@ -78,8 +78,9 @@ class DomainModel(containers.DeclarativeContainer):
     )
 
     event_publisher_service = providers.Singleton(
-        domain_model.events.EventRepository,
-        queue=infra.event_queue,
+        domain_model.events.EventPublisherService,
+        event_queue=infra.event_queue,
+        event_factory=event_factory,
         event_repository=event_repository,
         subscription_repository=subscription_repository,
     )

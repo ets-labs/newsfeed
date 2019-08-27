@@ -22,12 +22,17 @@ class Application:
         # TODO: find out better way of configuring containers
         from dependency_injector import providers
         from newsfeed.packages.infrastructure.event_queues import AsyncInMemoryEventQueue
+        from newsfeed.packages.infrastructure.event_storage import AsyncInMemoryEventStorage
 
         infrastructure = Infrastructure(
             event_queue=providers.Singleton(
                 AsyncInMemoryEventQueue,
                 **Infrastructure.event_queue.kwargs,
-            )
+            ),
+            event_storage=providers.Singleton(
+                AsyncInMemoryEventStorage,
+                **Infrastructure.event_storage.kwargs,
+            ),
         )
         domain_model = DomainModel(infra=infrastructure)
         web_api = WebApi(domain=domain_model)
