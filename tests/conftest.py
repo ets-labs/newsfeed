@@ -21,6 +21,12 @@ def infrastructure(web_app):
 
 
 @fixture
+def domain_model(web_app):
+    """Return domain model container."""
+    return web_app.domain_model
+
+
+@fixture
 async def web_client(aiohttp_client, web_app):
     """Create test application client."""
     return await aiohttp_client(web_app)

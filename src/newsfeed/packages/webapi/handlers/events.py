@@ -7,7 +7,7 @@ from newsfeed.packages.domain_model.events import EventDispatcherService
 
 async def post_event_handler(request, *,
                              event_dispatcher_service: EventDispatcherService):
-    """Handle events posing requests."""
+    """Handle events posting requests."""
     data = await request.json()
 
     await event_dispatcher_service.dispatch_event(event_data=data)
