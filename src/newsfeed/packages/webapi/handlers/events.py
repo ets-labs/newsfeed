@@ -30,15 +30,6 @@ async def get_events_handler(request, *,
 
     return web.json_response(
         data={
-            'results': [
-                {
-                    'newsfeed_id': newsfeed_id,
-                    'event_data': 'some_data_2',
-                },
-                {
-                    'newsfeed_id': newsfeed_id,
-                    'event_data': 'some_data_1',
-                },
-            ],
+            'results': newsfeed_events,
         },
     )
