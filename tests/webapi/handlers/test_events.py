@@ -25,3 +25,52 @@ async def test_post_events(web_client, infrastructure):
     assert event_data['data'] == {
         'event_data': 'some_data',
     }
+
+
+async def test_get_events(web_client, infrastructure):
+    """Check events posting handler."""
+    newsfeed_id = '123'
+
+    event_storage = infrastructure.event_storage()
+    await event_storage.add(
+        {
+            'newsfeed_id': newsfeed_id,
+            'data': {
+                'event_data': 'some_data_1',
+            },
+        },
+    )
+    await event_storage.add(
+        {
+            'newsfeed_id': newsfeed_id,
+            'data': {
+                'event_data': 'some_data_2',
+            },
+        },
+    )
+
+    response = await web_client.get(
+        '/events/',
+        params={
+            'newsfeed_id': newsfeed_id,
+        },
+    )
+
+    assert response.status == 200
+    data = await response.json()
+    assert data == {
+        'results': [
+            {
+                'newsfeed_id': newsfeed_id,
+                'data': {
+                    'event_data': 'some_data_2',
+                },
+            },
+            {
+                'newsfeed_id': newsfeed_id,
+                'data': {
+                    'event_data': 'some_data_1',
+                },
+            },
+        ],
+    }

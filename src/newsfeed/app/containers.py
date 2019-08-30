@@ -96,6 +96,14 @@ class WebApi(containers.DeclarativeContainer):
         routes=[
             # Events
             webapi.app.route(
+                method='GET',
+                path='/events/',
+                handler=providers.Coroutine(
+                    webapi.handlers.events.get_events_handler,
+                    event_repository=domain.event_repository,
+                ),
+            ),
+            webapi.app.route(
                 method='POST',
                 path='/events/',
                 handler=providers.Coroutine(
