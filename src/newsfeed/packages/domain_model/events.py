@@ -128,6 +128,7 @@ class EventDispatcherService:
         event = self._factory.create_new(**event_data)
         self._specification.is_satisfied_by(event)
         await self._queue.put(event.serialized_data)
+        return event
 
 
 class EventPublisherService:
