@@ -13,12 +13,12 @@ async def post_event_handler(request, *,
     """Handle events posting requests."""
     data = await request.json()
 
-    await event_dispatcher_service.dispatch_event(event_data=data)
+    event = await event_dispatcher_service.dispatch_event(event_data=data)
 
     return web.json_response(
         status=202,
         data={
-            'id': '<new_event_id>',
+            'id': str(event.id),
         },
     )
 

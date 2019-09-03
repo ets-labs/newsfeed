@@ -33,6 +33,11 @@ class Event:
         self._published_at = published_at
 
     @property
+    def id(self):
+        """Return id."""
+        return self._id
+
+    @property
     def serialized_data(self):
         """Return serialized data."""
         return {

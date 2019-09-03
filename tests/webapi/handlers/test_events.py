@@ -1,5 +1,7 @@
 """Miscellaneous handler tests."""
 
+import uuid
+
 
 async def test_post_events(web_client, infrastructure):
     """Check events posting handler."""
@@ -15,9 +17,7 @@ async def test_post_events(web_client, infrastructure):
 
     assert response.status == 202
     data = await response.json()
-    assert data == {
-        'id': '<new_event_id>',
-    }
+    assert uuid.UUID(data['id'])
 
     event_queue = infrastructure.event_queue()
     event_data = await event_queue.get()
