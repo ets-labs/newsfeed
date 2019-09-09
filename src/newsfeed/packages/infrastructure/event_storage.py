@@ -20,7 +20,7 @@ class EventStorage:
 
 
 class AsyncInMemoryEventStorage(EventStorage):
-    """Async event queue that stores events in memory."""
+    """Async event storage that stores events in memory."""
 
     def __init__(self, config):
         """Initialize queue."""

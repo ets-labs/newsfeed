@@ -23,6 +23,7 @@ class Application:
         from dependency_injector import providers
         from newsfeed.packages.infrastructure.event_queues import AsyncInMemoryEventQueue
         from newsfeed.packages.infrastructure.event_storage import AsyncInMemoryEventStorage
+        from newsfeed.packages.infrastructure.subscription_storage import AsyncInMemorySubscriptionStorage  # noqa
 
         infrastructure = Infrastructure(
             event_queue=providers.Singleton(
@@ -32,6 +33,10 @@ class Application:
             event_storage=providers.Singleton(
                 AsyncInMemoryEventStorage,
                 **Infrastructure.event_storage.kwargs,
+            ),
+            subscription_storage=providers.Singleton(
+                AsyncInMemorySubscriptionStorage,
+                **Infrastructure.subscription_storage.kwargs,
             ),
         )
         domain_model = DomainModel(infra=infrastructure)
