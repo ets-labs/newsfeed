@@ -24,6 +24,11 @@ class Subscription:
         self._subscribed_at = subscribed_at
 
     @property
+    def id(self):
+        """Return id."""
+        return self._id
+
+    @property
     def serialized_data(self):
         """Return serialized data."""
         return {
@@ -104,3 +109,4 @@ class SubscriptionService:
         )
         self._specification.is_satisfied_by(subscription)
         await self._repository.add(subscription)
+        return subscription
