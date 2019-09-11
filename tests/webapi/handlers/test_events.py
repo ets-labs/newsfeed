@@ -1,4 +1,4 @@
-"""Miscellaneous handler tests."""
+"""Event handler tests."""
 
 import uuid
 
