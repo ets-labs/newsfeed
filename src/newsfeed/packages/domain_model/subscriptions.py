@@ -29,6 +29,11 @@ class Subscription:
         return self._id
 
     @property
+    def from_newsfeed_id(self):
+        """Return from newsfeed id."""
+        return self._from_newsfeed_id
+
+    @property
     def serialized_data(self):
         """Return serialized data."""
         return {
