@@ -89,7 +89,7 @@ class SubscriptionRepository:
         self._storage = storage
 
     async def add(self, subscription: Subscription):
-        """Add event to repository."""
+        """Add subscription to repository."""
         await self._storage.add(subscription.serialized_data)
 
     async def get_subscriptions_to(self, newsfeed_id: str):
