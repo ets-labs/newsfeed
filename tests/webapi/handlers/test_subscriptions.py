@@ -18,7 +18,7 @@ async def test_post_subscription(web_client, infrastructure):
     assert uuid.UUID(data['id'])
 
     subscription_storage = infrastructure.subscription_storage()
-    subscriptions = await subscription_storage.get(to_newsfeed='123')
+    subscriptions = await subscription_storage.get_to(newsfeed_id='123')
     assert len(subscriptions) == 1
     assert subscriptions[0]['from_newsfeed_id'] == '124'
     assert subscriptions[0]['to_newsfeed_id'] == '123'
