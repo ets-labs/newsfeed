@@ -51,6 +51,10 @@ class Event:
         """Return data."""
         return self._data
 
+    def track_publishing_time(self):
+        """Track event publishing time."""
+        self._published_at = datetime.utcnow()
+
     @property
     def serialized_data(self):
         """Return serialized data."""
@@ -195,5 +199,8 @@ class EventPublisherService:
             )
             for subscription in subscriptions
         ]
+
+        for event in events_for_publishing:
+            event.track_publishing_time()
 
         await self._event_repository.add_batch(events_for_publishing)
