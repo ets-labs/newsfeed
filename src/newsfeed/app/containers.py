@@ -94,6 +94,16 @@ class WebApi(containers.DeclarativeContainer):
     web_app = providers.Factory(
         webapi.app.create_web_app,
         routes=[
+            # Subscriptions
+            webapi.app.route(
+                method='POST',
+                path='/subscriptions/',
+                handler=providers.Coroutine(
+                    webapi.handlers.subscriptions.post_subscription_handler,
+                    subscription_service=domain.subscription_service,
+                ),
+            ),
+
             # Events
             webapi.app.route(
                 method='GET',

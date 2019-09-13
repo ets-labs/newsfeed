@@ -68,7 +68,7 @@ class EventFactory:
         )
 
     def create_from_serialized(self, data) -> Event:
-        """Create new event from serialized data."""
+        """Create event from serialized data."""
         return self._cls(
             id=UUID(data['id']),
             newsfeed_id=data['newsfeed_id'],
