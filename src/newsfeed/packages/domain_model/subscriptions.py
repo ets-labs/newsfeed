@@ -56,6 +56,15 @@ class SubscriptionFactory:
             subscribed_at=datetime.utcnow(),
         )
 
+    def create_from_serialized(self, data) -> Subscription:
+        """Create subscription from serialized data."""
+        return self._cls(
+            id=UUID(data['id']),
+            from_newsfeed_id=data['from_newsfeed_id'],
+            to_newsfeed_id=data['to_newsfeed_id'],
+            subscribed_at=datetime.utcfromtimestamp(data['subscribed_at']),
+        )
+
 
 class SubscriptionSpecification:
     """Subscription specification."""
@@ -82,6 +91,14 @@ class SubscriptionRepository:
     async def add(self, subscription: Subscription):
         """Add event to repository."""
         await self._storage.add(subscription.serialized_data)
+
+    async def get_subscriptions_to(self, newsfeed_id: str):
+        """Return subscriptions to specified newsfeed."""
+        subscriptions_data = await self._storage.get_to(newsfeed_id)
+        return [
+            self._factory.create_from_serialized(subscription_data)
+            for subscription_data in subscriptions_data
+        ]
 
 
 class SubscriptionService:
