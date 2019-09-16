@@ -1,4 +1,4 @@
-"""Sample script for posting events."""
+"""Sample script for posting subscriptions."""
 
 import sys
 import aiohttp
@@ -7,10 +7,10 @@ import asyncio
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        async with session.post('http://127.0.0.1:8000/events/',
+        async with session.post('http://127.0.0.1:8000/subscriptions/',
                                 json={
-                                    'newsfeed_id': sys.argv[1],
-                                    'data': {'payload': sys.argv[2]},
+                                    'from_newsfeed_id': sys.argv[1],
+                                    'to_newsfeed_id': sys.argv[2],
                                 }) \
                 as response:
             print(await response.json())
