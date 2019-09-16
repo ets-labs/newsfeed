@@ -1,4 +1,4 @@
-"""Sample script for publishing to events."""
+"""Sample script for posting events."""
 
 import sys
 import aiohttp
