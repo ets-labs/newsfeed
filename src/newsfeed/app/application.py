@@ -1,45 +1,39 @@
 """Application module."""
 
+import os
+
 from .containers import Infrastructure, DomainModel, WebApi
+
+
+def create_infrastructure_container(config):
+    # TODO: find out better way of configuring containers
+    from dependency_injector import providers
+    from newsfeed.packages.infrastructure.event_queues import AsyncInMemoryEventQueue
+    from newsfeed.packages.infrastructure.event_storage import AsyncInMemoryEventStorage
+    from newsfeed.packages.infrastructure.subscription_storage import \
+        AsyncInMemorySubscriptionStorage  # noqa
+
+    return Infrastructure(
+        event_queue=providers.Singleton(
+            AsyncInMemoryEventQueue,
+            **Infrastructure.event_queue.kwargs,
+        ),
+        event_storage=providers.Singleton(
+            AsyncInMemoryEventStorage,
+            **Infrastructure.event_storage.kwargs,
+        ),
+        subscription_storage=providers.Singleton(
+            AsyncInMemorySubscriptionStorage,
+            **Infrastructure.subscription_storage.kwargs,
+        ),
+    )
 
 
 class Application:
     """Application."""
 
-    def create_web_app(self):
-        """Create web application."""
-        infrastructure, domain_model, web_api = self.create_containers()
+    infrastructure = create_infrastructure_container(os.environ)
 
-        web_app = web_api.web_app()
-        web_app.infrastructure = infrastructure
-        web_app.domain_model = domain_model
-        web_app.web_api = web_api
+    domain_model = DomainModel(infra=infrastructure)
 
-        return web_app
-
-    def create_containers(self):
-        """Create application containers."""
-        # TODO: find out better way of configuring containers
-        from dependency_injector import providers
-        from newsfeed.packages.infrastructure.event_queues import AsyncInMemoryEventQueue
-        from newsfeed.packages.infrastructure.event_storage import AsyncInMemoryEventStorage
-        from newsfeed.packages.infrastructure.subscription_storage import AsyncInMemorySubscriptionStorage  # noqa
-
-        infrastructure = Infrastructure(
-            event_queue=providers.Singleton(
-                AsyncInMemoryEventQueue,
-                **Infrastructure.event_queue.kwargs,
-            ),
-            event_storage=providers.Singleton(
-                AsyncInMemoryEventStorage,
-                **Infrastructure.event_storage.kwargs,
-            ),
-            subscription_storage=providers.Singleton(
-                AsyncInMemorySubscriptionStorage,
-                **Infrastructure.subscription_storage.kwargs,
-            ),
-        )
-        domain_model = DomainModel(infra=infrastructure)
-        web_api = WebApi(domain=domain_model)
-
-        return infrastructure, domain_model, web_api
+    web_api = WebApi(domain=domain_model)
