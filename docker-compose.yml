@@ -8,3 +8,10 @@ services:
       - '8000:8000'
     volumes:
       - './:/code'
+
+  swagger:
+    image: nginx
+    ports:
+      - '8001:80'
+    volumes:
+      - ./swagger:/usr/share/nginx/html
