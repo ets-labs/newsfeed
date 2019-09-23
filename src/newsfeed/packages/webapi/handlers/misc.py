@@ -138,6 +138,119 @@ OPENAPI_SCHEMA = {
             },
         },
 
+        '/newsfeed/{newsfeed_id}/subscriptions/': {
+            'get': {
+                'summary': 'Return newsfeed subscriptions',
+                'operationId': 'get_newsfeed_subscriptions',
+                'tags': [
+                    'Subscriptions',
+                ],
+                'parameters': [
+                    {
+                        'in': 'path',
+                        'name': 'newsfeed_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                        },
+                    },
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'List of newsfeed subscriptions',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    '$ref': '#/components/schemas/NewsfeedSubscriptionsList',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            'post': {
+                'summary': 'Post newsfeed subscription',
+                'operationId': 'post_newsfeed_subscription',
+                'tags': [
+                    'Subscriptions',
+                ],
+                'parameters': [
+                    {
+                        'in': 'path',
+                        'name': 'newsfeed_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                        },
+                    },
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {
+                                'properties': {
+                                    'from_newsfeed_id': {
+                                        'type': 'string',
+                                        'example': '124',
+                                    },
+                                    'to_newsfeed_id': {
+                                        'type': 'string',
+                                        'example': '123',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                'responses': {
+                    '201': {
+                        'description': 'Subscription has been successfully created',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    '$ref': '#/components/schemas/NewsfeedSubscription',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        '/newsfeed/{newsfeed_id}/subscriptions/{subscription_id}/': {
+            'delete': {
+                'summary': 'Delete newsfeed subscription',
+                'operationId': 'delete_newsfeed_subscription',
+                'tags': [
+                    'Subscriptions',
+                ],
+                'parameters': [
+                    {
+                        'in': 'path',
+                        'name': 'newsfeed_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                        },
+                    },
+                    {
+                        'in': 'path',
+                        'name': 'subscription_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                            'format': 'uuid',
+                        },
+                    },
+                ],
+                'responses': {
+                    '204': {
+                        'description': 'Newsfeed subscription has been successfully deleted',
+                    },
+                },
+            },
+        },
+
         # '/sign-offs/{signoff_id}/': {
         #     'get': {
         #         'summary': 'Return specified sign-off details',
@@ -292,6 +405,24 @@ OPENAPI_SCHEMA = {
                         'type': 'array',
                         'items': {
                             '$ref': '#/components/schemas/NewsfeedEvent',
+                        },
+                    },
+                },
+            },
+            'NewsfeedSubscription': {
+                'properties': {
+                    'id': {
+                        'type': 'string',
+                        'format': 'uuid',
+                    },
+                },
+            },
+            'NewsfeedSubscriptionsList': {
+                'properties': {
+                    'results': {
+                        'type': 'array',
+                        'items': {
+                            '$ref': '#/components/schemas/NewsfeedSubscription',
                         },
                     },
                 },
