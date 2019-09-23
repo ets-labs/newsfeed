@@ -130,5 +130,12 @@ class WebApi(containers.DeclarativeContainer):
                     webapi.handlers.misc.get_status_handler,
                 ),
             ),
+            webapi.app.route(
+                method='GET',
+                path='/docs/',
+                handler=providers.Coroutine(
+                    webapi.handlers.misc.get_openapi_schema_handler,
+                ),
+            ),
         ],
     )

@@ -4,7 +4,13 @@ services:
 
   newsfeed:
     build: ./
-    ports:
-      - '8000:8000'
     volumes:
       - './:/code'
+
+  nginx:
+    image: nginx
+    ports:
+      - '8000:80'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./swagger:/usr/share/nginx/html/swagger/
