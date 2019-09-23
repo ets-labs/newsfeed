@@ -38,7 +38,7 @@ OPENAPI_SCHEMA = {
                         'name': 'newsfeed_id',
                         'required': True,
                         'schema': {
-                            'type': 'integer',
+                            'type': 'string',
                         },
                     },
                 ],
@@ -49,6 +49,54 @@ OPENAPI_SCHEMA = {
                             'application/json': {
                                 'schema': {
                                     '$ref': '#/components/schemas/NewsfeedEventsList',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            'post': {
+                'summary': 'Post newsfeed event',
+                'operationId': 'post_newsfeed_event',
+                'tags': [
+                    'Events',
+                ],
+                'parameters': [
+                    {
+                        'in': 'path',
+                        'name': 'newsfeed_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                        },
+                    },
+                ],
+                'requestBody': {
+                    'required': True,
+                    'content': {
+                        'application/json': {
+                            'schema': {
+                                'properties': {
+                                    'data': {
+                                        'type': 'object',
+                                        'example': {
+                                            'field_1': 'some_data',
+                                            'field_2': 'other_data',
+                                            'field_etc': 'etc_data',
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                'responses': {
+                    '202': {
+                        'description': 'Event has been successfully posted',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    '$ref': '#/components/schemas/NewsfeedEvent',
                                 },
                             },
                         },
