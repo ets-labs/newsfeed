@@ -104,6 +104,39 @@ OPENAPI_SCHEMA = {
                 },
             },
         },
+        '/newsfeed/{newsfeed_id}/events/{event_id}/': {
+            'delete': {
+                'summary': 'Delete newsfeed event',
+                'operationId': 'delete_newsfeed_event',
+                'tags': [
+                    'Events',
+                ],
+                'parameters': [
+                    {
+                        'in': 'path',
+                        'name': 'newsfeed_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                        },
+                    },
+                    {
+                        'in': 'path',
+                        'name': 'event_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                            'format': 'uuid',
+                        },
+                    },
+                ],
+                'responses': {
+                    '204': {
+                        'description': 'Newsfeed event has been successfully deleted',
+                    },
+                },
+            },
+        },
 
         # '/sign-offs/{signoff_id}/': {
         #     'get': {
