@@ -22,3 +22,9 @@ The key features of the *NewsFeed* microservice are:
 + High performance.
 + Open sourced.
 + Documented.
+
+Domain Model
+------------
+
+.. image:: ./docs/images/domain_model.svg
+    :align: center
