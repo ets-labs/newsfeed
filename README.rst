@@ -43,3 +43,9 @@ Domain Model
 + **Event Publishing History** - is a supportive entity that stores information about *Event*
   publishing. *Event Publishing History* is aware about all *NewsFeeds* where original *Event*
   is published during the event publishing process.
+
+Service Architecture
+--------------------
+
+.. image:: ./docs/images/service_architecture.svg
+    :align: center
