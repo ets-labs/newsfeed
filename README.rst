@@ -12,7 +12,7 @@ your infrastructure in minutes and then integrated to you application in a coupl
 
 .. image:: ./docs/images/solution_architecture.png
     :align: center
-    :height: 300px
+    :height: 100px
 
 The key features of the *NewsFeed* microservice are:
 
