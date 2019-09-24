@@ -22,3 +22,24 @@ The key features of the *NewsFeed* microservice are:
 + High performance.
 + Open sourced.
 + Documented.
+
+Domain Model
+------------
+
+.. image:: ./docs/images/domain_model.svg
+    :align: center
+
++ **NewsFeed** - is a main and central entity of the model. It does not own any particular data,
+  but owns the ID. NewsFeed is the "virtual" root aggregate of the model. It's state is mainly
+  defined by *events* and *subscriptions* relations.
++ **Subscription** - is an entity that represents fact of subscribing of one NewsFeed to another.
+  When a *NewsFeed A* has a subscription to a *NewsFeed B*, then *NewsFeed A* is called
+  **subscriber** of a *NewsFeed B*. All events that are published to *NewsFeed B* will be visible
+  in *NewsFeed A* since *NewsFeed A* is a *subscriber* of *NewsFeed B*.
++ **Event** - is an entity that represents information that is published to a NewsFeed. When
+  *Event A* is published to *NewsFeed A*, *Event A* data is published to all *NewsFeed A*
+  *subscribers* as new *Events* that would be pointing to original *Event A* through its *parent*
+  relation.
++ **Event Publishing History** - is a supportive entity that stores information about *Event*
+  publishing. *Event Publishing History* is aware about all *NewsFeeds* where original *Event*
+  is published during the event publishing process.
