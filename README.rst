@@ -11,8 +11,7 @@ cost money and take time, while *NewsFeed* is a ready-to-go microservice that co
 your infrastructure in minutes and then integrated to you application in a couple of hours.
 
 .. image:: ./docs/images/solution_architecture.png
-    :align: center
-    :height: 100px
+   :height: 100px
 
 The key features of the *NewsFeed* microservice are:
 
