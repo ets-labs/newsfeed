@@ -26,7 +26,7 @@ The key features of the *NewsFeed* microservice are:
 Domain Model
 ------------
 
-.. figure:: ./docs/images/domain_model.svg
+.. image:: ./docs/images/domain_model.svg
     :align: center
 
-    This describes domain model...
+This describes domain model...
