@@ -10,7 +10,7 @@ buffering, background processing and data denormalization approaches. Such imple
 cost money and take time, while *NewsFeed* is a ready-to-go microservice that could be deployed on
 your infrastructure in minutes and then integrated to you application in a couple of hours.
 
-.. image:: ./docs/images/solution_architecture.png
+.. image:: ./docs/images/solution_architecture.svg
     :align: center
 
 The key features of the *NewsFeed* microservice are:
