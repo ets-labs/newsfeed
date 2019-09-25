@@ -123,11 +123,11 @@ class SubscriptionService:
         assert isinstance(repository, SubscriptionRepository)
         self._repository = repository
 
-    async def create_subscription(self, subscription_data) -> Subscription:
+    async def create_subscription(self, newsfeed_id, data) -> Subscription:
         """Create subscription."""
         subscription = self._factory.create_new(
-            from_newsfeed_id=subscription_data['from_newsfeed_id'],
-            to_newsfeed_id=subscription_data['to_newsfeed_id'],
+            from_newsfeed_id=newsfeed_id,
+            to_newsfeed_id=data['to_newsfeed_id'],
         )
         self._specification.is_satisfied_by(subscription)
         await self._repository.add(subscription)

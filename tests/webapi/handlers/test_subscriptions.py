@@ -5,10 +5,11 @@ import uuid
 
 async def test_post_subscription(web_client, infrastructure):
     """Check subscriptions posting handler."""
+    newsfeed_id = '124'
+
     response = await web_client.post(
-        '/subscriptions/',
+        f'/newsfeed/{newsfeed_id}/subscriptions/',
         json={
-            'from_newsfeed_id': '124',
             'to_newsfeed_id': '123',
         },
     )

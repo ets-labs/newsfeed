@@ -97,7 +97,7 @@ class WebApi(containers.DeclarativeContainer):
             # Subscriptions
             webapi.app.route(
                 method='POST',
-                path='/subscriptions/',
+                path='/newsfeed/{newsfeed_id}/subscriptions/',
                 handler=providers.Coroutine(
                     webapi.handlers.subscriptions.post_subscription_handler,
                     subscription_service=domain.subscription_service,
