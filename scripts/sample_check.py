@@ -17,9 +17,8 @@ async def publish_event(session, newsfeed_id, event_data):
 
 async def subscribe(session, from_newsfeed_id, to_newsfeed_id):
     """Publish event to newsfeed."""
-    async with session.post('http://127.0.0.1:8000/subscriptions/',
+    async with session.post(f'http://127.0.0.1:8000/newsfeed/{from_newsfeed_id}/subscriptions/',
                             json={
-                                'from_newsfeed_id': from_newsfeed_id,
                                 'to_newsfeed_id': to_newsfeed_id,
                             }) \
             as response:

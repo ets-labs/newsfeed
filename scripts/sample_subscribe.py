@@ -7,9 +7,9 @@ import asyncio
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        async with session.post('http://127.0.0.1:8000/subscriptions/',
+        newsfeed_id = sys.argv[1]
+        async with session.post(f'http://127.0.0.1:8000/newsfeed/{newsfeed_id}/subscriptions/',
                                 json={
-                                    'from_newsfeed_id': sys.argv[1],
                                     'to_newsfeed_id': sys.argv[2],
                                 }) \
                 as response:

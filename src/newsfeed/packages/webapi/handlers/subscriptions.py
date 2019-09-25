@@ -10,7 +10,10 @@ async def post_subscription_handler(request, *,
     """Handle events posting requests."""
     data = await request.json()
 
-    subscription = await subscription_service.create_subscription(subscription_data=data)
+    subscription = await subscription_service.create_subscription(
+        newsfeed_id=request.match_info['newsfeed_id'],
+        to_newsfeed_id=data['to_newsfeed_id'],
+    )
 
     return web.json_response(
         status=200,
