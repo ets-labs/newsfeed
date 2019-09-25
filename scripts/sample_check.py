@@ -1,4 +1,4 @@
-"""Sample script for testing posting of subscriptions and events."""
+"""Sample script for checking posting of subscriptions and events."""
 
 import aiohttp
 import asyncio
