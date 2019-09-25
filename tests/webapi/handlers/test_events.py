@@ -5,10 +5,11 @@ import uuid
 
 async def test_post_events(web_client, infrastructure):
     """Check events posting handler."""
+    newsfeed_id = '123'
+
     response = await web_client.post(
-        '/events/',
+        f'/newsfeed/{newsfeed_id}/events/',
         json={
-            'newsfeed_id': '123',
             'data': {
                 'event_data': 'some_data',
             },
