@@ -11,13 +11,12 @@ from newsfeed.packages.domain_model.events import (
 async def post_event_handler(request, *,
                              event_dispatcher_service: EventDispatcherService):
     """Handle events posting requests."""
-    newsfeed_id = request.match_info['newsfeed_id']
-    data = await request.json()
+    event_data = await request.json()
 
-    # TODO: fix that
-    data['newsfeed_id'] = newsfeed_id
-
-    event = await event_dispatcher_service.dispatch_event(event_data=data)
+    event = await event_dispatcher_service.dispatch_event(
+        newsfeed_id=request.match_info['newsfeed_id'],
+        data=event_data['data'],
+    )
 
     return web.json_response(
         status=202,
