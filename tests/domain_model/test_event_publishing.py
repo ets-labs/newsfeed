@@ -43,9 +43,7 @@ async def test_event_publishing_to_subscriber(domain_model):
     subscription_service = domain_model.subscription_service()
     await subscription_service.create_subscription(
         newsfeed_id=subscriber_newsfeed_id,
-        data={
-            'to_newsfeed_id': newsfeed_id,
-        },
+        to_newsfeed_id=newsfeed_id,
     )
 
     event_dispatcher_service = domain_model.event_dispatcher_service()
