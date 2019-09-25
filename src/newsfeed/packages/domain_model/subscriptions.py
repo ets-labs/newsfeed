@@ -1,6 +1,6 @@
 """Subscriptions module."""
 
-from typing import Type
+from typing import Type, Sequence
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -32,6 +32,16 @@ class Subscription:
     def from_newsfeed_id(self):
         """Return from newsfeed id."""
         return self._from_newsfeed_id
+
+    @property
+    def to_newsfeed_id(self):
+        """Return to newsfeed id."""
+        return self._to_newsfeed_id
+
+    @property
+    def subscribed_at(self):
+        """Return subscribed at."""
+        return self._subscribed_at
 
     @property
     def serialized_data(self):
@@ -97,6 +107,14 @@ class SubscriptionRepository:
         """Add subscription to repository."""
         await self._storage.add(subscription.serialized_data)
 
+    async def get_subscriptions(self, newsfeed_id: str):
+        """Return subscriptions to specified newsfeed."""
+        subscriptions_data = await self._storage.get_from(newsfeed_id)
+        return [
+            self._factory.create_from_serialized(subscription_data)
+            for subscription_data in subscriptions_data
+        ]
+
     async def get_subscriptions_to(self, newsfeed_id: str):
         """Return subscriptions to specified newsfeed."""
         subscriptions_data = await self._storage.get_to(newsfeed_id)
@@ -132,3 +150,7 @@ class SubscriptionService:
         self._specification.is_satisfied_by(subscription)
         await self._repository.add(subscription)
         return subscription
+
+    async def get_newsfeed_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
+        """Return list of newsfeed subscriptions."""
+        return await self._repository.get_subscriptions(newsfeed_id)
