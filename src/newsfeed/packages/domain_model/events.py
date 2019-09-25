@@ -154,9 +154,12 @@ class EventDispatcherService:
         assert isinstance(queue, EventQueue)
         self._queue = queue
 
-    async def dispatch_event(self, event_data: dict):
+    async def dispatch_event(self, newsfeed_id: str, data: dict):
         """Dispatch event."""
-        event = self._factory.create_new(**event_data)
+        event = self._factory.create_new(
+            newsfeed_id=newsfeed_id,
+            data=data,
+        )
         self._specification.is_satisfied_by(event)
         await self._queue.put(event.serialized_data)
         return event

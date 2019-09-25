@@ -6,7 +6,7 @@ import asyncio
 
 async def publish_event(session, newsfeed_id, event_data):
     """Publish event to newsfeed."""
-    async with session.post('http://127.0.0.1:8000/events/',
+    async with session.post(f'http://127.0.0.1:8000/newsfeed/{newsfeed_id}/events/',
                             json={
                                 'newsfeed_id': newsfeed_id,
                                 'data': event_data,

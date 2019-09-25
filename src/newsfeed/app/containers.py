@@ -115,7 +115,7 @@ class WebApi(containers.DeclarativeContainer):
             ),
             webapi.app.route(
                 method='POST',
-                path='/events/',
+                path='/newsfeed/{newsfeed_id}/events/',
                 handler=providers.Coroutine(
                     webapi.handlers.events.post_event_handler,
                     event_dispatcher_service=domain.event_dispatcher_service,

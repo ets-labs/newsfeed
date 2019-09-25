@@ -88,9 +88,7 @@ async def test_event_publishing_to_subscriber(domain_model):
 
 async def _process_event(event_dispatcher_service, event_publisher_service, newsfeed_id, data):
     await event_dispatcher_service.dispatch_event(
-        event_data={
-            'newsfeed_id': newsfeed_id,
-            'data': data,
-        },
+        newsfeed_id=newsfeed_id,
+        data=data,
     )
     await event_publisher_service.process_event()
