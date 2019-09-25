@@ -107,7 +107,7 @@ class WebApi(containers.DeclarativeContainer):
             # Events
             webapi.app.route(
                 method='GET',
-                path='/events/',
+                path='/newsfeed/{newsfeed_id}/events/',
                 handler=providers.Coroutine(
                     webapi.handlers.events.get_events_handler,
                     event_repository=domain.event_repository,

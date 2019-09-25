@@ -49,12 +49,7 @@ async def test_get_events(web_client, infrastructure):
         },
     )
 
-    response = await web_client.get(
-        '/events/',
-        params={
-            'newsfeed_id': newsfeed_id,
-        },
-    )
+    response = await web_client.get(f'/newsfeed/{newsfeed_id}/events/')
 
     assert response.status == 200
     data = await response.json()
