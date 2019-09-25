@@ -26,7 +26,7 @@ async def post_event_handler(request, *,
 async def get_events_handler(request, *,
                              event_repository: EventRepository):
     """Handle events getting requests."""
-    newsfeed_id = request.query['newsfeed_id']
+    newsfeed_id = request.match_info['newsfeed_id']
 
     newsfeed_events = await event_repository.get_newsfeed(newsfeed_id)
 
