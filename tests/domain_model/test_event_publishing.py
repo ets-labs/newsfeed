@@ -1,7 +1,5 @@
 """Event publishing tests."""
 
-from pytest import fixture
-
 
 async def test_event_publishing(domain_model):
     """Check event publishing."""
