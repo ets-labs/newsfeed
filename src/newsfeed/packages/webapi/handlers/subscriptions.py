@@ -7,7 +7,7 @@ from newsfeed.packages.domain_model.subscriptions import SubscriptionService, Su
 
 async def post_subscription_handler(request, *,
                                     subscription_service: SubscriptionService):
-    """Handle events posting requests."""
+    """Handle subscriptions posting requests."""
     data = await request.json()
 
     subscription = await subscription_service.create_subscription(
