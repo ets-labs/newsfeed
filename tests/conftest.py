@@ -6,24 +6,15 @@ from newsfeed.app import application
 
 
 @fixture
-def web_app():
+def app():
+    """Create test application."""
+    return application.Application()
+
+
+@fixture
+def web_app(app):
     """Create test web application."""
-    app = application.Application()
-    web_app = app.create_web_app()
-
-    return web_app
-
-
-@fixture
-def infrastructure(web_app):
-    """Return infrastructure container."""
-    return web_app.infrastructure
-
-
-@fixture
-def domain_model(web_app):
-    """Return domain model container."""
-    return web_app.domain_model
+    return app.web_api.web_app()
 
 
 @fixture
