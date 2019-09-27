@@ -78,4 +78,7 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
         newsfeed_subscriptions_storage.remove(subscription_data)
 
         for newsfeed_subscribers_storage in self._subscribers_storage.values():
-            newsfeed_subscribers_storage.remove(subscription_data)
+            try:
+                newsfeed_subscribers_storage.remove(subscription_data)
+            except ValueError:
+                pass
