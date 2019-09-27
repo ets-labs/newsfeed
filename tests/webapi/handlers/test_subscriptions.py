@@ -61,7 +61,6 @@ async def test_get_subscriptions(web_client, infrastructure):
     assert response.status == 200
     data = await response.json()
     subscription_1, subscription_2 = data['results']
-    print(data['results'])
 
     assert uuid.UUID(subscription_1['id'])
     assert subscription_1['from_newsfeed_id'] == newsfeed_id
