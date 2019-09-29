@@ -64,12 +64,11 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         for subscription_data in newsfeed_subscriptions_storage:
             if subscription_data['id'] == subscription_id:
-                break
+                return subscription_data
         else:
             raise RuntimeError(
                 f'Newsfeed "{newsfeed_id}" subscription "{subscription_id}" could not be found',
             )
-        return subscription_data
 
     async def delete(self, subscription_data: Mapping):
         """Delete subscription."""
