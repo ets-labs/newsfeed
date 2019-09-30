@@ -1,6 +1,7 @@
 """Infrastructure subscription storage module."""
 
 from collections import defaultdict, deque
+from typing import Mapping
 
 
 class SubscriptionStorage:
@@ -10,16 +11,24 @@ class SubscriptionStorage:
         """Initialize storage."""
         self._config = config
 
-    async def add(self, subscription_data):
+    async def add(self, subscription_data: Mapping):
         """Add subscription data to the storage."""
         raise NotImplementedError()
 
-    async def get_from(self, newsfeed_id):
+    async def get_from(self, newsfeed_id: str):
         """Return subscriptions of specified newsfeed."""
         raise NotImplementedError()
 
-    async def get_to(self, newsfeed_id):
+    async def get_to(self, newsfeed_id: str):
         """Return subscriptions to specified newsfeed."""
+        raise NotImplementedError()
+
+    async def get(self, newsfeed_id: str, subscription_id: str):
+        """Return subscription of specified newsfeed."""
+        raise NotImplementedError()
+
+    async def delete(self, subscription_data: Mapping):
+        """Delete subscription."""
         raise NotImplementedError()
 
 
@@ -32,7 +41,7 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
         self._subscriptions_storage = defaultdict(deque)
         self._subscribers_storage = defaultdict(deque)
 
-    async def add(self, subscription_data):
+    async def add(self, subscription_data: Mapping):
         """Add subscription data to the storage."""
         from_newsfeed_id = subscription_data['from_newsfeed_id']
         to_newsfeed_id = subscription_data['to_newsfeed_id']
@@ -40,12 +49,35 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
         self._subscriptions_storage[from_newsfeed_id].appendleft(subscription_data)
         self._subscribers_storage[to_newsfeed_id].appendleft(subscription_data)
 
-    async def get_from(self, newsfeed_id):
+    async def get_from(self, newsfeed_id: str):
         """Return subscriptions of specified newsfeed."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         return list(newsfeed_subscriptions_storage)
 
-    async def get_to(self, newsfeed_id):
+    async def get_to(self, newsfeed_id: str):
         """Return subscriptions to specified newsfeed."""
         newsfeed_subscribers_storage = self._subscribers_storage[newsfeed_id]
         return list(newsfeed_subscribers_storage)
+
+    async def get(self, newsfeed_id: str, subscription_id: str):
+        """Return subscription of specified newsfeed."""
+        newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
+        for subscription_data in newsfeed_subscriptions_storage:
+            if subscription_data['id'] == subscription_id:
+                return subscription_data
+        else:
+            raise RuntimeError(
+                f'Newsfeed "{newsfeed_id}" subscription "{subscription_id}" could not be found',
+            )
+
+    async def delete(self, subscription_data: Mapping):
+        """Delete subscription."""
+        newsfeed_id = subscription_data['from_newsfeed_id']
+        newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
+        newsfeed_subscriptions_storage.remove(subscription_data)
+
+        for newsfeed_subscribers_storage in self._subscribers_storage.values():
+            try:
+                newsfeed_subscribers_storage.remove(subscription_data)
+            except ValueError:
+                pass

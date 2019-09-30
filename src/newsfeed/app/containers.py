@@ -111,6 +111,14 @@ class WebApi(containers.DeclarativeContainer):
                     subscription_service=domain.subscription_service,
                 ),
             ),
+            webapi.app.route(
+                method='DELETE',
+                path='/newsfeed/{newsfeed_id}/subscriptions/{subscription_id}/',
+                handler=providers.Coroutine(
+                    webapi.handlers.subscriptions.delete_subscription_handler,
+                    subscription_service=domain.subscription_service,
+                ),
+            ),
 
             # Events
             webapi.app.route(

@@ -123,6 +123,15 @@ class SubscriptionRepository:
             for subscription_data in subscriptions_data
         ]
 
+    async def get_subscription(self, newsfeed_id: str, subscription_id: UUID) -> Subscription:
+        """Return newsfeed subscription."""
+        subscription_data = await self._storage.get(newsfeed_id, str(subscription_id))
+        return self._factory.create_from_serialized(subscription_data)
+
+    async def delete_subscription(self, subscription: Subscription):
+        """Delete subscription."""
+        await self._storage.delete(subscription.serialized_data)
+
 
 class SubscriptionService:
     """Subscription service."""
@@ -154,3 +163,8 @@ class SubscriptionService:
     async def get_newsfeed_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
         """Return list of newsfeed subscriptions."""
         return await self._repository.get_subscriptions(newsfeed_id)
+
+    async def delete_newsfeed_subscription(self, newsfeed_id: str, subscription_id: str):
+        """Delete newsfeed subscription."""
+        subscription = await self._repository.get_subscription(newsfeed_id, UUID(subscription_id))
+        await self._repository.delete_subscription(subscription)
