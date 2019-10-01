@@ -73,7 +73,7 @@ async def test_get_subscriptions(web_client, app):
     assert int(subscription_2['subscribed_at'])
 
 
-async def test_delete_subscriptions(web_client, infrastructure):
+async def test_delete_subscriptions(web_client, app):
     """Check subscriptions deleting handler."""
     newsfeed_id = '123'
 
@@ -81,7 +81,7 @@ async def test_delete_subscriptions(web_client, infrastructure):
     subscription_id_2 = uuid.uuid4()
     subscription_id_3 = uuid.uuid4()
 
-    subscription_storage = infrastructure.subscription_storage()
+    subscription_storage = app.infrastructure.subscription_storage()
     await subscription_storage.add(
         {
             'id': str(subscription_id_1),
