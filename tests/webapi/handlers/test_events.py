@@ -3,7 +3,7 @@
 import uuid
 
 
-async def test_post_events(web_client, infrastructure):
+async def test_post_events(web_client, app):
     """Check events posting handler."""
     newsfeed_id = '123'
 
@@ -20,7 +20,7 @@ async def test_post_events(web_client, infrastructure):
     data = await response.json()
     assert uuid.UUID(data['id'])
 
-    event_queue = infrastructure.event_queue()
+    event_queue = app.infrastructure.event_queue()
     event_data = await event_queue.get()
     assert event_data['newsfeed_id'] == '123'
     assert event_data['data'] == {
@@ -28,11 +28,11 @@ async def test_post_events(web_client, infrastructure):
     }
 
 
-async def test_get_events(web_client, infrastructure):
+async def test_get_events(web_client, app):
     """Check events posting handler."""
     newsfeed_id = '123'
 
-    event_storage = infrastructure.event_storage()
+    event_storage = app.infrastructure.event_storage()
     await event_storage.add(
         {
             'newsfeed_id': newsfeed_id,

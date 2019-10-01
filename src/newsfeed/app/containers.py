@@ -11,17 +11,17 @@ class Infrastructure(containers.DeclarativeContainer):
     config = providers.Configuration('infrastructure')
 
     event_queue = providers.Singleton(
-        infrastructure.event_queues.EventQueue,
+        infrastructure.event_queues.AsyncInMemoryEventQueue,
         config=config.event_queue,
     )
 
     event_storage = providers.Singleton(
-        infrastructure.event_storage.EventStorage,
+        infrastructure.event_storage.AsyncInMemoryEventStorage,
         config=config.event_storage,
     )
 
     subscription_storage = providers.Singleton(
-        infrastructure.subscription_storage.SubscriptionStorage,
+        infrastructure.subscription_storage.AsyncInMemorySubscriptionStorage,
         config=config.subscription_storage,
     )
 

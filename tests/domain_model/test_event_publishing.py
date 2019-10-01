@@ -1,12 +1,12 @@
 """Event publishing tests."""
 
 
-async def test_event_publishing(domain_model):
+async def test_event_publishing(app):
     """Check event publishing."""
     newsfeed_id = '123'
 
-    event_dispatcher_service = domain_model.event_dispatcher_service()
-    event_publisher_service = domain_model.event_publisher_service()
+    event_dispatcher_service = app.domain_model.event_dispatcher_service()
+    event_publisher_service = app.domain_model.event_publisher_service()
 
     await _process_event(
         event_dispatcher_service,
@@ -25,7 +25,7 @@ async def test_event_publishing(domain_model):
         },
     )
 
-    event_repository = domain_model.event_repository()
+    event_repository = app.domain_model.event_repository()
     events = await event_repository.get_newsfeed(newsfeed_id)
     assert events[0]['data'] == {
         'event_data': 'some_data_2',
@@ -35,19 +35,19 @@ async def test_event_publishing(domain_model):
     }
 
 
-async def test_event_publishing_to_subscriber(domain_model):
+async def test_event_publishing_to_subscriber(app):
     """Check event publishing."""
     newsfeed_id = '123'
     subscriber_newsfeed_id = '124'
 
-    subscription_service = domain_model.subscription_service()
+    subscription_service = app.domain_model.subscription_service()
     await subscription_service.create_subscription(
         newsfeed_id=subscriber_newsfeed_id,
         to_newsfeed_id=newsfeed_id,
     )
 
-    event_dispatcher_service = domain_model.event_dispatcher_service()
-    event_publisher_service = domain_model.event_publisher_service()
+    event_dispatcher_service = app.domain_model.event_dispatcher_service()
+    event_publisher_service = app.domain_model.event_publisher_service()
 
     await _process_event(
         event_dispatcher_service,
@@ -66,7 +66,7 @@ async def test_event_publishing_to_subscriber(domain_model):
         },
     )
 
-    event_repository = domain_model.event_repository()
+    event_repository = app.domain_model.event_repository()
     events = await event_repository.get_newsfeed(newsfeed_id)
     assert events[0]['data'] == {
         'event_data': 'some_data_2',

@@ -4,7 +4,7 @@ import uuid
 import datetime
 
 
-async def test_post_subscriptions(web_client, infrastructure):
+async def test_post_subscriptions(web_client, app):
     """Check subscriptions posting handler."""
     newsfeed_id = '124'
 
@@ -19,18 +19,18 @@ async def test_post_subscriptions(web_client, infrastructure):
     data = await response.json()
     assert uuid.UUID(data['id'])
 
-    subscription_storage = infrastructure.subscription_storage()
+    subscription_storage = app.infrastructure.subscription_storage()
     subscriptions = await subscription_storage.get_to(newsfeed_id='123')
     assert len(subscriptions) == 1
     assert subscriptions[0]['from_newsfeed_id'] == '124'
     assert subscriptions[0]['to_newsfeed_id'] == '123'
 
 
-async def test_get_subscriptions(web_client, infrastructure):
+async def test_get_subscriptions(web_client, app):
     """Check subscriptions getting handler."""
     newsfeed_id = '123'
 
-    subscription_storage = infrastructure.subscription_storage()
+    subscription_storage = app.infrastructure.subscription_storage()
     await subscription_storage.add(
         {
             'id': str(uuid.uuid4()),
