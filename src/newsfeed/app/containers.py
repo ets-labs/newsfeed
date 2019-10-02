@@ -34,22 +34,22 @@ class DomainModel(containers.DeclarativeContainer):
     # Subscription
 
     subscription_factory = providers.Factory(
-        domain_model.subscriptions.SubscriptionFactory,
-        cls=domain_model.subscriptions.Subscription,
+        domain_model.subscription.SubscriptionFactory,
+        cls=domain_model.subscription.Subscription,
     )
 
     subscription_specification = providers.Singleton(
-        domain_model.subscriptions.SubscriptionSpecification,
+        domain_model.subscription.SubscriptionSpecification,
     )
 
     subscription_repository = providers.Singleton(
-        domain_model.subscriptions.SubscriptionRepository,
+        domain_model.subscription.SubscriptionRepository,
         factory=subscription_factory,
         storage=infra.subscription_storage,
     )
 
     subscription_service = providers.Singleton(
-        domain_model.subscriptions.SubscriptionService,
+        domain_model.subscription.SubscriptionService,
         factory=subscription_factory,
         specification=subscription_specification,
         repository=subscription_repository,

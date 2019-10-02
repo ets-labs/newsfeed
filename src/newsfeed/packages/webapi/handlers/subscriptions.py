@@ -2,7 +2,7 @@
 
 from aiohttp import web
 
-from newsfeed.packages.domain_model.subscriptions import SubscriptionService, Subscription
+from newsfeed.packages.domain_model.subscription import SubscriptionService, Subscription
 
 
 async def post_subscription_handler(request, *,

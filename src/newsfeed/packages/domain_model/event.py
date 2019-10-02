@@ -7,7 +7,7 @@ from datetime import datetime
 from newsfeed.packages.infrastructure.event_storage import EventStorage
 from newsfeed.packages.infrastructure.event_queues import EventQueue
 
-from .subscriptions import SubscriptionRepository
+from .subscription import SubscriptionRepository
 
 
 class Event:
