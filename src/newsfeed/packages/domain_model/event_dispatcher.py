@@ -10,34 +10,34 @@ class EventDispatcherService:
     """Event dispatcher service."""
 
     def __init__(self,
-                 factory: EventFactory,
-                 specification: EventSpecification,
-                 queue: EventQueue,
+                 event_factory: EventFactory,
+                 event_specification: EventSpecification,
+                 event_queue: EventQueue,
                  event_history_factory: EventHistoryFactory):
         """Initialize service."""
-        assert isinstance(factory, EventFactory)
-        self._factory = factory
+        assert isinstance(event_factory, EventFactory)
+        self._event_factory = event_factory
 
-        assert isinstance(specification, EventSpecification)
-        self._specification = specification
+        assert isinstance(event_specification, EventSpecification)
+        self._event_specification = event_specification
 
-        assert isinstance(queue, EventQueue)
-        self._queue = queue
+        assert isinstance(event_queue, EventQueue)
+        self._event_queue = event_queue
 
         assert isinstance(event_history_factory, EventHistoryFactory)
         self._event_history_factory = event_history_factory
 
     async def dispatch_event(self, newsfeed_id: str, data: dict):
         """Dispatch event."""
-        event = self._factory.create_new(
+        event = self._event_factory.create_new(
             newsfeed_id=newsfeed_id,
             data=data,
         )
-        self._specification.is_satisfied_by(event)
+        self._event_specification.is_satisfied_by(event)
 
         _ = self._event_history_factory.create_new()
 
-        await self._queue.put(event.serialized_data)
+        await self._event_queue.put(event.serialized_data)
 
         return event
 

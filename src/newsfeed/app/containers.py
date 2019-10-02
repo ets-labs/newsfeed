@@ -77,9 +77,9 @@ class DomainModel(containers.DeclarativeContainer):
 
     event_dispatcher_service = providers.Singleton(
         domain_model.event_dispatcher.EventDispatcherService,
-        factory=event_factory,
-        specification=event_specification,
-        queue=infra.event_queue,
+        event_factory=event_factory,
+        event_specification=event_specification,
+        event_queue=infra.event_queue,
         event_history_factory=event_history_factory,
     )
 
