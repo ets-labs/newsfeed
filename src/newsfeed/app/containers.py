@@ -70,11 +70,17 @@ class DomainModel(containers.DeclarativeContainer):
         storage=infra.event_storage,
     )
 
+    event_history_factory = providers.Factory(
+        domain_model.event_history.EventHistoryFactory,
+        cls=domain_model.event_history.EventHistory,
+    )
+
     event_dispatcher_service = providers.Singleton(
         domain_model.event_dispatcher.EventDispatcherService,
         factory=event_factory,
         specification=event_specification,
         queue=infra.event_queue,
+        event_history_factory=event_history_factory,
     )
 
     event_publisher_service = providers.Singleton(

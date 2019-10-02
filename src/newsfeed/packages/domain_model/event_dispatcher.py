@@ -3,6 +3,7 @@
 from newsfeed.packages.infrastructure.event_queues import EventQueue
 
 from .event import EventFactory, EventSpecification
+from .event_history import EventHistoryFactory
 
 
 class EventDispatcherService:
@@ -11,7 +12,8 @@ class EventDispatcherService:
     def __init__(self,
                  factory: EventFactory,
                  specification: EventSpecification,
-                 queue: EventQueue):
+                 queue: EventQueue,
+                 event_history_factory: EventHistoryFactory):
         """Initialize service."""
         assert isinstance(factory, EventFactory)
         self._factory = factory
@@ -22,6 +24,9 @@ class EventDispatcherService:
         assert isinstance(queue, EventQueue)
         self._queue = queue
 
+        assert isinstance(event_history_factory, EventHistoryFactory)
+        self._event_history_factory = event_history_factory
+
     async def dispatch_event(self, newsfeed_id: str, data: dict):
         """Dispatch event."""
         event = self._factory.create_new(
@@ -29,6 +34,10 @@ class EventDispatcherService:
             data=data,
         )
         self._specification.is_satisfied_by(event)
+
+        _ = self._event_history_factory.create_new()
+
         await self._queue.put(event.serialized_data)
+
         return event
 
