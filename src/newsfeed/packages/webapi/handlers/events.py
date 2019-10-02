@@ -2,10 +2,8 @@
 
 from aiohttp import web
 
-from newsfeed.packages.domain_model.event import (
-    EventDispatcherService,
-    EventRepository,
-)
+from newsfeed.packages.domain_model.event import EventRepository
+from newsfeed.packages.domain_model.event_dispatcher import EventDispatcherService
 
 
 async def post_event_handler(request, *,
