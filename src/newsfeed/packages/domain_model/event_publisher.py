@@ -29,7 +29,7 @@ class EventPublisherService:
 
     async def process_event(self):
         """Process event."""
-        event_data = await self._event_queue.get()
+        event_data, _ = await self._event_queue.get()
         event = self._event_factory.create_from_serialized(event_data)
 
         subscriptions = await self._subscription_repository.get_subscriptions_to(event.newsfeed_id)

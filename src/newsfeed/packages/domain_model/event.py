@@ -7,6 +7,26 @@ from datetime import datetime
 from newsfeed.packages.infrastructure.event_storage import EventStorage
 
 
+class EventFQID:
+    """Event fully-qualified identifier."""
+
+    def __init__(self, newsfeed_id: str, event_id: UUID):
+        """Initialize object."""
+        assert isinstance(newsfeed_id, str)
+        self.newsfeed_id = newsfeed_id
+
+        assert isinstance(event_id, UUID)
+        self.event_id = event_id
+
+    @property
+    def serialized_data(self):
+        """Return serialized data."""
+        return {
+            'newsfeed_id': self.newsfeed_id,
+            'event_id': str(self.event_id),
+        }
+
+
 class Event:
     """Event entity."""
 
@@ -42,6 +62,11 @@ class Event:
     def newsfeed_id(self):
         """Return newsfeed id."""
         return self._newsfeed_id
+
+    @property
+    def fqid(self):
+        """Return fully-qualified event id."""
+        return EventFQID(self.newsfeed_id, self.id)
 
     @property
     def data(self):

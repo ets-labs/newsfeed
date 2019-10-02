@@ -5,14 +5,19 @@ from uuid import UUID, uuid4
 
 from newsfeed.packages.infrastructure.event_history_storage import EventHistoryStorage
 
+from .event import EventFQID
+
 
 class EventHistory:
     """Event history entity."""
 
-    def __init__(self, id: UUID):
+    def __init__(self, id: UUID, event_fqid: EventFQID):
         """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
+
+        assert isinstance(event_fqid, EventFQID)
+        self._event_fqid = event_fqid
 
     @property
     def id(self):
@@ -24,6 +29,7 @@ class EventHistory:
         """Return serialized data."""
         return {
             'id': str(self._id),
+            'event_fqid': self._event_fqid.serialized_data,
         }
 
 
@@ -35,16 +41,18 @@ class EventHistoryFactory:
         assert issubclass(cls, EventHistory)
         self._cls = cls
 
-    def create_new(self) -> EventHistory:
+    def create_new(self, event_fqid: EventFQID) -> EventHistory:
         """Create new entity."""
         return self._cls(
             id=uuid4(),
+            event_fqid=event_fqid,
         )
 
     def create_from_serialized(self, data) -> EventHistory:
         """Create entity from serialized data."""
         return self._cls(
             id=UUID(data['id']),
+            event_fqid=EventFQID(**data['event_fqid'])
         )
 
 

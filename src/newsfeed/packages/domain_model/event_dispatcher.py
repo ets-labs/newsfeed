@@ -35,9 +35,9 @@ class EventDispatcherService:
         )
         self._event_specification.is_satisfied_by(event)
 
-        _ = self._event_history_factory.create_new()
+        event_history = self._event_history_factory.create_new(event_fqid=event.fqid)
 
-        await self._event_queue.put(event.serialized_data)
+        await self._event_queue.put((event.serialized_data, event_history.serialized_data))
 
         return event
 
