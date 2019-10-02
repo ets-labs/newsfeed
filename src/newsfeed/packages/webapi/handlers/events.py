@@ -2,7 +2,7 @@
 
 from aiohttp import web
 
-from newsfeed.packages.domain_model.events import (
+from newsfeed.packages.domain_model.event import (
     EventDispatcherService,
     EventRepository,
 )

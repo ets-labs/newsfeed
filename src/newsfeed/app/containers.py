@@ -58,27 +58,27 @@ class DomainModel(containers.DeclarativeContainer):
     # Event
 
     event_factory = providers.Factory(
-        domain_model.events.EventFactory,
-        cls=domain_model.events.Event,
+        domain_model.event.EventFactory,
+        cls=domain_model.event.Event,
     )
 
-    event_specification = providers.Singleton(domain_model.events.EventSpecification)
+    event_specification = providers.Singleton(domain_model.event.EventSpecification)
 
     event_repository = providers.Singleton(
-        domain_model.events.EventRepository,
+        domain_model.event.EventRepository,
         factory=event_factory,
         storage=infra.event_storage,
     )
 
     event_dispatcher_service = providers.Singleton(
-        domain_model.events.EventDispatcherService,
+        domain_model.event.EventDispatcherService,
         factory=event_factory,
         specification=event_specification,
         queue=infra.event_queue,
     )
 
     event_publisher_service = providers.Singleton(
-        domain_model.events.EventPublisherService,
+        domain_model.event.EventPublisherService,
         event_queue=infra.event_queue,
         event_factory=event_factory,
         event_repository=event_repository,
