@@ -31,8 +31,15 @@ class EventPublisherService:
 
     async def process_event(self):
         """Process event."""
-        event_data = await self._event_queue.get()
+        action, data = await self._event_queue.get()
 
+        if action == 'post':
+            await self.process_new_event_posting(data)
+        else:
+            ...
+
+    async def process_new_event_posting(self, event_data):
+        """Process posting of new event."""
         event = self._event_factory.create_from_serialized(event_data)
         subscriptions = await self._subscription_repository.get_subscriptions_to(event.newsfeed_id)
 

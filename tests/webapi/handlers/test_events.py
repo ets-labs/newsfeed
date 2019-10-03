@@ -21,7 +21,8 @@ async def test_post_events(web_client, app):
     assert uuid.UUID(data['id'])
 
     event_queue = app.infrastructure.event_queue()
-    event_data = await event_queue.get()
+    action, event_data = await event_queue.get()
+    assert action == 'post'
     assert event_data['newsfeed_id'] == '123'
     assert event_data['data'] == {
         'event_data': 'some_data',
