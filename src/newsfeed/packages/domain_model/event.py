@@ -154,12 +154,7 @@ class EventRepository:
 
     async def add(self, event: Event):
         """Add event to repository."""
-        # TODO: check if it is used anywhere
         await self._storage.add(event.serialized_data)
-
-    async def add_batch(self, events: Sequence[Event]):
-        """Add event to repository."""
-        await self._storage.add_batch([event.serialized_data for event in events])
 
     async def get_newsfeed(self, newsfeed_id):
         """Return newsfeed events."""

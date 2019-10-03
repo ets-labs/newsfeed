@@ -12,11 +12,6 @@ class EventStorage:
 
     async def add(self, event_data):
         """Add event data to the storage."""
-        # TODO: check if it is used anywhere
-        raise NotImplementedError()
-
-    async def add_batch(self, events_data):
-        """Add events data to the storage."""
         raise NotImplementedError()
 
     async def get_newsfeed(self, newsfeed_id):
@@ -34,17 +29,9 @@ class AsyncInMemoryEventStorage(EventStorage):
 
     async def add(self, event_data):
         """Add event data to the storage."""
-        # TODO: check if it is used anywhere
         newsfeed_id = event_data['newsfeed_id']
         newsfeed_storage = self._storage[newsfeed_id]
         newsfeed_storage.appendleft(event_data)
-
-    async def add_batch(self, events_data):
-        """Add events data to the storage."""
-        for event_data in events_data:
-            newsfeed_id = event_data['newsfeed_id']
-            newsfeed_storage = self._storage[newsfeed_id]
-            newsfeed_storage.appendleft(event_data)
 
     async def get_newsfeed(self, newsfeed_id):
         """Get events data from storage."""

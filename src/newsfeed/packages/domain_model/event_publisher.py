@@ -49,5 +49,4 @@ class EventPublisherService:
 
         for event in events_for_publishing:
             event.track_publishing_time()
-
-        await self._event_repository.add_batch(events_for_publishing),
+            await self._event_repository.add(event)
