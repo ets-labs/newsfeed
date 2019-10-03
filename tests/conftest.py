@@ -22,11 +22,6 @@ class TestInfrastructure(containers.DeclarativeContainer):
         config=config.event_storage,
     )
 
-    event_history_storage = providers.Singleton(
-        infrastructure.event_history_storage.AsyncInMemoryEventHistoryStorage,
-        config=config.event_storage,
-    )
-
     subscription_storage = providers.Singleton(
         infrastructure.subscription_storage.AsyncInMemorySubscriptionStorage,
         config=config.subscription_storage,
