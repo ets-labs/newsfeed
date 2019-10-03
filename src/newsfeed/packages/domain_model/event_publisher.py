@@ -1,7 +1,5 @@
 """Events module."""
 
-import asyncio
-
 from newsfeed.packages.infrastructure.event_queues import EventQueue
 
 from .event import EventFactory, EventRepository
