@@ -51,9 +51,6 @@ class EventPublisherService:
             ]
         )
 
-        events_for_publishing = [event]
-        events_for_publishing += subscriber_events
-
-        for event in events_for_publishing:
+        for event in [event] + subscriber_events:
             event.track_publishing_time()
             await self._event_repository.add(event)
