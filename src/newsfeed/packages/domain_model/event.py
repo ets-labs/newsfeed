@@ -30,7 +30,7 @@ class EventFQID:
 class Event:
     """Event entity."""
 
-    def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_id: UUID,
+    def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_id: EventFQID,
                  first_seen_at: datetime, published_at: datetime):
         """Initialize entity."""
         assert isinstance(id, UUID)
@@ -43,7 +43,7 @@ class Event:
         self._data = data
 
         if parent_id is not None:
-            assert isinstance(parent_id, UUID)
+            assert isinstance(parent_id, EventFQID)
         self._parent_id = parent_id
 
         assert isinstance(first_seen_at, datetime)
@@ -84,7 +84,7 @@ class Event:
             'id': str(self._id),
             'newsfeed_id': self._newsfeed_id,
             'data': self._data,
-            'parent_id': str(self._parent_id) if self._parent_id else None,
+            'parent_id': self._parent_id.serialized_data if self._parent_id else None,
             'first_seen_at': self._first_seen_at.timestamp(),
             'published_at': self._published_at.timestamp() if self._published_at else None,
         }
@@ -115,7 +115,14 @@ class EventFactory:
             id=UUID(data['id']),
             newsfeed_id=data['newsfeed_id'],
             data=data['data'],
-            parent_id=data['parent_id'],
+            parent_id=(
+                EventFQID(
+                    newsfeed_id=data['parent_id']['newsfeed_id'],
+                    event_id=UUID(data['parent_id']['event_id']),
+                )
+                if data['parent_id']
+                else None
+            ),
             first_seen_at=datetime.utcfromtimestamp(data['first_seen_at']),
             published_at=(
                 datetime.utcfromtimestamp(data['published_at']) if data['published_at'] else None
