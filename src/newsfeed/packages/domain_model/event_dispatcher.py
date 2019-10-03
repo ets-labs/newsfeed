@@ -31,4 +31,3 @@ class EventDispatcherService:
         self._event_specification.is_satisfied_by(event)
         await self._event_queue.put(event.serialized_data)
         return event
-
