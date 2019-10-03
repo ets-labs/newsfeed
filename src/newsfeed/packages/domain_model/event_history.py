@@ -1,5 +1,6 @@
 """Event history module."""
 
+from datetime import datetime
 from typing import Type
 from uuid import UUID, uuid4
 
@@ -11,13 +12,16 @@ from .event import EventFQID
 class EventHistory:
     """Event history entity."""
 
-    def __init__(self, id: UUID, event_fqid: EventFQID):
+    def __init__(self, id: UUID, event_fqid: EventFQID, event_first_seen: datetime):
         """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
 
         assert isinstance(event_fqid, EventFQID)
         self._event_fqid = event_fqid
+
+        assert(event_first_seen, datetime)
+        self._event_first_seen = event_first_seen
 
     @property
     def id(self):
@@ -30,6 +34,7 @@ class EventHistory:
         return {
             'id': str(self._id),
             'event_fqid': self._event_fqid.serialized_data,
+            'event_first_seen': self._event_first_seen.timestamp(),
         }
 
 
@@ -46,6 +51,7 @@ class EventHistoryFactory:
         return self._cls(
             id=uuid4(),
             event_fqid=event_fqid,
+            event_first_seen=datetime.utcnow(),
         )
 
     def create_from_serialized(self, data) -> EventHistory:
@@ -56,6 +62,7 @@ class EventHistoryFactory:
                 newsfeed_id=data['event_fqid']['newsfeed_id'],
                 event_id=UUID(data['event_fqid']['event_id']),
             ),
+            event_first_seen=datetime.fromtimestamp(data['event_first_seen']),
         )
 
 
