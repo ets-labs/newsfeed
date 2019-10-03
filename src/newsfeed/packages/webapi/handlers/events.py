@@ -6,6 +6,20 @@ from newsfeed.packages.domain_model.event import EventRepository
 from newsfeed.packages.domain_model.event_dispatcher import EventDispatcherService
 
 
+async def get_events_handler(request, *,
+                             event_repository: EventRepository):
+    """Handle events getting requests."""
+    newsfeed_id = request.match_info['newsfeed_id']
+
+    newsfeed_events = await event_repository.get_newsfeed(newsfeed_id)
+
+    return web.json_response(
+        data={
+            'results': newsfeed_events,
+        },
+    )
+
+
 async def post_event_handler(request, *,
                              event_dispatcher_service: EventDispatcherService):
     """Handle events posting requests."""
@@ -20,19 +34,5 @@ async def post_event_handler(request, *,
         status=202,
         data={
             'id': str(event.id),
-        },
-    )
-
-
-async def get_events_handler(request, *,
-                             event_repository: EventRepository):
-    """Handle events getting requests."""
-    newsfeed_id = request.match_info['newsfeed_id']
-
-    newsfeed_events = await event_repository.get_newsfeed(newsfeed_id)
-
-    return web.json_response(
-        data={
-            'results': newsfeed_events,
         },
     )
