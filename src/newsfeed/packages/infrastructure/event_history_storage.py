@@ -19,6 +19,10 @@ class AsyncInMemoryEventHistoryStorage(EventHistoryStorage):
     def __init__(self, config):
         """Initialize queue."""
         super().__init__(config)
+        self._storage = {}
 
     async def add(self, entity_data):
         """Add entity data to the storage."""
+        event_fqid = entity_data['event_fqid']
+        key = f'{event_fqid["newsfeed_id"]}-{event_fqid["event_id"]}'
+        self._storage[key] = entity_data

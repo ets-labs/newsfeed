@@ -70,6 +70,6 @@ class EventHistoryRepository:
         assert isinstance(storage, EventHistoryStorage)
         self._storage = storage
 
-    async def add(self, history: EventHistory):
+    async def add(self, event_history: EventHistory):
         """Add entity to the repository."""
-        await self._storage.add(history.serialized_data)
+        await self._storage.add(event_history.serialized_data)

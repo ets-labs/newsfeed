@@ -20,6 +20,11 @@ class Infrastructure(containers.DeclarativeContainer):
         config=config.event_storage,
     )
 
+    event_history_storage = providers.Singleton(
+        infrastructure.event_history_storage.AsyncInMemoryEventHistoryStorage,
+        config=config.event_storage,
+    )
+
     subscription_storage = providers.Singleton(
         infrastructure.subscription_storage.AsyncInMemorySubscriptionStorage,
         config=config.subscription_storage,
@@ -75,6 +80,12 @@ class DomainModel(containers.DeclarativeContainer):
         cls=domain_model.event_history.EventHistory,
     )
 
+    event_history_repository = providers.Singleton(
+        domain_model.event_history.EventHistoryRepository,
+        factory=event_history_factory,
+        storage=infra.event_history_storage,
+    )
+
     event_dispatcher_service = providers.Singleton(
         domain_model.event_dispatcher.EventDispatcherService,
         event_factory=event_factory,
@@ -89,6 +100,7 @@ class DomainModel(containers.DeclarativeContainer):
         event_factory=event_factory,
         event_repository=event_repository,
         event_history_factory=event_history_factory,
+        event_history_repository=event_history_repository,
         subscription_repository=subscription_repository,
     )
 
