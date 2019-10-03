@@ -3,6 +3,7 @@
 from newsfeed.packages.infrastructure.event_queues import EventQueue
 
 from .event import EventFactory, EventRepository
+from .event_history import EventHistoryFactory
 from .subscription import SubscriptionRepository
 
 
@@ -13,6 +14,7 @@ class EventPublisherService:
                  event_queue: EventQueue,
                  event_factory: EventFactory,
                  event_repository: EventRepository,
+                 event_history_factory: EventHistoryFactory,
                  subscription_repository: SubscriptionRepository):
         """Initialize service."""
         assert isinstance(event_queue, EventQueue)
@@ -24,13 +26,18 @@ class EventPublisherService:
         assert isinstance(event_repository, EventRepository)
         self._event_repository = event_repository
 
+        assert isinstance(event_history_factory, EventHistoryFactory)
+        self._event_history_factory = event_history_factory
+
         assert isinstance(subscription_repository, SubscriptionRepository)
         self._subscription_repository = subscription_repository
 
     async def process_event(self):
         """Process event."""
-        event_data, _ = await self._event_queue.get()
+        event_data, event_history_data = await self._event_queue.get()
+
         event = self._event_factory.create_from_serialized(event_data)
+        _ = self._event_history_factory.create_from_serialized(event_history_data)
 
         subscriptions = await self._subscription_repository.get_subscriptions_to(event.newsfeed_id)
 

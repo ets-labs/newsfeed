@@ -52,7 +52,10 @@ class EventHistoryFactory:
         """Create entity from serialized data."""
         return self._cls(
             id=UUID(data['id']),
-            event_fqid=EventFQID(**data['event_fqid'])
+            event_fqid=EventFQID(
+                newsfeed_id=data['event_fqid']['newsfeed_id'],
+                event_id=UUID(data['event_fqid']['event_id']),
+            ),
         )
 
 

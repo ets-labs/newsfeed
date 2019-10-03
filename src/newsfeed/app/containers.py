@@ -88,6 +88,7 @@ class DomainModel(containers.DeclarativeContainer):
         event_queue=infra.event_queue,
         event_factory=event_factory,
         event_repository=event_repository,
+        event_history_factory=event_history_factory,
         subscription_repository=subscription_repository,
     )
 
