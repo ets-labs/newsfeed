@@ -31,7 +31,8 @@ class Event:
     """Event entity."""
 
     def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_id: EventFQID,
-                 first_seen_at: datetime, published_at: datetime):
+                 child_fqids: Sequence[EventFQID], first_seen_at: datetime,
+                 published_at: datetime):
         """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
@@ -45,6 +46,11 @@ class Event:
         if parent_id is not None:
             assert isinstance(parent_id, EventFQID)
         self._parent_id = parent_id
+
+        assert isinstance(child_fqids, Sequence)
+        for child_fqid in child_fqids:
+            assert isinstance(child_fqid, EventFQID)
+        self._child_fqids = list(child_fqids)
 
         assert isinstance(first_seen_at, datetime)
         self._first_seen_at = first_seen_at
@@ -77,6 +83,13 @@ class Event:
         """Track event publishing time."""
         self._published_at = datetime.utcnow()
 
+    def track_child_event_fqids(self, child_fqids: Sequence[EventFQID]):
+        """Track event child FQIDs."""
+        assert isinstance(child_fqids, Sequence)
+        for child_fqid in child_fqids:
+            assert isinstance(child_fqid, EventFQID)
+        self._child_fqids = child_fqids
+
     @property
     def serialized_data(self):
         """Return serialized data."""
@@ -85,6 +98,10 @@ class Event:
             'newsfeed_id': self._newsfeed_id,
             'data': self._data,
             'parent_id': self._parent_id.serialized_data if self._parent_id else None,
+            'child_fqids': [
+                child_fqid.serialized_data
+                for child_fqid in self._child_fqids
+            ],
             'first_seen_at': self._first_seen_at.timestamp(),
             'published_at': self._published_at.timestamp() if self._published_at else None,
         }
@@ -98,13 +115,14 @@ class EventFactory:
         assert issubclass(cls, Event)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, data, parent_id=None) -> Event:
+    def create_new(self, newsfeed_id, data, parent_id=None, child_fqids=None) -> Event:
         """Create new event."""
         return self._cls(
             id=uuid4(),
             newsfeed_id=newsfeed_id,
             data=data,
             parent_id=parent_id,
+            child_fqids=child_fqids or [],
             first_seen_at=datetime.utcnow(),
             published_at=None,
         )
@@ -123,6 +141,13 @@ class EventFactory:
                 if data['parent_id']
                 else None
             ),
+            child_fqids=[
+                EventFQID(
+                    newsfeed_id=data['newsfeed_id'],
+                    event_id=UUID(data['event_id']),
+                )
+                for data in data['child_fqids'] or []
+            ],
             first_seen_at=datetime.utcfromtimestamp(data['first_seen_at']),
             published_at=(
                 datetime.utcfromtimestamp(data['published_at']) if data['published_at'] else None

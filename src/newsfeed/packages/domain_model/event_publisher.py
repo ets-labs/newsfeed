@@ -34,11 +34,9 @@ class EventPublisherService:
         event_data = await self._event_queue.get()
 
         event = self._event_factory.create_from_serialized(event_data)
-
         subscriptions = await self._subscription_repository.get_subscriptions_to(event.newsfeed_id)
 
-        events_for_publishing = [event]
-        events_for_publishing += [
+        subscriber_events = [
             self._event_factory.create_new(
                 newsfeed_id=subscription.from_newsfeed_id,
                 data=event.data,
@@ -46,6 +44,15 @@ class EventPublisherService:
             )
             for subscription in subscriptions
         ]
+        event.track_child_event_fqids(
+            [
+                subscriber_event.fqid
+                for subscriber_event in subscriber_events
+            ]
+        )
+
+        events_for_publishing = [event]
+        events_for_publishing += subscriber_events
 
         for event in events_for_publishing:
             event.track_publishing_time()
