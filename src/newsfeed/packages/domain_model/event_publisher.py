@@ -1,8 +1,10 @@
 """Events module."""
 
+from uuid import UUID
+
 from newsfeed.packages.infrastructure.event_queues import EventQueue
 
-from .event import EventFactory, EventRepository
+from .event import EventFactory, EventRepository, EventFQID
 from .subscription import SubscriptionRepository
 
 
@@ -33,6 +35,8 @@ class EventPublisherService:
 
         if action == 'post':
             await self.process_new_event_posting(data)
+        elif action == 'delete':
+            await self.process_existing_event_deletion(data)
         else:
             ...
 
@@ -59,3 +63,17 @@ class EventPublisherService:
         for event in [event] + subscriber_events:
             event.track_publishing_time()
             await self._event_repository.add(event)
+
+    async def process_existing_event_deletion(self, data):
+        """Process deletion of an existing event."""
+        event = await self._event_repository.get_by_fqid(
+            EventFQID(
+                newsfeed_id=data['newsfeed_id'],
+                event_id=UUID(data['event_id']),
+            ),
+        )
+
+        for child_event_fqid in event.child_fqids:
+            await self._event_repository.delete_by_fqid(child_event_fqid)
+
+        await self._event_repository.delete_by_fqid(event.fqid)

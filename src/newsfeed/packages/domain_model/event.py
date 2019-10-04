@@ -75,6 +75,11 @@ class Event:
         return EventFQID(self.newsfeed_id, self.id)
 
     @property
+    def child_fqids(self):
+        """Return list of child FQIDs."""
+        return list(self._child_fqids)
+
+    @property
     def data(self):
         """Return data."""
         return self._data
@@ -180,6 +185,21 @@ class EventRepository:
     async def add(self, event: Event):
         """Add event to repository."""
         await self._storage.add(event.serialized_data)
+
+    async def get_by_fqid(self, fqid: EventFQID):
+        """Return event by its FQID."""
+        event_data = await self._storage.get_by_fqid(
+            newsfeed_id=fqid.newsfeed_id,
+            event_id=str(fqid.event_id),
+        )
+        return self._factory.create_from_serialized(event_data)
+
+    async def delete_by_fqid(self, fqid: EventFQID):
+        """Return event by its FQID."""
+        await self._storage.delete_by_fqid(
+            newsfeed_id=fqid.newsfeed_id,
+            event_id=str(fqid.event_id),
+        )
 
     async def get_newsfeed(self, newsfeed_id):
         """Return newsfeed events."""

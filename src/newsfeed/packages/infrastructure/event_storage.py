@@ -14,6 +14,12 @@ class EventStorage:
         """Add event data to the storage."""
         raise NotImplementedError()
 
+    async def get_by_fqid(self, newsfeed_id, event_id):
+        """Return data of specified event."""
+
+    async def delete_by_fqid(self, newsfeed_id, event_id):
+        """Delete data of specified event."""
+
     async def get_newsfeed(self, newsfeed_id):
         """Get events data from storage."""
         raise NotImplementedError()
@@ -32,6 +38,28 @@ class AsyncInMemoryEventStorage(EventStorage):
         newsfeed_id = event_data['newsfeed_id']
         newsfeed_storage = self._storage[newsfeed_id]
         newsfeed_storage.appendleft(event_data)
+
+    async def get_by_fqid(self, newsfeed_id, event_id):
+        """Return data of specified event."""
+        newsfeed_storage = self._storage[newsfeed_id]
+        for event in newsfeed_storage:
+            if event['id'] == event_id:
+                return event
+        else:
+            raise RuntimeError(
+                f'Event "{event_id}" could not be found in newsfeed "{newsfeed_id}"',
+            )
+
+    async def delete_by_fqid(self, newsfeed_id, event_id):
+        """Delete data of specified event."""
+        newsfeed_storage = self._storage[newsfeed_id]
+        event_index = None
+        for index, event in enumerate(newsfeed_storage):
+            if event['id'] == event_id:
+                event_index = index
+                break
+        if event_index is not None:
+            del newsfeed_storage[event_index]
 
     async def get_newsfeed(self, newsfeed_id):
         """Get events data from storage."""
