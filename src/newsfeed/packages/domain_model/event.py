@@ -30,7 +30,7 @@ class EventFQID:
 class Event:
     """Event entity."""
 
-    def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_id: EventFQID,
+    def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_fqid: EventFQID,
                  child_fqids: Sequence[EventFQID], first_seen_at: datetime,
                  published_at: datetime):
         """Initialize entity."""
@@ -43,9 +43,9 @@ class Event:
         assert isinstance(data, Mapping)
         self._data = data
 
-        if parent_id is not None:
-            assert isinstance(parent_id, EventFQID)
-        self._parent_id = parent_id
+        if parent_fqid is not None:
+            assert isinstance(parent_fqid, EventFQID)
+        self._parent_fqid = parent_fqid
 
         assert isinstance(child_fqids, Sequence)
         for child_fqid in child_fqids:
@@ -102,7 +102,7 @@ class Event:
             'id': str(self._id),
             'newsfeed_id': self._newsfeed_id,
             'data': self._data,
-            'parent_id': self._parent_id.serialized_data if self._parent_id else None,
+            'parent_fqid': self._parent_fqid.serialized_data if self._parent_fqid else None,
             'child_fqids': [
                 child_fqid.serialized_data
                 for child_fqid in self._child_fqids
@@ -120,13 +120,13 @@ class EventFactory:
         assert issubclass(cls, Event)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, data, parent_id=None, child_fqids=None) -> Event:
+    def create_new(self, newsfeed_id, data, parent_fqid=None, child_fqids=None) -> Event:
         """Create new event."""
         return self._cls(
             id=uuid4(),
             newsfeed_id=newsfeed_id,
             data=data,
-            parent_id=parent_id,
+            parent_fqid=parent_fqid,
             child_fqids=child_fqids or [],
             first_seen_at=datetime.utcnow(),
             published_at=None,
@@ -138,12 +138,12 @@ class EventFactory:
             id=UUID(data['id']),
             newsfeed_id=data['newsfeed_id'],
             data=data['data'],
-            parent_id=(
+            parent_fqid=(
                 EventFQID(
-                    newsfeed_id=data['parent_id']['newsfeed_id'],
-                    event_id=UUID(data['parent_id']['event_id']),
+                    newsfeed_id=data['parent_fqid']['newsfeed_id'],
+                    event_id=UUID(data['parent_fqid']['event_id']),
                 )
-                if data['parent_id']
+                if data['parent_fqid']
                 else None
             ),
             child_fqids=[

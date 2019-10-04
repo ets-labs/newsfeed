@@ -49,7 +49,7 @@ class EventPublisherService:
             self._event_factory.create_new(
                 newsfeed_id=subscription.from_newsfeed_id,
                 data=event.data,
-                parent_id=event.fqid,
+                parent_fqid=event.fqid,
             )
             for subscription in subscriptions
         ]
