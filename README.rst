@@ -40,9 +40,6 @@ Domain Model
   *Event A* is published to *NewsFeed A*, *Event A* data is published to all *NewsFeed A*
   *subscribers* as new *Events* that would be pointing to original *Event A* through its *parent*
   relation.
-+ **Event Publishing History** - is a supportive entity that stores information about *Event*
-  publishing. *Event Publishing History* is aware about all *NewsFeeds* where original *Event*
-  is published during the event publishing process.
 
 Service Architecture
 --------------------
