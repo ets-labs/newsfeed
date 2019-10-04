@@ -36,3 +36,13 @@ async def post_event_handler(request, *,
             'id': str(event.id),
         },
     )
+
+
+async def delete_event_handler(request, *,
+                               event_dispatcher_service: EventDispatcherService):
+    """Handle events posting requests."""
+    await event_dispatcher_service.dispatch_event_deletion(
+        newsfeed_id=request.match_info['newsfeed_id'],
+        event_id=request.match_info['event_id'],
+    )
+    return web.json_response(status=204)

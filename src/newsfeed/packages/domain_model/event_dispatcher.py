@@ -31,3 +31,7 @@ class EventDispatcherService:
         self._event_specification.is_satisfied_by(event)
         await self._event_queue.put(('post', event.serialized_data))
         return event
+
+    async def dispatch_event_deletion(self, newsfeed_id: str, event_id: str):
+        """Dispatch deletion of existing event."""
+        await self._event_queue.put(('delete', {'newsfeed_id': newsfeed_id, 'event_id': event_id}))

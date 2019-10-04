@@ -71,3 +71,19 @@ async def test_post_events(web_client, app):
     assert event_data['data'] == {
         'event_data': 'some_data',
     }
+
+
+async def test_delete_events(web_client, app):
+    """Check events deletion handler."""
+    newsfeed_id = '123'
+    event_id = uuid.uuid4()
+
+    response = await web_client.delete(f'/newsfeed/{newsfeed_id}/events/{event_id}/')
+
+    assert response.status == 204
+
+    event_queue = app.infrastructure.event_queue()
+    action, event_data = await event_queue.get()
+    assert action == 'delete'
+    assert event_data['newsfeed_id'] == newsfeed_id
+    assert event_data['event_id'] == str(event_id)

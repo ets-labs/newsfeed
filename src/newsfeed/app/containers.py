@@ -137,6 +137,14 @@ class WebApi(containers.DeclarativeContainer):
                     event_dispatcher_service=domain.event_dispatcher_service,
                 ),
             ),
+            webapi.app.route(
+                method='DELETE',
+                path='/newsfeed/{newsfeed_id}/events/{event_id}/',
+                handler=providers.Coroutine(
+                    webapi.handlers.events.delete_event_handler,
+                    event_dispatcher_service=domain.event_dispatcher_service,
+                ),
+            ),
 
             # Miscellaneous
             webapi.app.route(
