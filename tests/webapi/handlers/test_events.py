@@ -3,32 +3,6 @@
 import uuid
 
 
-async def test_post_events(web_client, app):
-    """Check events posting handler."""
-    newsfeed_id = '123'
-
-    response = await web_client.post(
-        f'/newsfeed/{newsfeed_id}/events/',
-        json={
-            'data': {
-                'event_data': 'some_data',
-            },
-        },
-    )
-
-    assert response.status == 202
-    data = await response.json()
-    assert uuid.UUID(data['id'])
-
-    event_queue = app.infrastructure.event_queue()
-    action, event_data = await event_queue.get()
-    assert action == 'post'
-    assert event_data['newsfeed_id'] == '123'
-    assert event_data['data'] == {
-        'event_data': 'some_data',
-    }
-
-
 async def test_get_events(web_client, app):
     """Check events posting handler."""
     newsfeed_id = '123'
@@ -70,4 +44,30 @@ async def test_get_events(web_client, app):
                 },
             },
         ],
+    }
+
+
+async def test_post_events(web_client, app):
+    """Check events posting handler."""
+    newsfeed_id = '123'
+
+    response = await web_client.post(
+        f'/newsfeed/{newsfeed_id}/events/',
+        json={
+            'data': {
+                'event_data': 'some_data',
+            },
+        },
+    )
+
+    assert response.status == 202
+    data = await response.json()
+    assert uuid.UUID(data['id'])
+
+    event_queue = app.infrastructure.event_queue()
+    action, event_data = await event_queue.get()
+    assert action == 'post'
+    assert event_data['newsfeed_id'] == '123'
+    assert event_data['data'] == {
+        'event_data': 'some_data',
     }
