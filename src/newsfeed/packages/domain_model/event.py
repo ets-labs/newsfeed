@@ -5,16 +5,34 @@ from uuid import UUID, uuid4
 from datetime import datetime
 
 from newsfeed.packages.infrastructure.event_storage import EventStorage
-from newsfeed.packages.infrastructure.event_queues import EventQueue
 
-from .subscriptions import SubscriptionRepository
+
+class EventFQID:
+    """Event fully-qualified identifier."""
+
+    def __init__(self, newsfeed_id: str, event_id: UUID):
+        """Initialize object."""
+        assert isinstance(newsfeed_id, str)
+        self.newsfeed_id = newsfeed_id
+
+        assert isinstance(event_id, UUID)
+        self.event_id = event_id
+
+    @property
+    def serialized_data(self):
+        """Return serialized data."""
+        return {
+            'newsfeed_id': self.newsfeed_id,
+            'event_id': str(self.event_id),
+        }
 
 
 class Event:
     """Event entity."""
 
-    def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_id: UUID,
-                 first_seen_at: datetime, published_at: datetime):
+    def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_fqid: EventFQID,
+                 child_fqids: Sequence[EventFQID], first_seen_at: datetime,
+                 published_at: datetime):
         """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
@@ -25,9 +43,14 @@ class Event:
         assert isinstance(data, Mapping)
         self._data = data
 
-        if parent_id is not None:
-            assert isinstance(parent_id, UUID)
-        self._parent_id = parent_id
+        if parent_fqid is not None:
+            assert isinstance(parent_fqid, EventFQID)
+        self._parent_fqid = parent_fqid
+
+        assert isinstance(child_fqids, Sequence)
+        for child_fqid in child_fqids:
+            assert isinstance(child_fqid, EventFQID)
+        self._child_fqids = list(child_fqids)
 
         assert isinstance(first_seen_at, datetime)
         self._first_seen_at = first_seen_at
@@ -47,6 +70,16 @@ class Event:
         return self._newsfeed_id
 
     @property
+    def fqid(self):
+        """Return fully-qualified event id."""
+        return EventFQID(self.newsfeed_id, self.id)
+
+    @property
+    def child_fqids(self):
+        """Return list of child FQIDs."""
+        return list(self._child_fqids)
+
+    @property
     def data(self):
         """Return data."""
         return self._data
@@ -55,6 +88,13 @@ class Event:
         """Track event publishing time."""
         self._published_at = datetime.utcnow()
 
+    def track_child_event_fqids(self, child_fqids: Sequence[EventFQID]):
+        """Track event child FQIDs."""
+        assert isinstance(child_fqids, Sequence)
+        for child_fqid in child_fqids:
+            assert isinstance(child_fqid, EventFQID)
+        self._child_fqids = child_fqids
+
     @property
     def serialized_data(self):
         """Return serialized data."""
@@ -62,7 +102,11 @@ class Event:
             'id': str(self._id),
             'newsfeed_id': self._newsfeed_id,
             'data': self._data,
-            'parent_id': str(self._parent_id) if self._parent_id else None,
+            'parent_fqid': self._parent_fqid.serialized_data if self._parent_fqid else None,
+            'child_fqids': [
+                child_fqid.serialized_data
+                for child_fqid in self._child_fqids
+            ],
             'first_seen_at': self._first_seen_at.timestamp(),
             'published_at': self._published_at.timestamp() if self._published_at else None,
         }
@@ -76,13 +120,14 @@ class EventFactory:
         assert issubclass(cls, Event)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, data, parent_id=None) -> Event:
+    def create_new(self, newsfeed_id, data, parent_fqid=None, child_fqids=None) -> Event:
         """Create new event."""
         return self._cls(
             id=uuid4(),
             newsfeed_id=newsfeed_id,
             data=data,
-            parent_id=parent_id,
+            parent_fqid=parent_fqid,
+            child_fqids=child_fqids or [],
             first_seen_at=datetime.utcnow(),
             published_at=None,
         )
@@ -93,7 +138,21 @@ class EventFactory:
             id=UUID(data['id']),
             newsfeed_id=data['newsfeed_id'],
             data=data['data'],
-            parent_id=data['parent_id'],
+            parent_fqid=(
+                EventFQID(
+                    newsfeed_id=data['parent_fqid']['newsfeed_id'],
+                    event_id=UUID(data['parent_fqid']['event_id']),
+                )
+                if data['parent_fqid']
+                else None
+            ),
+            child_fqids=[
+                EventFQID(
+                    newsfeed_id=data['newsfeed_id'],
+                    event_id=UUID(data['event_id']),
+                )
+                for data in data['child_fqids'] or []
+            ],
             first_seen_at=datetime.utcfromtimestamp(data['first_seen_at']),
             published_at=(
                 datetime.utcfromtimestamp(data['published_at']) if data['published_at'] else None
@@ -125,85 +184,23 @@ class EventRepository:
 
     async def add(self, event: Event):
         """Add event to repository."""
-        # TODO: check if it is used anywhere
         await self._storage.add(event.serialized_data)
 
-    async def add_batch(self, events: Sequence[Event]):
-        """Add event to repository."""
-        await self._storage.add_batch([event.serialized_data for event in events])
+    async def get_by_fqid(self, fqid: EventFQID):
+        """Return event by its FQID."""
+        event_data = await self._storage.get_by_fqid(
+            newsfeed_id=fqid.newsfeed_id,
+            event_id=str(fqid.event_id),
+        )
+        return self._factory.create_from_serialized(event_data)
+
+    async def delete_by_fqid(self, fqid: EventFQID):
+        """Return event by its FQID."""
+        await self._storage.delete_by_fqid(
+            newsfeed_id=fqid.newsfeed_id,
+            event_id=str(fqid.event_id),
+        )
 
     async def get_newsfeed(self, newsfeed_id):
         """Return newsfeed events."""
         return await self._storage.get_newsfeed(newsfeed_id)
-
-
-class EventDispatcherService:
-    """Event dispatcher service."""
-
-    def __init__(self,
-                 factory: EventFactory,
-                 specification: EventSpecification,
-                 queue: EventQueue):
-        """Initialize service."""
-        assert isinstance(factory, EventFactory)
-        self._factory = factory
-
-        assert isinstance(specification, EventSpecification)
-        self._specification = specification
-
-        assert isinstance(queue, EventQueue)
-        self._queue = queue
-
-    async def dispatch_event(self, newsfeed_id: str, data: dict):
-        """Dispatch event."""
-        event = self._factory.create_new(
-            newsfeed_id=newsfeed_id,
-            data=data,
-        )
-        self._specification.is_satisfied_by(event)
-        await self._queue.put(event.serialized_data)
-        return event
-
-
-class EventPublisherService:
-    """Event publisher service."""
-
-    def __init__(self,
-                 event_queue: EventQueue,
-                 event_factory: EventFactory,
-                 event_repository: EventRepository,
-                 subscription_repository: SubscriptionRepository):
-        """Initialize service."""
-        assert isinstance(event_queue, EventQueue)
-        self._event_queue = event_queue
-
-        assert isinstance(event_factory, EventFactory)
-        self._event_factory = event_factory
-
-        assert isinstance(event_repository, EventRepository)
-        self._event_repository = event_repository
-
-        assert isinstance(subscription_repository, SubscriptionRepository)
-        self._subscription_repository = subscription_repository
-
-    async def process_event(self):
-        """Process event."""
-        event_data = await self._event_queue.get()
-        event = self._event_factory.create_from_serialized(event_data)
-
-        subscriptions = await self._subscription_repository.get_subscriptions_to(event.newsfeed_id)
-
-        events_for_publishing = [event]
-        events_for_publishing += [
-            self._event_factory.create_new(
-                newsfeed_id=subscription.from_newsfeed_id,
-                data=event.data,
-                parent_id=event.id,
-            )
-            for subscription in subscriptions
-        ]
-
-        for event in events_for_publishing:
-            event.track_publishing_time()
-
-        await self._event_repository.add_batch(events_for_publishing)

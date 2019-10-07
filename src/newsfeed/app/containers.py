@@ -34,22 +34,22 @@ class DomainModel(containers.DeclarativeContainer):
     # Subscription
 
     subscription_factory = providers.Factory(
-        domain_model.subscriptions.SubscriptionFactory,
-        cls=domain_model.subscriptions.Subscription,
+        domain_model.subscription.SubscriptionFactory,
+        cls=domain_model.subscription.Subscription,
     )
 
     subscription_specification = providers.Singleton(
-        domain_model.subscriptions.SubscriptionSpecification,
+        domain_model.subscription.SubscriptionSpecification,
     )
 
     subscription_repository = providers.Singleton(
-        domain_model.subscriptions.SubscriptionRepository,
+        domain_model.subscription.SubscriptionRepository,
         factory=subscription_factory,
         storage=infra.subscription_storage,
     )
 
     subscription_service = providers.Singleton(
-        domain_model.subscriptions.SubscriptionService,
+        domain_model.subscription.SubscriptionService,
         factory=subscription_factory,
         specification=subscription_specification,
         repository=subscription_repository,
@@ -58,27 +58,27 @@ class DomainModel(containers.DeclarativeContainer):
     # Event
 
     event_factory = providers.Factory(
-        domain_model.events.EventFactory,
-        cls=domain_model.events.Event,
+        domain_model.event.EventFactory,
+        cls=domain_model.event.Event,
     )
 
-    event_specification = providers.Singleton(domain_model.events.EventSpecification)
+    event_specification = providers.Singleton(domain_model.event.EventSpecification)
 
     event_repository = providers.Singleton(
-        domain_model.events.EventRepository,
+        domain_model.event.EventRepository,
         factory=event_factory,
         storage=infra.event_storage,
     )
 
     event_dispatcher_service = providers.Singleton(
-        domain_model.events.EventDispatcherService,
-        factory=event_factory,
-        specification=event_specification,
-        queue=infra.event_queue,
+        domain_model.event_dispatcher.EventDispatcherService,
+        event_factory=event_factory,
+        event_specification=event_specification,
+        event_queue=infra.event_queue,
     )
 
     event_publisher_service = providers.Singleton(
-        domain_model.events.EventPublisherService,
+        domain_model.event_publisher.EventPublisherService,
         event_queue=infra.event_queue,
         event_factory=event_factory,
         event_repository=event_repository,
@@ -134,6 +134,14 @@ class WebApi(containers.DeclarativeContainer):
                 path='/newsfeed/{newsfeed_id}/events/',
                 handler=providers.Coroutine(
                     webapi.handlers.events.post_event_handler,
+                    event_dispatcher_service=domain.event_dispatcher_service,
+                ),
+            ),
+            webapi.app.route(
+                method='DELETE',
+                path='/newsfeed/{newsfeed_id}/events/{event_id}/',
+                handler=providers.Coroutine(
+                    webapi.handlers.events.delete_event_handler,
                     event_dispatcher_service=domain.event_dispatcher_service,
                 ),
             ),
