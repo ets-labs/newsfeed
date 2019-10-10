@@ -128,6 +128,11 @@ class SubscriptionRepository:
         subscription_data = await self._storage.get(newsfeed_id, str(subscription_id))
         return self._factory.create_from_serialized(subscription_data)
 
+    async def get_subscription_between(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:  # noqa
+        """Return subscription between two newsfeeds if it exists."""
+        subscription_data = await self._storage.get_between(newsfeed_id, to_newsfeed_id)
+        return self._factory.create_from_serialized(subscription_data)
+
     async def delete_subscription(self, subscription: Subscription):
         """Delete subscription."""
         await self._storage.delete(subscription.serialized_data)
@@ -152,12 +157,24 @@ class SubscriptionService:
 
     async def create_subscription(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:
         """Create subscription."""
+        subscription_exists = await self._check_subscription_exists_between(
+            newsfeed_id=newsfeed_id,
+            to_newsfeed_id=to_newsfeed_id,
+        )
+        if subscription_exists:
+            raise SubscriptionAlreadyExistsError(
+                newsfeed_id=newsfeed_id,
+                to_newsfeed_id=to_newsfeed_id,
+            )
+
         subscription = self._factory.create_new(
             from_newsfeed_id=newsfeed_id,
             to_newsfeed_id=to_newsfeed_id,
         )
+
         self._specification.is_satisfied_by(subscription)
         await self._repository.add(subscription)
+
         return subscription
 
     async def get_newsfeed_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
@@ -172,3 +189,31 @@ class SubscriptionService:
         """Delete newsfeed subscription."""
         subscription = await self._repository.get_subscription(newsfeed_id, UUID(subscription_id))
         await self._repository.delete_subscription(subscription)
+
+    async def _check_subscription_exists_between(self, newsfeed_id, to_newsfeed_id):
+        try:
+            _ = await self._repository.get_subscription_between(
+                newsfeed_id=newsfeed_id,
+                to_newsfeed_id=to_newsfeed_id,
+            )
+        except RuntimeError:
+            return False
+        else:
+            return True
+
+
+class SubscriptionAlreadyExistsError(Exception):
+    """Error indicating situations when subscription between two newsfeeds already exists."""
+
+    def __init__(self, newsfeed_id, to_newsfeed_id):
+        """Initialize error."""
+        self._newsfeed_id = newsfeed_id
+        self._to_newsfeed_id = to_newsfeed_id
+
+    @property
+    def message(self):
+        """Return error message."""
+        return (
+            f'Subscription from newsfeed "{self._newsfeed_id}" to "{self._to_newsfeed_id}" '
+            f'already exists'
+        )
