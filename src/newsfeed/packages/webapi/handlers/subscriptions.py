@@ -37,6 +37,22 @@ async def get_subscriptions_handler(request, *,
     )
 
 
+async def get_subscriber_subscriptions_handler(request, *,
+                                               subscription_service: SubscriptionService):
+    """Handle subscriber subscriptions getting requests."""
+    newsfeed_subscriptions = await subscription_service.get_newsfeed_subscriber_subscriptions(
+        newsfeed_id=request.match_info['newsfeed_id'],
+    )
+    return web.json_response(
+        data={
+            'results': [
+                _serialize_subscription(subscription)
+                for subscription in newsfeed_subscriptions
+            ],
+        },
+    )
+
+
 async def delete_subscription_handler(request, *,
                                       subscription_service: SubscriptionService):
     """Handle subscriptions deleting requests."""

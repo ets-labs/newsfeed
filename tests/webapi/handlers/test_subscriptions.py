@@ -73,6 +73,53 @@ async def test_get_subscriptions(web_client, app):
     assert int(subscription_2['subscribed_at'])
 
 
+async def test_get_subscriber_subscriptions(web_client, app):
+    """Check subscriber subscriptions getting handler."""
+    newsfeed_id = '123'
+
+    subscription_storage = app.infrastructure.subscription_storage()
+    await subscription_storage.add(
+        {
+            'id': str(uuid.uuid4()),
+            'from_newsfeed_id': '124',
+            'to_newsfeed_id': newsfeed_id,
+            'subscribed_at': datetime.datetime.utcnow().timestamp(),
+        },
+    )
+    await subscription_storage.add(
+        {
+            'id': str(uuid.uuid4()),
+            'from_newsfeed_id': '125',
+            'to_newsfeed_id': newsfeed_id,
+            'subscribed_at': datetime.datetime.utcnow().timestamp(),
+        },
+    )
+    await subscription_storage.add(
+        {
+            'id': str(uuid.uuid4()),
+            'from_newsfeed_id': '125',
+            'to_newsfeed_id': '126',
+            'subscribed_at': datetime.datetime.utcnow().timestamp(),
+        },
+    )
+
+    response = await web_client.get(f'/newsfeed/{newsfeed_id}/subscribers/subscriptions/')
+
+    assert response.status == 200
+    data = await response.json()
+    subscription_1, subscription_2 = data['results']
+
+    assert uuid.UUID(subscription_1['id'])
+    assert subscription_1['from_newsfeed_id'] == '125'
+    assert subscription_1['to_newsfeed_id'] == newsfeed_id
+    assert int(subscription_1['subscribed_at'])
+
+    assert uuid.UUID(subscription_2['id'])
+    assert subscription_2['from_newsfeed_id'] == '124'
+    assert subscription_2['to_newsfeed_id'] == newsfeed_id
+    assert int(subscription_2['subscribed_at'])
+
+
 async def test_delete_subscriptions(web_client, app):
     """Check subscriptions deleting handler."""
     newsfeed_id = '123'
