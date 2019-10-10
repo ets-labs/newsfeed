@@ -104,14 +104,6 @@ class WebApi(containers.DeclarativeContainer):
                 ),
             ),
             webapi.app.route(
-                method='GET',
-                path='/newsfeed/{newsfeed_id}/subscribers/subscriptions/',
-                handler=providers.Coroutine(
-                    webapi.handlers.subscriptions.get_subscriber_subscriptions_handler,
-                    subscription_service=domain.subscription_service,
-                ),
-            ),
-            webapi.app.route(
                 method='POST',
                 path='/newsfeed/{newsfeed_id}/subscriptions/',
                 handler=providers.Coroutine(
@@ -124,6 +116,14 @@ class WebApi(containers.DeclarativeContainer):
                 path='/newsfeed/{newsfeed_id}/subscriptions/{subscription_id}/',
                 handler=providers.Coroutine(
                     webapi.handlers.subscriptions.delete_subscription_handler,
+                    subscription_service=domain.subscription_service,
+                ),
+            ),
+            webapi.app.route(
+                method='GET',
+                path='/newsfeed/{newsfeed_id}/subscribers/subscriptions/',
+                handler=providers.Coroutine(
+                    webapi.handlers.subscriptions.get_subscriber_subscriptions_handler,
                     subscription_service=domain.subscription_service,
                 ),
             ),
