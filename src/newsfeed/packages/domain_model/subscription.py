@@ -129,7 +129,7 @@ class SubscriptionRepository:
         return self._factory.create_from_serialized(subscription_data)
 
     async def get_subscription_between(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:  # noqa
-        """Return subscription between two newsfeeds if it exists."""
+        """Return subscription between two newsfeeds."""
         subscription_data = await self._storage.get_between(newsfeed_id, to_newsfeed_id)
         return self._factory.create_from_serialized(subscription_data)
 

@@ -28,7 +28,7 @@ class SubscriptionStorage:
         raise NotImplementedError()
 
     async def get_between(self, newsfeed_id: str, to_newsfeed_id: str):
-        """Return subscription between specified newsfeeds if it exists."""
+        """Return subscription between specified newsfeeds."""
         raise NotImplementedError()
 
     async def delete(self, subscription_data: Mapping):
@@ -75,7 +75,7 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
             )
 
     async def get_between(self, newsfeed_id: str, to_newsfeed_id: str):
-        """Return subscription between specified newsfeeds if it exists."""
+        """Return subscription between specified newsfeeds."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         for subscription_data in newsfeed_subscriptions_storage:
             if subscription_data['to_newsfeed_id'] == to_newsfeed_id:
