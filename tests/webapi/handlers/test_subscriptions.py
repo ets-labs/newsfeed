@@ -73,6 +73,41 @@ async def test_post_subscriptions(web_client, app):
     assert subscriptions[0]['to_newsfeed_id'] == '123'
 
 
+async def test_post_multiple_subscriptions_to_the_same_feed(web_client, app):
+    """Check subscriptions posting handler."""
+    newsfeed_id = '123'
+    to_newsfeed_id = '124'
+
+    subscription_storage = app.infrastructure.subscription_storage()
+    await subscription_storage.add(
+        {
+            'id': str(uuid.uuid4()),
+            'from_newsfeed_id': newsfeed_id,
+            'to_newsfeed_id': to_newsfeed_id,
+            'subscribed_at': datetime.datetime.utcnow().timestamp(),
+        },
+    )
+
+    response = await web_client.post(
+        f'/newsfeed/{newsfeed_id}/subscriptions/',
+        json={
+            'to_newsfeed_id': to_newsfeed_id,
+        },
+    )
+
+    assert response.status == 400
+    data = await response.json()
+    assert data['message'] == (
+        f'Subscription from newsfeed "{newsfeed_id}" to "{to_newsfeed_id}" already exists'
+    )
+
+    subscription_storage = app.infrastructure.subscription_storage()
+    subscriptions = await subscription_storage.get_to(newsfeed_id=to_newsfeed_id)
+    assert len(subscriptions) == 1
+    assert subscriptions[0]['from_newsfeed_id'] == newsfeed_id
+    assert subscriptions[0]['to_newsfeed_id'] == to_newsfeed_id
+
+
 async def test_delete_subscriptions(web_client, app):
     """Check subscriptions deleting handler."""
     newsfeed_id = '123'

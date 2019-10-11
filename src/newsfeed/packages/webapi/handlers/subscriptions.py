@@ -2,7 +2,11 @@
 
 from aiohttp import web
 
-from newsfeed.packages.domain_model.subscription import SubscriptionService, Subscription
+from newsfeed.packages.domain_model.subscription import (
+    Subscription,
+    SubscriptionService,
+    SubscriptionAlreadyExistsError,
+)
 
 
 async def get_subscriptions_handler(request, *,
@@ -26,10 +30,18 @@ async def post_subscription_handler(request, *,
     """Handle subscriptions posting requests."""
     data = await request.json()
 
-    subscription = await subscription_service.create_subscription(
-        newsfeed_id=request.match_info['newsfeed_id'],
-        to_newsfeed_id=data['to_newsfeed_id'],
-    )
+    try:
+        subscription = await subscription_service.create_subscription(
+            newsfeed_id=request.match_info['newsfeed_id'],
+            to_newsfeed_id=data['to_newsfeed_id'],
+        )
+    except SubscriptionAlreadyExistsError as exception:
+        return web.json_response(
+            status=400,
+            data={
+                'message': exception.message,
+            }
+        )
 
     return web.json_response(
         status=200,
