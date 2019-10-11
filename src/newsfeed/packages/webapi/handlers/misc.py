@@ -249,6 +249,37 @@ OPENAPI_SCHEMA = {
                 },
             },
         },
+        '/newsfeed/{newsfeed_id}/subscribers/subscriptions/': {
+            'get': {
+                'summary': 'Return newsfeed subscriber subscriptions',
+                'operationId': 'get_newsfeed_subscriber_subscriptions',
+                'tags': [
+                    'Subscriptions',
+                ],
+                'parameters': [
+                    {
+                        'in': 'path',
+                        'name': 'newsfeed_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                        },
+                    },
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'List of newsfeed subscriber subscriptions',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    '$ref': '#/components/schemas/NewsfeedSubscriptionsList',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
         '/status/': {
             'get': {
                 'summary': 'Return current microservice status',

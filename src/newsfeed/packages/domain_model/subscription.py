@@ -164,6 +164,10 @@ class SubscriptionService:
         """Return list of newsfeed subscriptions."""
         return await self._repository.get_subscriptions(newsfeed_id)
 
+    async def get_newsfeed_subscriber_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:  # noqa
+        """Return list of newsfeed subscriber subscriptions."""
+        return await self._repository.get_subscriptions_to(newsfeed_id)
+
     async def delete_newsfeed_subscription(self, newsfeed_id: str, subscription_id: str):
         """Delete newsfeed subscription."""
         subscription = await self._repository.get_subscription(newsfeed_id, UUID(subscription_id))
