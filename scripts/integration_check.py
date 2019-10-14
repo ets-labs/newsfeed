@@ -1,19 +1,17 @@
 """Script for integration testing of newsfeed service."""
 
-# TODO: This script requires massive refactoring
-
 import asyncio
 
 import aiohttp
 
 
-class IntegrationTest:
-    """Integration test."""
+class ApiClient:
+    """Service API client."""
 
-    def __init__(self, url):
+    def __init__(self, url, session):
         """Initialize object."""
         self._base_url = url
-        self._session = ...
+        self._session = session
 
     def _url(self, uri):
         return f'{self._base_url}{uri}'
@@ -71,30 +69,97 @@ class IntegrationTest:
                 as response:
             return response.status == 204
 
-    async def _test_01(self):
+
+class IntegrationTest1:
+    """Integration test 1."""
+
+    def __init__(self, api_client: ApiClient):
+        """Initialize test."""
+        self._api_client = api_client
+
+    async def test(self):
+        """Run test."""
         newsfeed_123 = '123'
-        event_123_1 = await self.publish_event(
+        event_123_1 = await self._api_client.publish_event(
             newsfeed_id='123',
             event_data={
                 'payload': 'event_1',
             },
         )
 
-        event_123_1_deleted = await self.delete_event(
+        event_123_1_deleted = await self._api_client.delete_event(
             newsfeed_id=newsfeed_123,
             event_id=event_123_1['id'],
         )
         assert event_123_1_deleted is True
 
-        newsfeed_123_events = await self.get_events(newsfeed_id=newsfeed_123)
+        newsfeed_123_events = await self._api_client.get_events(newsfeed_id=newsfeed_123)
         assert len(newsfeed_123_events) == 0, newsfeed_123_events
 
-    async def _test_02(self):
+
+class IntegrationTest2:
+    """Integration test 2."""
+
+    def __init__(self, api_client: ApiClient):
+        """Initialize test."""
+        self._api_client = api_client
+
+    async def test(self):
+        """Run test."""
         newsfeed_123 = '123'
         subscriber_124 = '124'
         subscriber_125 = '125'
 
         # Add subscriptions
+        subscription_124_to_123, subscription_125_to_123 = await self._add_subscriptions(
+            newsfeed_123=newsfeed_123,
+            subscriber_124=subscriber_124,
+            subscriber_125=subscriber_125,
+        )
+
+        # Add event
+        event_123_1 = await self._publish_event(newsfeed_id=newsfeed_123)
+
+        # Assert event publishing
+        await self._assert_event_published_to_all_newsfeeds(
+            event=event_123_1,
+            newsfeed_123=newsfeed_123,
+            subscriber_124=subscriber_124,
+            subscriber_125=subscriber_125,
+        )
+
+        # Assert subscriptions
+        await self._assert_123_subscriptions(
+            newsfeed_123=newsfeed_123,
+            subscription_125_to_123=subscription_125_to_123,
+            subscription_124_to_123=subscription_124_to_123,
+        )
+        await self._assert_12x_subscriptions(
+            subscriber_id=subscriber_124,
+            subscription=subscription_124_to_123,
+        )
+        await self._assert_12x_subscriptions(
+            subscriber_id=subscriber_125,
+            subscription=subscription_125_to_123,
+        )
+
+        # Delete subscriptions
+        await self._delete_subscriptions(subscription_125_to_123, subscription_124_to_123)
+
+        # Assert that all subscriptions are deleted
+        await self._assert_no_subscriber_subscriptions(newsfeed_123)
+        await self._assert_no_subscriptions(subscriber_124, subscriber_125)
+
+        # Delete events
+        await self._delete_event(
+            newsfeed_id=newsfeed_123,
+            event=event_123_1,
+        )
+
+        # Assert that all events are deleted
+        await self._assert_no_events(newsfeed_123, subscriber_124, subscriber_125)
+
+    async def _add_subscriptions(self, newsfeed_123, subscriber_124, subscriber_125):
         subscription_124_to_123 = await self.add_subscription(
             newsfeed_id=subscriber_124,
             to_newsfeed_id=newsfeed_123,
@@ -103,116 +168,101 @@ class IntegrationTest:
             newsfeed_id=subscriber_125,
             to_newsfeed_id=newsfeed_123,
         )
+        return subscription_124_to_123, subscription_125_to_123
 
-        # Add event
-        event_123_1 = await self.publish_event(
-            newsfeed_id='123',
+    async def _publish_event(self, newsfeed_id):
+        return await self._api_client.publish_event(
+            newsfeed_id=newsfeed_id,
             event_data={
-                'payload': 'event_1',
+                'payload': 'event_payload',
             },
         )
 
-        newsfeed_123_events = await self.get_events(newsfeed_id=newsfeed_123)
-        assert newsfeed_123_events[0]['id'] == event_123_1['id']
+    async def _assert_event_published_to_all_newsfeeds(self, event, newsfeed_123,
+                                                       subscriber_124, subscriber_125):
+        newsfeed_123_events = await self._api_client.get_events(newsfeed_id=newsfeed_123)
+        assert newsfeed_123_events[0]['id'] == event['id']
         assert newsfeed_123_events[0]['child_fqids'][0]['newsfeed_id'] == subscriber_125
         assert newsfeed_123_events[0]['child_fqids'][1]['newsfeed_id'] == subscriber_124
 
-        newsfeed_125_events = await self.get_events(newsfeed_id=subscriber_125)
+        newsfeed_125_events = await self._api_client.get_events(newsfeed_id=subscriber_125)
         assert newsfeed_125_events[0]['parent_fqid']['newsfeed_id'] == newsfeed_123
-        assert newsfeed_125_events[0]['parent_fqid']['event_id'] == event_123_1['id']
+        assert newsfeed_125_events[0]['parent_fqid']['event_id'] == event['id']
         assert newsfeed_125_events[0]['id'] == newsfeed_123_events[0]['child_fqids'][0]['event_id']
 
-        newsfeed_124_events = await self.get_events(newsfeed_id=subscriber_124)
+        newsfeed_124_events = await self._api_client.get_events(newsfeed_id=subscriber_124)
         assert newsfeed_124_events[0]['parent_fqid']['newsfeed_id'] == newsfeed_123
-        assert newsfeed_124_events[0]['parent_fqid']['event_id'] == event_123_1['id']
+        assert newsfeed_124_events[0]['parent_fqid']['event_id'] == event['id']
         assert newsfeed_124_events[0]['id'] == newsfeed_123_events[0]['child_fqids'][1]['event_id']
 
-        # 123 subscriptions
-        newsfeed_123_subscriber_subscriptions = await self.get_subscriber_subscriptions(
+    async def _assert_123_subscriptions(self, newsfeed_123, subscription_125_to_123,
+                                        subscription_124_to_123):
+        newsfeed_123_subscriber_subscriptions = await self._api_client.get_subscriber_subscriptions(
             newsfeed_id=newsfeed_123,
         )
         assert newsfeed_123_subscriber_subscriptions[0]['id'] == subscription_125_to_123['id']
         assert newsfeed_123_subscriber_subscriptions[1]['id'] == subscription_124_to_123['id']
 
-        newsfeed_123_subscriptions = await self.get_subscriptions(
+        newsfeed_123_subscriptions = await self._api_client.get_subscriptions(
             newsfeed_id=newsfeed_123,
         )
         assert len(newsfeed_123_subscriptions) == 0
 
-        # 124 subscriptions
-        newsfeed_124_subscriber_subscriptions = await self.get_subscriber_subscriptions(
-            newsfeed_id=subscriber_124,
+    async def _assert_12x_subscriptions(self, subscriber_id, subscription):
+        subscriber_subscriptions = await self._api_client.get_subscriber_subscriptions(
+            newsfeed_id=subscriber_id,
         )
-        assert len(newsfeed_124_subscriber_subscriptions) == 0
+        assert len(subscriber_subscriptions) == 0
 
-        newsfeed_124_subscriptions = await self.get_subscriptions(
-            newsfeed_id=subscriber_124,
+        subscriptions = await self._api_client.get_subscriptions(
+            newsfeed_id=subscriber_id,
         )
-        assert newsfeed_124_subscriptions[0]['id'] == subscription_124_to_123['id']
+        assert subscriptions[0]['id'] == subscription['id']
 
-        # 125 subscriptions
-        newsfeed_125_subscriber_subscriptions = await self.get_subscriber_subscriptions(
-            newsfeed_id=subscriber_125,
-        )
-        assert len(newsfeed_125_subscriber_subscriptions) == 0
+    async def _delete_subscriptions(self, *subscriptions):
+        for subscription in subscriptions:
+            await self._api_client.delete_subscription(
+                newsfeed_id=subscription['from_newsfeed_id'],  # TODO: will be renamed later
+                subscription_id=subscription['id'],
+            )
 
-        newsfeed_125_subscriptions = await self.get_subscriptions(
-            newsfeed_id=subscriber_125,
-        )
-        assert newsfeed_125_subscriptions[0]['id'] == subscription_125_to_123['id']
+    async def _assert_no_subscriptions(self, *newsfeed_ids):
+        for newsfeed_id in newsfeed_ids:
+            subscriptions = await self._api_client.get_subscriptions(newsfeed_id=newsfeed_id)
+            assert len(subscriptions) == 0
 
-        # Delete subscriptions
-        await self.delete_subscription(
-            newsfeed_id=subscriber_125,
-            subscription_id=subscription_125_to_123['id'],
-        )
-        await self.delete_subscription(
-            newsfeed_id=subscriber_124,
-            subscription_id=subscription_124_to_123['id'],
-        )
+    async def _assert_no_subscriber_subscriptions(self, *newsfeed_ids):
+        for newsfeed_id in newsfeed_ids:
+            subscriptions = await self._api_client.get_subscriber_subscriptions(
+                newsfeed_id=newsfeed_id,
+            )
+            assert len(subscriptions) == 0
 
-        newsfeed_123_subscriber_subscriptions = await self.get_subscriber_subscriptions(
-            newsfeed_id=newsfeed_123,
-        )
-        newsfeed_124_subscriptions = await self.get_subscriptions(
-            newsfeed_id=subscriber_124,
-        )
-
-        newsfeed_125_subscriptions = await self.get_subscriptions(
-            newsfeed_id=subscriber_125,
-        )
-        assert (
-            len(newsfeed_123_subscriber_subscriptions) == len(newsfeed_124_subscriptions) ==
-            len(newsfeed_125_subscriptions) == 0
-        )
-
-        # Delete events
-        event_123_1_deleted = await self.delete_event(
-            newsfeed_id=newsfeed_123,
-            event_id=event_123_1['id'],
+    async def _delete_event(self, newsfeed_id, event):
+        event_123_1_deleted = await self._api_client.delete_event(
+            newsfeed_id=newsfeed_id,
+            event_id=event['id'],
         )
         assert event_123_1_deleted is True
 
-        newsfeed_123_events = await self.get_events(newsfeed_id=newsfeed_123)
-        newsfeed_125_events = await self.get_events(newsfeed_id=subscriber_125)
-        newsfeed_124_events = await self.get_events(newsfeed_id=subscriber_124)
+    async def _assert_no_events(self, *newsfeed_ids):
+        for newsfeed_id in newsfeed_ids:
+            events = await self._api_client.get_events(newsfeed_id=newsfeed_id)
+            assert len(events) == 0
 
-        assert (
-            len(newsfeed_123_events) == len(newsfeed_125_events) == len(newsfeed_124_events)
-            == 0
-        )
 
-    async def main(self):
-        """Run test."""
-        async with aiohttp.ClientSession() as session:
-            self._session = session
+async def main(url):
+    """Run tests."""
+    async with aiohttp.ClientSession() as session:
+        api_client = ApiClient(url, session)
 
-            await self._test_01()
-            await self._test_02()
+        test_1 = IntegrationTest1(api_client)
+        await test_1.test()
+
+        test_2 = IntegrationTest1(api_client)
+        await test_2.test()
 
 
 if __name__ == '__main__':
-    test = IntegrationTest(url='http://127.0.0.1:8000/')
-
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(test.main())
+    loop.run_until_complete(main(url='http://127.0.0.1:8000/'))
