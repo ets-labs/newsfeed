@@ -5,7 +5,7 @@ from aiohttp import web
 from newsfeed.packages.domain_model.subscription import (
     Subscription,
     SubscriptionService,
-    SubscriptionAlreadyExistsError,
+    SubscriptionError,
 )
 
 
@@ -35,7 +35,7 @@ async def post_subscription_handler(request, *,
             newsfeed_id=request.match_info['newsfeed_id'],
             to_newsfeed_id=data['to_newsfeed_id'],
         )
-    except SubscriptionAlreadyExistsError as exception:
+    except SubscriptionError as exception:
         return web.json_response(
             status=400,
             data={
