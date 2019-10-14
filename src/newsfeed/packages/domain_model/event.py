@@ -21,10 +21,7 @@ class EventFQID:
     @property
     def serialized_data(self):
         """Return serialized data."""
-        return {
-            'newsfeed_id': self.newsfeed_id,
-            'event_id': str(self.event_id),
-        }
+        return self.newsfeed_id, str(self.event_id)
 
 
 class Event:
@@ -140,18 +137,18 @@ class EventFactory:
             data=data['data'],
             parent_fqid=(
                 EventFQID(
-                    newsfeed_id=data['parent_fqid']['newsfeed_id'],
-                    event_id=UUID(data['parent_fqid']['event_id']),
+                    newsfeed_id=data['parent_fqid'][0],
+                    event_id=UUID(data['parent_fqid'][1]),
                 )
                 if data['parent_fqid']
                 else None
             ),
             child_fqids=[
                 EventFQID(
-                    newsfeed_id=data['newsfeed_id'],
-                    event_id=UUID(data['event_id']),
+                    newsfeed_id=newsfeed_id,
+                    event_id=UUID(event_id),
                 )
-                for data in data['child_fqids'] or []
+                for newsfeed_id, event_id in data['child_fqids'] or []
             ],
             first_seen_at=datetime.utcfromtimestamp(data['first_seen_at']),
             published_at=(
