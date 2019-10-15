@@ -6,11 +6,11 @@ async def test_event_publishing(app):
     newsfeed_id = '123'
 
     event_dispatcher_service = app.domain_model.event_dispatcher_service()
-    event_publisher_service = app.domain_model.event_publisher_service()
+    event_processor_service = app.domain_model.event_processor_service()
 
     await _process_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_1',
@@ -18,7 +18,7 @@ async def test_event_publishing(app):
     )
     await _process_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_2',
@@ -47,11 +47,11 @@ async def test_event_publishing_to_subscriber(app):
     )
 
     event_dispatcher_service = app.domain_model.event_dispatcher_service()
-    event_publisher_service = app.domain_model.event_publisher_service()
+    event_processor_service = app.domain_model.event_processor_service()
 
     await _process_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_1',
@@ -59,7 +59,7 @@ async def test_event_publishing_to_subscriber(app):
     )
     await _process_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_2',
@@ -84,9 +84,9 @@ async def test_event_publishing_to_subscriber(app):
     }
 
 
-async def _process_event(event_dispatcher_service, event_publisher_service, newsfeed_id, data):
+async def _process_event(event_dispatcher_service, event_processor_service, newsfeed_id, data):
     await event_dispatcher_service.dispatch_new_event(
         newsfeed_id=newsfeed_id,
         data=data,
     )
-    await event_publisher_service.process_event()
+    await event_processor_service.process_event()

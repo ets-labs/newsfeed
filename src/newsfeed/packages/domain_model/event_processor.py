@@ -1,4 +1,4 @@
-"""Events module."""
+"""Event processor module."""
 
 from uuid import UUID
 
@@ -8,8 +8,8 @@ from .event import EventFactory, EventRepository, EventFQID
 from .subscription import SubscriptionRepository
 
 
-class EventPublisherService:
-    """Event publisher service."""
+class EventProcessorService:
+    """Event processor service."""
 
     def __init__(self,
                  event_queue: EventQueue,
@@ -34,13 +34,13 @@ class EventPublisherService:
         action, data = await self._event_queue.get()
 
         if action == 'post':
-            await self.process_new_event_posting(data)
+            await self.process_new_event(data)
         elif action == 'delete':
-            await self.process_existing_event_deletion(data)
+            await self.process_event_deletion(data)
         else:
             ...
 
-    async def process_new_event_posting(self, event_data):
+    async def process_new_event(self, event_data):
         """Process posting of new event."""
         event = self._event_factory.create_from_serialized(event_data)
         subscriptions = await self._subscription_repository.get_subscriptions_to(event.newsfeed_id)
@@ -64,7 +64,7 @@ class EventPublisherService:
             event.track_publishing_time()
             await self._event_repository.add(event)
 
-    async def process_existing_event_deletion(self, data):
+    async def process_event_deletion(self, data):
         """Process deletion of an existing event."""
         event = await self._event_repository.get_by_fqid(
             EventFQID(

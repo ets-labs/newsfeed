@@ -6,11 +6,11 @@ async def test_event_deletion(app):
     newsfeed_id = '123'
 
     event_dispatcher_service = app.domain_model.event_dispatcher_service()
-    event_publisher_service = app.domain_model.event_publisher_service()
+    event_processor_service = app.domain_model.event_processor_service()
 
     event_1 = await _process_new_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_1',
@@ -18,7 +18,7 @@ async def test_event_deletion(app):
     )
     event_2 = await _process_new_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_2',
@@ -27,7 +27,7 @@ async def test_event_deletion(app):
 
     await _process_event_deletion(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         event_id=event_1.id,
     )
@@ -51,11 +51,11 @@ async def test_event_deletion_from_subscriber(app):
     )
 
     event_dispatcher_service = app.domain_model.event_dispatcher_service()
-    event_publisher_service = app.domain_model.event_publisher_service()
+    event_processor_service = app.domain_model.event_processor_service()
 
     event_1 = await _process_new_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_1',
@@ -63,7 +63,7 @@ async def test_event_deletion_from_subscriber(app):
     )
     event_2 = await _process_new_event(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         data={
             'event_data': 'some_data_2',
@@ -72,7 +72,7 @@ async def test_event_deletion_from_subscriber(app):
 
     await _process_event_deletion(
         event_dispatcher_service,
-        event_publisher_service,
+        event_processor_service,
         newsfeed_id=newsfeed_id,
         event_id=event_1.id,
     )
@@ -91,19 +91,19 @@ async def test_event_deletion_from_subscriber(app):
     assert subscriber_events[0]['data'] == event_2.data
 
 
-async def _process_new_event(event_dispatcher_service, event_publisher_service, newsfeed_id, data):
+async def _process_new_event(event_dispatcher_service, event_processor_service, newsfeed_id, data):
     event = await event_dispatcher_service.dispatch_new_event(
         newsfeed_id=newsfeed_id,
         data=data,
     )
-    await event_publisher_service.process_event()
+    await event_processor_service.process_event()
     return event
 
 
-async def _process_event_deletion(event_dispatcher_service, event_publisher_service, newsfeed_id,
+async def _process_event_deletion(event_dispatcher_service, event_processor_service, newsfeed_id,
                                   event_id):
     await event_dispatcher_service.dispatch_event_deletion(
         newsfeed_id=newsfeed_id,
         event_id=str(event_id),
     )
-    await event_publisher_service.process_event()
+    await event_processor_service.process_event()
