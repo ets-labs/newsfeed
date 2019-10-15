@@ -18,6 +18,11 @@ class EventFQID:
         assert isinstance(event_id, UUID)
         self.event_id = event_id
 
+    @classmethod
+    def from_serialized_data(cls, data):
+        """Create instance from serialized data."""
+        return cls(data[0], UUID(data[1]))
+
     @property
     def serialized_data(self):
         """Return serialized data."""
@@ -139,19 +144,13 @@ class EventFactory:
             newsfeed_id=data['newsfeed_id'],
             data=data['data'],
             parent_fqid=(
-                EventFQID(
-                    newsfeed_id=data['parent_fqid'][0],
-                    event_id=UUID(data['parent_fqid'][1]),
-                )
+                EventFQID.from_serialized_data(data['parent_fqid'])
                 if data['parent_fqid']
                 else None
             ),
             child_fqids=[
-                EventFQID(
-                    newsfeed_id=newsfeed_id,
-                    event_id=UUID(event_id),
-                )
-                for newsfeed_id, event_id in data['child_fqids'] or []
+                EventFQID.from_serialized_data(child_fqid)
+                for child_fqid in data['child_fqids'] or []
             ],
             first_seen_at=datetime.utcfromtimestamp(data['first_seen_at']),
             published_at=(
