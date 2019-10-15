@@ -160,11 +160,11 @@ class IntegrationTest2:
         await self._assert_no_events(newsfeed_123, subscriber_124, subscriber_125)
 
     async def _add_subscriptions(self, newsfeed_123, subscriber_124, subscriber_125):
-        subscription_124_to_123 = await self.add_subscription(
+        subscription_124_to_123 = await self._api_client.add_subscription(
             newsfeed_id=subscriber_124,
             to_newsfeed_id=newsfeed_123,
         )
-        subscription_125_to_123 = await self.add_subscription(
+        subscription_125_to_123 = await self._api_client.add_subscription(
             newsfeed_id=subscriber_125,
             to_newsfeed_id=newsfeed_123,
         )
@@ -259,7 +259,7 @@ async def main(url):
         test_1 = IntegrationTest1(api_client)
         await test_1.test()
 
-        test_2 = IntegrationTest1(api_client)
+        test_2 = IntegrationTest2(api_client)
         await test_2.test()
 
 
