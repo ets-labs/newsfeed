@@ -53,7 +53,7 @@ class EventPublisherService:
             )
             for subscription in subscriptions
         ]
-        event.track_child_event_fqids(
+        event.track_child_fqids(
             [
                 subscriber_event.fqid
                 for subscriber_event in subscriber_events

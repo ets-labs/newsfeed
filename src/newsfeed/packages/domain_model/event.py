@@ -90,7 +90,7 @@ class Event:
         """Track publishing time."""
         self._published_at = datetime.utcnow()
 
-    def track_child_event_fqids(self, child_fqids: Sequence[EventFQID]):
+    def track_child_fqids(self, child_fqids: Sequence[EventFQID]):
         """Track child FQIDs.
 
         This method accumulates child FQIDs.
