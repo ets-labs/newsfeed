@@ -117,14 +117,14 @@ class EventFactory:
         assert issubclass(cls, Event)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, data, parent_fqid=None, child_fqids=None) -> Event:
+    def create_new(self, newsfeed_id, data, parent_fqid=None) -> Event:
         """Create new event."""
         return self._cls(
             id=uuid4(),
             newsfeed_id=newsfeed_id,
             data=data,
             parent_fqid=parent_fqid,
-            child_fqids=child_fqids or [],
+            child_fqids=[],
             first_seen_at=datetime.utcnow(),
             published_at=None,
         )
