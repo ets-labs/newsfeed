@@ -85,7 +85,7 @@ async def test_event_publishing_to_subscriber(app):
 
 
 async def _process_event(event_dispatcher_service, event_publisher_service, newsfeed_id, data):
-    await event_dispatcher_service.dispatch_new_event_posting(
+    await event_dispatcher_service.dispatch_new_event(
         newsfeed_id=newsfeed_id,
         data=data,
     )

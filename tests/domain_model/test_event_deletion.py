@@ -92,7 +92,7 @@ async def test_event_deletion_from_subscriber(app):
 
 
 async def _process_new_event(event_dispatcher_service, event_publisher_service, newsfeed_id, data):
-    event = await event_dispatcher_service.dispatch_new_event_posting(
+    event = await event_dispatcher_service.dispatch_new_event(
         newsfeed_id=newsfeed_id,
         data=data,
     )
