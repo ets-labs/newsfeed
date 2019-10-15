@@ -68,7 +68,7 @@ class Event:
 
     @property
     def fqid(self):
-        """Return fully-qualified event id."""
+        """Return FQID (Fully-Qualified ID)."""
         return EventFQID(self.newsfeed_id, self.id)
 
     @property
@@ -82,15 +82,18 @@ class Event:
         return self._data
 
     def track_publishing_time(self):
-        """Track event publishing time."""
+        """Track publishing time."""
         self._published_at = datetime.utcnow()
 
     def track_child_event_fqids(self, child_fqids: Sequence[EventFQID]):
-        """Track event child FQIDs."""
+        """Track child FQIDs.
+
+        This method accumulates child FQIDs.
+        """
         assert isinstance(child_fqids, Sequence)
         for child_fqid in child_fqids:
             assert isinstance(child_fqid, EventFQID)
-        self._child_fqids = child_fqids
+        self._child_fqids.extend(child_fqids)
 
     @property
     def serialized_data(self):
