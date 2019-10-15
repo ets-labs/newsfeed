@@ -11,7 +11,7 @@ async def get_events_handler(request, *,
     """Handle events getting requests."""
     newsfeed_id = request.match_info['newsfeed_id']
 
-    newsfeed_events = await event_repository.get_newsfeed(newsfeed_id)
+    newsfeed_events = await event_repository.get_all_by_newsfeed_id(newsfeed_id)
 
     return web.json_response(
         data={
