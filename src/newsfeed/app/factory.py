@@ -1,5 +1,7 @@
 """Factory module."""
 
+import os
+
 from dependency_injector import providers
 
 from .application import Application
@@ -16,5 +18,8 @@ application_factory = providers.Factory(
     ),
     web_api=providers.Factory(
         WebApi,
+        config={
+            'base_path': os.getenv('API_BASE_PATH'),
+        },
     ),
 )

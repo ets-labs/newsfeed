@@ -89,10 +89,13 @@ class DomainModel(containers.DeclarativeContainer):
 class WebApi(containers.DeclarativeContainer):
     """Web API container."""
 
+    config = providers.Configuration('web_api')
+
     domain: DomainModel = providers.DependenciesContainer()
 
     web_app = providers.Factory(
         webapi.app.create_web_app,
+        base_path=config.base_path,
         routes=[
             # Subscriptions
             webapi.app.route(
@@ -167,6 +170,7 @@ class WebApi(containers.DeclarativeContainer):
                 path='/docs/',
                 handler=providers.Coroutine(
                     webapi.handlers.misc.get_openapi_schema_handler,
+                    base_path=config.base_path,
                 ),
             ),
         ],
