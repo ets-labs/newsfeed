@@ -19,6 +19,7 @@ application_factory = providers.Factory(
     web_api=providers.Factory(
         WebApi,
         config={
+            'port': os.getenv('PORT'),
             'base_path': os.getenv('API_BASE_PATH'),
         },
     ),
