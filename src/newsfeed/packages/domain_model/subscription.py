@@ -121,12 +121,12 @@ class SubscriptionRepository:
             for subscription_data in subscriptions_data
         ]
 
-    async def get_subscription(self, newsfeed_id: str, subscription_id: UUID) -> Subscription:
+    async def get(self, newsfeed_id: str, subscription_id: UUID) -> Subscription:
         """Return newsfeed subscription."""
         subscription_data = await self._storage.get(newsfeed_id, str(subscription_id))
         return self._factory.create_from_serialized(subscription_data)
 
-    async def get_subscription_between(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:  # noqa
+    async def get_between(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:
         """Return subscription between two newsfeeds."""
         subscription_data = await self._storage.get_between(newsfeed_id, to_newsfeed_id)
         return self._factory.create_from_serialized(subscription_data)
@@ -135,7 +135,7 @@ class SubscriptionRepository:
         """Add subscription to repository."""
         await self._storage.add(subscription.serialized_data)
 
-    async def delete_subscription(self, subscription: Subscription):
+    async def delete(self, subscription: Subscription):
         """Delete subscription."""
         await self._storage.delete(subscription.serialized_data)
 
@@ -189,12 +189,12 @@ class SubscriptionService:
 
     async def delete_subscription(self, newsfeed_id: str, subscription_id: str):
         """Delete newsfeed subscription."""
-        subscription = await self._repository.get_subscription(newsfeed_id, UUID(subscription_id))
-        await self._repository.delete_subscription(subscription)
+        subscription = await self._repository.get(newsfeed_id, UUID(subscription_id))
+        await self._repository.delete(subscription)
 
     async def _check_subscription_exists_between(self, newsfeed_id, to_newsfeed_id):
         try:
-            _ = await self._repository.get_subscription_between(
+            _ = await self._repository.get_between(
                 newsfeed_id=newsfeed_id,
                 to_newsfeed_id=to_newsfeed_id,
             )
