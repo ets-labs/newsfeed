@@ -157,11 +157,11 @@ class SubscriptionService:
         assert isinstance(repository, SubscriptionRepository)
         self._repository = repository
 
-    async def get_newsfeed_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
+    async def get_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
         """Return list of newsfeed subscriptions."""
         return await self._repository.get_subscriptions(newsfeed_id)
 
-    async def get_newsfeed_subscriber_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:  # noqa
+    async def get_subscriber_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
         """Return list of newsfeed subscriber subscriptions."""
         return await self._repository.get_subscriptions_to(newsfeed_id)
 
@@ -187,7 +187,7 @@ class SubscriptionService:
 
         return subscription
 
-    async def delete_newsfeed_subscription(self, newsfeed_id: str, subscription_id: str):
+    async def delete_subscription(self, newsfeed_id: str, subscription_id: str):
         """Delete newsfeed subscription."""
         subscription = await self._repository.get_subscription(newsfeed_id, UUID(subscription_id))
         await self._repository.delete_subscription(subscription)

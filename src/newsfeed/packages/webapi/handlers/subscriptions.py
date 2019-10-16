@@ -12,7 +12,7 @@ from newsfeed.packages.domain_model.subscription import (
 async def get_subscriptions_handler(request, *,
                                     subscription_service: SubscriptionService):
     """Handle subscriptions getting requests."""
-    newsfeed_subscriptions = await subscription_service.get_newsfeed_subscriptions(
+    newsfeed_subscriptions = await subscription_service.get_subscriptions(
         newsfeed_id=request.match_info['newsfeed_id'],
     )
     return web.json_response(
@@ -52,7 +52,7 @@ async def post_subscription_handler(request, *,
 async def delete_subscription_handler(request, *,
                                       subscription_service: SubscriptionService):
     """Handle subscriptions deleting requests."""
-    await subscription_service.delete_newsfeed_subscription(
+    await subscription_service.delete_subscription(
         newsfeed_id=request.match_info['newsfeed_id'],
         subscription_id=request.match_info['subscription_id'],
     )
@@ -62,7 +62,7 @@ async def delete_subscription_handler(request, *,
 async def get_subscriber_subscriptions_handler(request, *,
                                                subscription_service: SubscriptionService):
     """Handle subscriber subscriptions getting requests."""
-    newsfeed_subscriptions = await subscription_service.get_newsfeed_subscriber_subscriptions(
+    newsfeed_subscriptions = await subscription_service.get_subscriber_subscriptions(
         newsfeed_id=request.match_info['newsfeed_id'],
     )
     return web.json_response(
