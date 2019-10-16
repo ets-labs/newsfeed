@@ -63,7 +63,7 @@ class Subscription:
     @property
     def fqid(self):
         """Return FQID (Fully-Qualified ID)."""
-        return SubscriptionFQID(self.from_newsfeed_id, self.id)
+        return SubscriptionFQID(self.newsfeed_id, self.id)
 
     @property
     def subscribed_at(self):
