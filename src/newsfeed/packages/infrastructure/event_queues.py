@@ -10,27 +10,34 @@ class EventQueue:
         """Initialize queue."""
         self._config = config
 
-    async def put(self, event_data):
-        """Put event data to queue."""
-        raise NotImplementedError()
-
     async def get(self):
         """Get event data from queue."""
         raise NotImplementedError()
 
+    async def put(self, event_data):
+        """Put event data to queue."""
+        raise NotImplementedError()
 
-class AsyncInMemoryEventQueue(EventQueue):
-    """Async event queue that stores events in memory."""
+
+class InMemoryEventQueue(EventQueue):
+    """Event queue that stores events in memory."""
 
     def __init__(self, config):
         """Initialize queue."""
         super().__init__(config)
         self._queue = asyncio.Queue()
 
-    async def put(self, event_data):
-        """Put event data to queue."""
-        self._queue.put_nowait(event_data)
-
     async def get(self):
         """Get event data from queue."""
         return await self._queue.get()
+
+    async def put(self, event_data):
+        """Put event data to queue."""
+        try:
+            self._queue.put_nowait(event_data)
+        except asyncio.QueueFull:
+            raise QueueFull('Event queue is full')
+
+
+class QueueFull(Exception):
+    """Error indicating situations when queue can not accept messages due to being full."""
