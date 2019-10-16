@@ -73,6 +73,26 @@ async def test_post_subscriptions(web_client, app):
     assert subscriptions[0]['to_newsfeed_id'] == '123'
 
 
+async def test_post_subscription_to_self(web_client, app):
+    """Check subscriptions posting handler."""
+    newsfeed_id = '124'
+
+    response = await web_client.post(
+        f'/newsfeed/{newsfeed_id}/subscriptions/',
+        json={
+            'to_newsfeed_id': newsfeed_id,
+        },
+    )
+
+    assert response.status == 400
+    data = await response.json()
+    assert data['message'] == f'Subscription of newsfeed "{newsfeed_id}" to itself is restricted'
+
+    subscription_storage = app.infrastructure.subscription_storage()
+    subscriptions = await subscription_storage.get_from(newsfeed_id=newsfeed_id)
+    assert len(subscriptions) == 0
+
+
 async def test_post_multiple_subscriptions_to_the_same_feed(web_client, app):
     """Check subscriptions posting handler."""
     newsfeed_id = '123'

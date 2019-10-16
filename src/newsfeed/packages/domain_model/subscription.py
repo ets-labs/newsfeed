@@ -89,6 +89,8 @@ class SubscriptionSpecification:
 
     def is_satisfied_by(self, subscription: Subscription):
         """Check if subscription satisfies specification."""
+        if subscription.from_newsfeed_id == subscription.to_newsfeed_id:
+            raise SelfSubscriptionError(newsfeed_id=subscription.from_newsfeed_id)
         return True
 
 
@@ -202,7 +204,29 @@ class SubscriptionService:
             return True
 
 
-class SubscriptionAlreadyExistsError(Exception):
+class SubscriptionError(Exception):
+    """Subscription-related error."""
+
+    @property
+    def message(self):
+        """Return error message."""
+        return 'Newsfeed subscription error'
+
+
+class SelfSubscriptionError(SubscriptionError):
+    """Error indicating situations when subscription of newsfeed to itself is attempted."""
+
+    def __init__(self, newsfeed_id):
+        """Initialize error."""
+        self._newsfeed_id = newsfeed_id
+
+    @property
+    def message(self):
+        """Return error message."""
+        return f'Subscription of newsfeed "{self._newsfeed_id}" to itself is restricted'
+
+
+class SubscriptionAlreadyExistsError(SubscriptionError):
     """Error indicating situations when subscription between two newsfeeds already exists."""
 
     def __init__(self, newsfeed_id, to_newsfeed_id):
