@@ -45,8 +45,9 @@ class InMemoryEventStorage(EventStorage):
             if event['id'] == event_id:
                 return event
         else:
-            raise RuntimeError(
-                f'Event "{event_id}" could not be found in newsfeed "{newsfeed_id}"',
+            raise EventNotFound(
+                newsfeed_id=newsfeed_id,
+                event_id=event_id,
             )
 
     async def add(self, event_data):
@@ -65,3 +66,17 @@ class InMemoryEventStorage(EventStorage):
                 break
         if event_index is not None:
             del newsfeed_storage[event_index]
+
+
+class EventNotFound(Exception):
+    """Error indicating situations when event could not be found in the storage."""
+
+    def __init__(self, newsfeed_id, event_id):
+        """Initialize error."""
+        self._newsfeed_id = newsfeed_id
+        self._event_id = event_id
+
+    @property
+    def message(self):
+        """Return error message."""
+        return f'Event "{self._event_id}" could not be found in newsfeed "{self._newsfeed_id}"'
