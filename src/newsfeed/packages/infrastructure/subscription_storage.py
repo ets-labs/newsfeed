@@ -47,10 +47,10 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
 
     async def add(self, subscription_data: Mapping):
         """Add subscription data to the storage."""
-        from_newsfeed_id = subscription_data['from_newsfeed_id']
+        newsfeed_id = subscription_data['newsfeed_id']
         to_newsfeed_id = subscription_data['to_newsfeed_id']
 
-        self._subscriptions_storage[from_newsfeed_id].appendleft(subscription_data)
+        self._subscriptions_storage[newsfeed_id].appendleft(subscription_data)
         self._subscribers_storage[to_newsfeed_id].appendleft(subscription_data)
 
     async def get_from(self, newsfeed_id: str):
@@ -88,7 +88,7 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
 
     async def delete(self, subscription_data: Mapping):
         """Delete subscription."""
-        newsfeed_id = subscription_data['from_newsfeed_id']
+        newsfeed_id = subscription_data['newsfeed_id']
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         newsfeed_subscriptions_storage.remove(subscription_data)
 

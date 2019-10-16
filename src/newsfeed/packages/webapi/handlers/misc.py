@@ -189,10 +189,6 @@ OPENAPI_SCHEMA = {
                         'application/json': {
                             'schema': {
                                 'properties': {
-                                    'from_newsfeed_id': {
-                                        'type': 'string',
-                                        'example': '124',
-                                    },
                                     'to_newsfeed_id': {
                                         'type': 'string',
                                         'example': '123',

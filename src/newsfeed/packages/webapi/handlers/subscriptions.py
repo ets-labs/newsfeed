@@ -78,7 +78,7 @@ async def get_subscriber_subscriptions_handler(request, *,
 def _serialize_subscription(subscription: Subscription):
     return {
         'id': str(subscription.id),
-        'from_newsfeed_id': str(subscription.from_newsfeed_id),
+        'newsfeed_id': str(subscription.newsfeed_id),
         'to_newsfeed_id': str(subscription.to_newsfeed_id),
         'subscribed_at': int(subscription.subscribed_at.timestamp()),
     }

@@ -47,7 +47,7 @@ class EventProcessorService:
 
         subscriber_events = [
             self._event_factory.create_new(
-                newsfeed_id=subscription.from_newsfeed_id,
+                newsfeed_id=subscription.newsfeed_id,
                 data=event.data,
                 parent_fqid=event.fqid,
             )
