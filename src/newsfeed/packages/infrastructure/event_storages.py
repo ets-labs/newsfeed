@@ -1,4 +1,4 @@
-"""Infrastructure event storage module."""
+"""Infrastructure event storages module."""
 
 from collections import defaultdict, deque
 

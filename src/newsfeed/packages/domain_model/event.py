@@ -4,7 +4,7 @@ from typing import Type, Mapping, Sequence
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from newsfeed.packages.infrastructure.event_storage import EventStorage
+from newsfeed.packages.infrastructure.event_storages import EventStorage
 
 
 class EventFQID:

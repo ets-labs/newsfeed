@@ -19,7 +19,7 @@ class TestInfrastructure(containers.DeclarativeContainer):
     )
 
     event_storage = providers.Singleton(
-        infrastructure.event_storage.AsyncInMemoryEventStorage,
+        infrastructure.event_storages.AsyncInMemoryEventStorage,
         config=config.event_storage,
     )
 
