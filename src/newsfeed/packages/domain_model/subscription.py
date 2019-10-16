@@ -157,6 +157,14 @@ class SubscriptionService:
         assert isinstance(repository, SubscriptionRepository)
         self._repository = repository
 
+    async def get_newsfeed_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
+        """Return list of newsfeed subscriptions."""
+        return await self._repository.get_subscriptions(newsfeed_id)
+
+    async def get_newsfeed_subscriber_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:  # noqa
+        """Return list of newsfeed subscriber subscriptions."""
+        return await self._repository.get_subscriptions_to(newsfeed_id)
+
     async def create_subscription(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:
         """Create subscription."""
         subscription_exists = await self._check_subscription_exists_between(
@@ -178,14 +186,6 @@ class SubscriptionService:
         await self._repository.add(subscription)
 
         return subscription
-
-    async def get_newsfeed_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
-        """Return list of newsfeed subscriptions."""
-        return await self._repository.get_subscriptions(newsfeed_id)
-
-    async def get_newsfeed_subscriber_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:  # noqa
-        """Return list of newsfeed subscriber subscriptions."""
-        return await self._repository.get_subscriptions_to(newsfeed_id)
 
     async def delete_newsfeed_subscription(self, newsfeed_id: str, subscription_id: str):
         """Delete newsfeed subscription."""
