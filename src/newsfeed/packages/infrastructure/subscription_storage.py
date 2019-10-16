@@ -89,11 +89,10 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
     async def delete(self, subscription_data: Mapping):
         """Delete subscription."""
         newsfeed_id = subscription_data['newsfeed_id']
+        to_newsfeed_id = subscription_data['to_newsfeed_id']
+
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         newsfeed_subscriptions_storage.remove(subscription_data)
 
-        for newsfeed_subscribers_storage in self._subscribers_storage.values():
-            try:
-                newsfeed_subscribers_storage.remove(subscription_data)
-            except ValueError:
-                pass
+        newsfeed_subscribers_storage = self._subscribers_storage[to_newsfeed_id]
+        newsfeed_subscribers_storage.remove(subscription_data)
