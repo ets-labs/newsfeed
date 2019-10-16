@@ -109,17 +109,17 @@ class SubscriptionRepository:
         """Add subscription to repository."""
         await self._storage.add(subscription.serialized_data)
 
-    async def get_subscriptions(self, newsfeed_id: str):
-        """Return subscriptions to specified newsfeed."""
-        subscriptions_data = await self._storage.get_from(newsfeed_id)
+    async def get_all(self, newsfeed_id: str):
+        """Return subscriptions of specified newsfeed."""
+        subscriptions_data = await self._storage.get_all(newsfeed_id)
         return [
             self._factory.create_from_serialized(subscription_data)
             for subscription_data in subscriptions_data
         ]
 
-    async def get_subscriptions_to(self, newsfeed_id: str):
+    async def get_all_to(self, newsfeed_id: str):
         """Return subscriptions to specified newsfeed."""
-        subscriptions_data = await self._storage.get_to(newsfeed_id)
+        subscriptions_data = await self._storage.get_all_to(newsfeed_id)
         return [
             self._factory.create_from_serialized(subscription_data)
             for subscription_data in subscriptions_data
@@ -159,11 +159,11 @@ class SubscriptionService:
 
     async def get_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
         """Return list of newsfeed subscriptions."""
-        return await self._repository.get_subscriptions(newsfeed_id)
+        return await self._repository.get_all(newsfeed_id)
 
     async def get_subscriber_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
         """Return list of newsfeed subscriber subscriptions."""
-        return await self._repository.get_subscriptions_to(newsfeed_id)
+        return await self._repository.get_all_to(newsfeed_id)
 
     async def create_subscription(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:
         """Create subscription."""

@@ -67,7 +67,7 @@ async def test_post_subscriptions(web_client, app):
     assert uuid.UUID(data['id'])
 
     subscription_storage = app.infrastructure.subscription_storage()
-    subscriptions = await subscription_storage.get_to(newsfeed_id='123')
+    subscriptions = await subscription_storage.get_all_to(newsfeed_id='123')
     assert len(subscriptions) == 1
     assert subscriptions[0]['newsfeed_id'] == '124'
     assert subscriptions[0]['to_newsfeed_id'] == '123'
@@ -89,7 +89,7 @@ async def test_post_subscription_to_self(web_client, app):
     assert data['message'] == f'Subscription of newsfeed "{newsfeed_id}" to itself is restricted'
 
     subscription_storage = app.infrastructure.subscription_storage()
-    subscriptions = await subscription_storage.get_from(newsfeed_id=newsfeed_id)
+    subscriptions = await subscription_storage.get_all(newsfeed_id=newsfeed_id)
     assert len(subscriptions) == 0
 
 
@@ -122,7 +122,7 @@ async def test_post_multiple_subscriptions_to_the_same_feed(web_client, app):
     )
 
     subscription_storage = app.infrastructure.subscription_storage()
-    subscriptions = await subscription_storage.get_to(newsfeed_id=to_newsfeed_id)
+    subscriptions = await subscription_storage.get_all_to(newsfeed_id=to_newsfeed_id)
     assert len(subscriptions) == 1
     assert subscriptions[0]['newsfeed_id'] == newsfeed_id
     assert subscriptions[0]['to_newsfeed_id'] == to_newsfeed_id
@@ -168,12 +168,12 @@ async def test_delete_subscriptions(web_client, app):
 
     assert response.status == 204
 
-    subscription_2, = await subscription_storage.get_from(newsfeed_id)
+    subscription_2, = await subscription_storage.get_all(newsfeed_id)
     assert uuid.UUID(subscription_2['id']) == subscription_id_2
 
-    assert len(await subscription_storage.get_to('124')) == 0
-    assert len(await subscription_storage.get_to('125')) == 1
-    assert len(await subscription_storage.get_to('126')) == 1
+    assert len(await subscription_storage.get_all_to('124')) == 0
+    assert len(await subscription_storage.get_all_to('125')) == 1
+    assert len(await subscription_storage.get_all_to('126')) == 1
 
 
 async def test_get_subscriber_subscriptions(web_client, app):
