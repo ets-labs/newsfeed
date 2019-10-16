@@ -11,7 +11,7 @@ class Infrastructure(containers.DeclarativeContainer):
     config = providers.Configuration('infrastructure')
 
     event_queue = providers.Singleton(
-        infrastructure.event_queues.AsyncInMemoryEventQueue,
+        infrastructure.event_queues.InMemoryEventQueue,
         config=config.event_queue,
     )
 
