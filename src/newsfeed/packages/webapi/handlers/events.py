@@ -11,7 +11,7 @@ async def get_events_handler(request, *,
     """Handle events getting requests."""
     newsfeed_id = request.match_info['newsfeed_id']
 
-    newsfeed_events = await event_repository.get_newsfeed(newsfeed_id)
+    newsfeed_events = await event_repository.get_all_by_newsfeed_id(newsfeed_id)
 
     return web.json_response(
         data={
@@ -25,7 +25,7 @@ async def post_event_handler(request, *,
     """Handle events posting requests."""
     event_data = await request.json()
 
-    event = await event_dispatcher_service.dispatch_new_event_posting(
+    event = await event_dispatcher_service.dispatch_new_event(
         newsfeed_id=request.match_info['newsfeed_id'],
         data=event_data['data'],
     )

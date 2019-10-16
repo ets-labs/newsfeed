@@ -18,13 +18,15 @@ class EventFQID:
         assert isinstance(event_id, UUID)
         self.event_id = event_id
 
+    @classmethod
+    def from_serialized_data(cls, data):
+        """Create instance from serialized data."""
+        return cls(data[0], UUID(data[1]))
+
     @property
     def serialized_data(self):
         """Return serialized data."""
-        return {
-            'newsfeed_id': self.newsfeed_id,
-            'event_id': str(self.event_id),
-        }
+        return self.newsfeed_id, str(self.event_id)
 
 
 class Event:
@@ -71,7 +73,7 @@ class Event:
 
     @property
     def fqid(self):
-        """Return fully-qualified event id."""
+        """Return FQID (Fully-Qualified ID)."""
         return EventFQID(self.newsfeed_id, self.id)
 
     @property
@@ -85,15 +87,18 @@ class Event:
         return self._data
 
     def track_publishing_time(self):
-        """Track event publishing time."""
+        """Track publishing time."""
         self._published_at = datetime.utcnow()
 
-    def track_child_event_fqids(self, child_fqids: Sequence[EventFQID]):
-        """Track event child FQIDs."""
+    def track_child_fqids(self, child_fqids: Sequence[EventFQID]):
+        """Track child FQIDs.
+
+        This method accumulates child FQIDs.
+        """
         assert isinstance(child_fqids, Sequence)
         for child_fqid in child_fqids:
             assert isinstance(child_fqid, EventFQID)
-        self._child_fqids = child_fqids
+        self._child_fqids.extend(child_fqids)
 
     @property
     def serialized_data(self):
@@ -120,14 +125,14 @@ class EventFactory:
         assert issubclass(cls, Event)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, data, parent_fqid=None, child_fqids=None) -> Event:
+    def create_new(self, newsfeed_id, data, parent_fqid=None) -> Event:
         """Create new event."""
         return self._cls(
             id=uuid4(),
             newsfeed_id=newsfeed_id,
             data=data,
             parent_fqid=parent_fqid,
-            child_fqids=child_fqids or [],
+            child_fqids=[],
             first_seen_at=datetime.utcnow(),
             published_at=None,
         )
@@ -139,19 +144,13 @@ class EventFactory:
             newsfeed_id=data['newsfeed_id'],
             data=data['data'],
             parent_fqid=(
-                EventFQID(
-                    newsfeed_id=data['parent_fqid']['newsfeed_id'],
-                    event_id=UUID(data['parent_fqid']['event_id']),
-                )
+                EventFQID.from_serialized_data(data['parent_fqid'])
                 if data['parent_fqid']
                 else None
             ),
             child_fqids=[
-                EventFQID(
-                    newsfeed_id=data['newsfeed_id'],
-                    event_id=UUID(data['event_id']),
-                )
-                for data in data['child_fqids'] or []
+                EventFQID.from_serialized_data(child_fqid)
+                for child_fqid in data['child_fqids'] or []
             ],
             first_seen_at=datetime.utcfromtimestamp(data['first_seen_at']),
             published_at=(
@@ -182,9 +181,9 @@ class EventRepository:
         assert isinstance(storage, EventStorage)
         self._storage = storage
 
-    async def add(self, event: Event):
-        """Add event to repository."""
-        await self._storage.add(event.serialized_data)
+    async def get_all_by_newsfeed_id(self, newsfeed_id):
+        """Return events by newsfeed id."""
+        return await self._storage.get_newsfeed(newsfeed_id)
 
     async def get_by_fqid(self, fqid: EventFQID):
         """Return event by its FQID."""
@@ -194,13 +193,13 @@ class EventRepository:
         )
         return self._factory.create_from_serialized(event_data)
 
+    async def add(self, event: Event):
+        """Add event to repository."""
+        await self._storage.add(event.serialized_data)
+
     async def delete_by_fqid(self, fqid: EventFQID):
         """Return event by its FQID."""
         await self._storage.delete_by_fqid(
             newsfeed_id=fqid.newsfeed_id,
             event_id=str(fqid.event_id),
         )
-
-    async def get_newsfeed(self, newsfeed_id):
-        """Return newsfeed events."""
-        return await self._storage.get_newsfeed(newsfeed_id)

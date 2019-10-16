@@ -182,18 +182,16 @@ class IntegrationTest2:
                                                        subscriber_124, subscriber_125):
         newsfeed_123_events = await self._api_client.get_events(newsfeed_id=newsfeed_123)
         assert newsfeed_123_events[0]['id'] == event['id']
-        assert newsfeed_123_events[0]['child_fqids'][0]['newsfeed_id'] == subscriber_125
-        assert newsfeed_123_events[0]['child_fqids'][1]['newsfeed_id'] == subscriber_124
+        assert newsfeed_123_events[0]['child_fqids'][0][0] == subscriber_125
+        assert newsfeed_123_events[0]['child_fqids'][1][0] == subscriber_124
 
         newsfeed_125_events = await self._api_client.get_events(newsfeed_id=subscriber_125)
-        assert newsfeed_125_events[0]['parent_fqid']['newsfeed_id'] == newsfeed_123
-        assert newsfeed_125_events[0]['parent_fqid']['event_id'] == event['id']
-        assert newsfeed_125_events[0]['id'] == newsfeed_123_events[0]['child_fqids'][0]['event_id']
+        assert newsfeed_125_events[0]['parent_fqid'] == [newsfeed_123, event['id']]
+        assert newsfeed_125_events[0]['id'] == newsfeed_123_events[0]['child_fqids'][0][1]
 
         newsfeed_124_events = await self._api_client.get_events(newsfeed_id=subscriber_124)
-        assert newsfeed_124_events[0]['parent_fqid']['newsfeed_id'] == newsfeed_123
-        assert newsfeed_124_events[0]['parent_fqid']['event_id'] == event['id']
-        assert newsfeed_124_events[0]['id'] == newsfeed_123_events[0]['child_fqids'][1]['event_id']
+        assert newsfeed_124_events[0]['parent_fqid'] == [newsfeed_123, event['id']]
+        assert newsfeed_124_events[0]['id'] == newsfeed_123_events[0]['child_fqids'][1][1]
 
     async def _assert_123_subscriptions(self, newsfeed_123, subscription_125_to_123,
                                         subscription_124_to_123):

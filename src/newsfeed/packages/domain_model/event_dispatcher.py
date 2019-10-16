@@ -22,7 +22,7 @@ class EventDispatcherService:
         assert isinstance(event_queue, EventQueue)
         self._event_queue = event_queue
 
-    async def dispatch_new_event_posting(self, newsfeed_id: str, data: dict):
+    async def dispatch_new_event(self, newsfeed_id: str, data: dict):
         """Dispatch posting of new event."""
         event = self._event_factory.create_new(
             newsfeed_id=newsfeed_id,

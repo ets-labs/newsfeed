@@ -31,14 +31,14 @@ class Application:
 
     async def _start_background_tasks(self, web_app: web.Application):
         loop = asyncio.get_event_loop()
-        web_app['event_publishing'] = loop.create_task(self._event_publishing_task())
+        web_app['event_processing'] = loop.create_task(self._event_processing_task())
 
     async def _cleanup_background_tasks(self, web_app: web.Application):
-        web_app['event_publishing'].cancel()
-        await web_app['event_publishing']
+        web_app['event_processing'].cancel()
+        await web_app['event_processing']
 
-    async def _event_publishing_task(self):
-        """Publish events."""
-        event_publisher_service = self.domain_model.event_publisher_service()
+    async def _event_processing_task(self):
+        """Process events."""
+        event_processor_service = self.domain_model.event_processor_service()
         while True:
-            await event_publisher_service.process_event()
+            await event_processor_service.process_event()
