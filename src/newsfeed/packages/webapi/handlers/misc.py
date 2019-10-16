@@ -10,10 +10,10 @@ async def get_status_handler(_):
     return web.json_response({'status': 'OK'})
 
 
-async def get_openapi_schema_handler(request):
+async def get_openapi_schema_handler(_, *, base_path: str):
     """Handle OpenAPI schema requests."""
     schema = copy.deepcopy(OPENAPI_SCHEMA)
-    schema['servers'].append({'url': request.query.get('base_path', '/')})
+    schema['servers'].append({'url': base_path})
     return web.json_response(schema)
 
 

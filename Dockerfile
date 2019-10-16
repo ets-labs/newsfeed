@@ -1,6 +1,7 @@
 FROM python:3.7-alpine3.9
 
 ENV PORT=8000
+ENV API_BASE_PATH="/"
 
 WORKDIR /code
 COPY . /code/

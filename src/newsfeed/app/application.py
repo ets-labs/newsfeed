@@ -1,7 +1,6 @@
 """Application module."""
 
 import asyncio
-import os
 
 from aiohttp import web
 
@@ -28,7 +27,7 @@ class Application:
         web_app.on_startup.append(self._start_background_tasks)
         web_app.on_cleanup.append(self._cleanup_background_tasks)
 
-        web.run_app(web_app, port=int(os.getenv('PORT')))
+        web.run_app(web_app, port=int(self.web_api.config.port()))
 
     async def _start_background_tasks(self, web_app: web.Application):
         loop = asyncio.get_event_loop()

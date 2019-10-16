@@ -4,6 +4,7 @@ from pytest import fixture
 from dependency_injector import containers, providers
 
 from newsfeed.app.factory import application_factory
+from newsfeed.app.containers import WebApi
 from newsfeed.packages import infrastructure
 
 
@@ -31,7 +32,14 @@ class TestInfrastructure(containers.DeclarativeContainer):
 @fixture
 def app():
     """Create test application."""
-    return application_factory(infrastructure=TestInfrastructure())
+    return application_factory(
+        infrastructure=TestInfrastructure(),
+        web_api=WebApi(
+            config={
+                'base_path': '/',
+            },
+        )
+    )
 
 
 @fixture
