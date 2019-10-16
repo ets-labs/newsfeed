@@ -15,11 +15,11 @@ class SubscriptionStorage:
         """Add subscription data to the storage."""
         raise NotImplementedError()
 
-    async def get_all(self, newsfeed_id: str):
+    async def get_by_newsfeed_id(self, newsfeed_id: str):
         """Return subscriptions of specified newsfeed."""
         raise NotImplementedError()
 
-    async def get_all_to(self, newsfeed_id: str):
+    async def get_by_to_newsfeed_id(self, newsfeed_id: str):
         """Return subscriptions to specified newsfeed."""
         raise NotImplementedError()
 
@@ -53,12 +53,12 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
         self._subscriptions_storage[newsfeed_id].appendleft(subscription_data)
         self._subscribers_storage[to_newsfeed_id].appendleft(subscription_data)
 
-    async def get_all(self, newsfeed_id: str):
+    async def get_by_newsfeed_id(self, newsfeed_id: str):
         """Return subscriptions of specified newsfeed."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         return list(newsfeed_subscriptions_storage)
 
-    async def get_all_to(self, newsfeed_id: str):
+    async def get_by_to_newsfeed_id(self, newsfeed_id: str):
         """Return subscriptions to specified newsfeed."""
         newsfeed_subscribers_storage = self._subscribers_storage[newsfeed_id]
         return list(newsfeed_subscribers_storage)
