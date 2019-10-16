@@ -10,19 +10,19 @@ class EventStorage:
         """Initialize storage."""
         self._config = config
 
-    async def add(self, event_data):
-        """Add event data to the storage."""
+    async def get_newsfeed(self, newsfeed_id):
+        """Get events data from storage."""
         raise NotImplementedError()
 
     async def get_by_fqid(self, newsfeed_id, event_id):
         """Return data of specified event."""
 
+    async def add(self, event_data):
+        """Add event data to the storage."""
+        raise NotImplementedError()
+
     async def delete_by_fqid(self, newsfeed_id, event_id):
         """Delete data of specified event."""
-
-    async def get_newsfeed(self, newsfeed_id):
-        """Get events data from storage."""
-        raise NotImplementedError()
 
 
 class InMemoryEventStorage(EventStorage):
@@ -33,11 +33,10 @@ class InMemoryEventStorage(EventStorage):
         super().__init__(config)
         self._storage = defaultdict(deque)
 
-    async def add(self, event_data):
-        """Add event data to the storage."""
-        newsfeed_id = event_data['newsfeed_id']
+    async def get_newsfeed(self, newsfeed_id):
+        """Get events data from storage."""
         newsfeed_storage = self._storage[newsfeed_id]
-        newsfeed_storage.appendleft(event_data)
+        return list(newsfeed_storage)
 
     async def get_by_fqid(self, newsfeed_id, event_id):
         """Return data of specified event."""
@@ -50,6 +49,12 @@ class InMemoryEventStorage(EventStorage):
                 f'Event "{event_id}" could not be found in newsfeed "{newsfeed_id}"',
             )
 
+    async def add(self, event_data):
+        """Add event data to the storage."""
+        newsfeed_id = event_data['newsfeed_id']
+        newsfeed_storage = self._storage[newsfeed_id]
+        newsfeed_storage.appendleft(event_data)
+
     async def delete_by_fqid(self, newsfeed_id, event_id):
         """Delete data of specified event."""
         newsfeed_storage = self._storage[newsfeed_id]
@@ -60,8 +65,3 @@ class InMemoryEventStorage(EventStorage):
                 break
         if event_index is not None:
             del newsfeed_storage[event_index]
-
-    async def get_newsfeed(self, newsfeed_id):
-        """Get events data from storage."""
-        newsfeed_storage = self._storage[newsfeed_id]
-        return list(newsfeed_storage)
