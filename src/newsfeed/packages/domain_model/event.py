@@ -198,7 +198,7 @@ class EventRepository:
         await self._storage.add(event.serialized_data)
 
     async def delete_by_fqid(self, fqid: EventFQID):
-        """Return event by its FQID."""
+        """Delete event by its FQID."""
         await self._storage.delete_by_fqid(
             newsfeed_id=fqid.newsfeed_id,
             event_id=str(fqid.event_id),

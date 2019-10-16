@@ -31,8 +31,8 @@ class SubscriptionStorage:
         """Return subscription between specified newsfeeds."""
         raise NotImplementedError()
 
-    async def delete(self, subscription_data: Mapping):
-        """Delete subscription."""
+    async def delete_by_fqid(self, newsfeed_id: str, subscription_id: str):
+        """Delete specified subscription."""
         raise NotImplementedError()
 
 
@@ -86,13 +86,21 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
                 f'be found',
             )
 
-    async def delete(self, subscription_data: Mapping):
-        """Delete subscription."""
-        newsfeed_id = subscription_data['newsfeed_id']
-        to_newsfeed_id = subscription_data['to_newsfeed_id']
-
+    async def delete_by_fqid(self, newsfeed_id: str, subscription_id: str):
+        """Delete specified subscription."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
-        newsfeed_subscriptions_storage.remove(subscription_data)
 
+        subscription_data = None
+        for subscription in newsfeed_subscriptions_storage:
+            if subscription['id'] == subscription_id:
+                subscription_data = subscription
+                break
+
+        if subscription_data is None:
+            return
+
+        to_newsfeed_id = subscription_data['to_newsfeed_id']
         newsfeed_subscribers_storage = self._subscribers_storage[to_newsfeed_id]
+
         newsfeed_subscribers_storage.remove(subscription_data)
+        newsfeed_subscriptions_storage.remove(subscription_data)

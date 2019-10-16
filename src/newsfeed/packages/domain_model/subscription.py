@@ -7,6 +7,28 @@ from datetime import datetime
 from newsfeed.packages.infrastructure.subscription_storage import SubscriptionStorage
 
 
+class SubscriptionFQID:
+    """Subscription fully-qualified identifier."""
+
+    def __init__(self, newsfeed_id: str, subscription_id: UUID):
+        """Initialize object."""
+        assert isinstance(newsfeed_id, str)
+        self.newsfeed_id = newsfeed_id
+
+        assert isinstance(subscription_id, UUID)
+        self.subscription_id = subscription_id
+
+    @classmethod
+    def from_serialized_data(cls, data):
+        """Create instance from serialized data."""
+        return cls(data[0], UUID(data[1]))
+
+    @property
+    def serialized_data(self):
+        """Return serialized data."""
+        return self.newsfeed_id, str(self.subscription_id)
+
+
 class Subscription:
     """Subscription entity."""
 
@@ -37,6 +59,11 @@ class Subscription:
     def to_newsfeed_id(self):
         """Return to newsfeed id."""
         return self._to_newsfeed_id
+
+    @property
+    def fqid(self):
+        """Return FQID (Fully-Qualified ID)."""
+        return SubscriptionFQID(self.from_newsfeed_id, self.id)
 
     @property
     def subscribed_at(self):
@@ -121,8 +148,8 @@ class SubscriptionRepository:
             for subscription_data in subscriptions_data
         ]
 
-    async def get(self, newsfeed_id: str, subscription_id: UUID) -> Subscription:
-        """Return newsfeed subscription."""
+    async def get_by_fqid(self, newsfeed_id: str, subscription_id: UUID) -> Subscription:
+        """Return subscription by its FQID."""
         subscription_data = await self._storage.get(newsfeed_id, str(subscription_id))
         return self._factory.create_from_serialized(subscription_data)
 
@@ -135,9 +162,12 @@ class SubscriptionRepository:
         """Add subscription to repository."""
         await self._storage.add(subscription.serialized_data)
 
-    async def delete(self, subscription: Subscription):
-        """Delete subscription."""
-        await self._storage.delete(subscription.serialized_data)
+    async def delete_by_fqid(self, fqid: SubscriptionFQID):
+        """Delete subscription by its FQID."""
+        await self._storage.delete_by_fqid(
+            newsfeed_id=fqid.newsfeed_id,
+            subscription_id=str(fqid.subscription_id),
+        )
 
 
 class SubscriptionService:
@@ -189,8 +219,8 @@ class SubscriptionService:
 
     async def delete_subscription(self, newsfeed_id: str, subscription_id: str):
         """Delete newsfeed subscription."""
-        subscription = await self._repository.get(newsfeed_id, UUID(subscription_id))
-        await self._repository.delete(subscription)
+        subscription = await self._repository.get_by_fqid(newsfeed_id, UUID(subscription_id))
+        await self._repository.delete_by_fqid(subscription.fqid)
 
     async def _check_subscription_exists_between(self, newsfeed_id, to_newsfeed_id):
         try:
