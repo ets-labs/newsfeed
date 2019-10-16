@@ -105,10 +105,6 @@ class SubscriptionRepository:
         assert isinstance(storage, SubscriptionStorage)
         self._storage = storage
 
-    async def add(self, subscription: Subscription):
-        """Add subscription to repository."""
-        await self._storage.add(subscription.serialized_data)
-
     async def get_all(self, newsfeed_id: str):
         """Return subscriptions of specified newsfeed."""
         subscriptions_data = await self._storage.get_all(newsfeed_id)
@@ -134,6 +130,10 @@ class SubscriptionRepository:
         """Return subscription between two newsfeeds."""
         subscription_data = await self._storage.get_between(newsfeed_id, to_newsfeed_id)
         return self._factory.create_from_serialized(subscription_data)
+
+    async def add(self, subscription: Subscription):
+        """Add subscription to repository."""
+        await self._storage.add(subscription.serialized_data)
 
     async def delete_subscription(self, subscription: Subscription):
         """Delete subscription."""
