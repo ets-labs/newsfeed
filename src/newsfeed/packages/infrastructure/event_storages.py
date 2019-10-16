@@ -25,8 +25,8 @@ class EventStorage:
         raise NotImplementedError()
 
 
-class AsyncInMemoryEventStorage(EventStorage):
-    """Async event storage that stores events in memory."""
+class InMemoryEventStorage(EventStorage):
+    """Event storage that stores events in memory."""
 
     def __init__(self, config):
         """Initialize queue."""
