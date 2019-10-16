@@ -150,7 +150,7 @@ class SubscriptionRepository:
 
     async def get_by_fqid(self, newsfeed_id: str, subscription_id: UUID) -> Subscription:
         """Return subscription by its FQID."""
-        subscription_data = await self._storage.get(newsfeed_id, str(subscription_id))
+        subscription_data = await self._storage.get_by_fqid(newsfeed_id, str(subscription_id))
         return self._factory.create_from_serialized(subscription_data)
 
     async def get_between(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:

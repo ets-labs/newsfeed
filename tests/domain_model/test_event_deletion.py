@@ -33,7 +33,7 @@ async def test_event_deletion(app):
     )
 
     event_repository = app.domain_model.event_repository()
-    events = await event_repository.get_all_by_newsfeed_id(newsfeed_id)
+    events = await event_repository.get_by_newsfeed_id(newsfeed_id)
     assert len(events) == 1
     assert events[0]['id'] == str(event_2.id)
     assert events[0]['data'] == event_2.data
@@ -78,13 +78,13 @@ async def test_event_deletion_from_subscriber(app):
     )
 
     event_repository = app.domain_model.event_repository()
-    events = await event_repository.get_all_by_newsfeed_id(newsfeed_id)
+    events = await event_repository.get_by_newsfeed_id(newsfeed_id)
     assert len(events) == 1
     assert events[0]['id'] == str(event_2.id)
     assert events[0]['newsfeed_id'] == event_2.newsfeed_id
     assert events[0]['data'] == event_2.data
 
-    subscriber_events = await event_repository.get_all_by_newsfeed_id(subscriber_newsfeed_id)
+    subscriber_events = await event_repository.get_by_newsfeed_id(subscriber_newsfeed_id)
     assert len(subscriber_events) == 1
     assert subscriber_events[0]['parent_fqid'][0] == event_2.newsfeed_id
     assert subscriber_events[0]['parent_fqid'][1] == str(event_2.id)

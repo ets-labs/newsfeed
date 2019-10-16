@@ -23,7 +23,7 @@ class SubscriptionStorage:
         """Return subscriptions to specified newsfeed."""
         raise NotImplementedError()
 
-    async def get(self, newsfeed_id: str, subscription_id: str):
+    async def get_by_fqid(self, newsfeed_id: str, subscription_id: str):
         """Return subscription of specified newsfeed."""
         raise NotImplementedError()
 
@@ -63,7 +63,7 @@ class AsyncInMemorySubscriptionStorage(SubscriptionStorage):
         newsfeed_subscribers_storage = self._subscribers_storage[newsfeed_id]
         return list(newsfeed_subscribers_storage)
 
-    async def get(self, newsfeed_id: str, subscription_id: str):
+    async def get_by_fqid(self, newsfeed_id: str, subscription_id: str):
         """Return subscription of specified newsfeed."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         for subscription_data in newsfeed_subscriptions_storage:
