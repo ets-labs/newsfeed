@@ -16,6 +16,7 @@ class EventStorage:
 
     async def get_by_fqid(self, newsfeed_id, event_id):
         """Return data of specified event."""
+        raise NotImplementedError()
 
     async def add(self, event_data):
         """Add event data to the storage."""
@@ -23,6 +24,7 @@ class EventStorage:
 
     async def delete_by_fqid(self, newsfeed_id, event_id):
         """Delete data of specified event."""
+        raise NotImplementedError()
 
 
 class InMemoryEventStorage(EventStorage):
