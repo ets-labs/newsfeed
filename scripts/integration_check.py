@@ -220,7 +220,7 @@ class IntegrationTest2:
     async def _delete_subscriptions(self, *subscriptions):
         for subscription in subscriptions:
             await self._api_client.delete_subscription(
-                newsfeed_id=subscription['from_newsfeed_id'],  # TODO: will be renamed later
+                newsfeed_id=subscription['newsfeed_id'],
                 subscription_id=subscription['id'],
             )
 

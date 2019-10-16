@@ -15,9 +15,9 @@ async def publish_event(session, newsfeed_id, event_data):
         print('Event posted -', await response.json())
 
 
-async def subscribe(session, from_newsfeed_id, to_newsfeed_id):
+async def subscribe(session, newsfeed_id, to_newsfeed_id):
     """Publish event to newsfeed."""
-    async with session.post(f'http://127.0.0.1:8000/api/newsfeed/{from_newsfeed_id}/subscriptions/',
+    async with session.post(f'http://127.0.0.1:8000/api/newsfeed/{newsfeed_id}/subscriptions/',
                             json={
                                 'to_newsfeed_id': to_newsfeed_id,
                             }) \
@@ -29,10 +29,10 @@ async def main():
     async with aiohttp.ClientSession() as session:
         await publish_event(session, newsfeed_id='123', event_data={'payload': 'test_1'})
 
-        await subscribe(session, from_newsfeed_id='124', to_newsfeed_id='123')
+        await subscribe(session, newsfeed_id='124', to_newsfeed_id='123')
         await publish_event(session, newsfeed_id='123', event_data={'payload': 'test_2'})
 
-        await subscribe(session, from_newsfeed_id='125', to_newsfeed_id='123')
+        await subscribe(session, newsfeed_id='125', to_newsfeed_id='123')
         await publish_event(session, newsfeed_id='123', event_data={'payload': 'test_3'})
 
 

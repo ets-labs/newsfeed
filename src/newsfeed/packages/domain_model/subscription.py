@@ -10,12 +10,12 @@ from newsfeed.packages.infrastructure.subscription_storage import SubscriptionSt
 class Subscription:
     """Subscription entity."""
 
-    def __init__(self, id: UUID, from_newsfeed_id: str, to_newsfeed_id: str, subscribed_at):
+    def __init__(self, id: UUID, newsfeed_id: str, to_newsfeed_id: str, subscribed_at):
         assert isinstance(id, UUID)
         self._id = id
 
-        assert isinstance(from_newsfeed_id, str)
-        self._from_newsfeed_id = from_newsfeed_id
+        assert isinstance(newsfeed_id, str)
+        self._newsfeed_id = newsfeed_id
 
         assert isinstance(to_newsfeed_id, str)
         self._to_newsfeed_id = to_newsfeed_id
@@ -29,9 +29,9 @@ class Subscription:
         return self._id
 
     @property
-    def from_newsfeed_id(self):
-        """Return from newsfeed id."""
-        return self._from_newsfeed_id
+    def newsfeed_id(self):
+        """Return newsfeed id."""
+        return self._newsfeed_id
 
     @property
     def to_newsfeed_id(self):
@@ -48,7 +48,7 @@ class Subscription:
         """Return serialized data."""
         return {
             'id': str(self._id),
-            'from_newsfeed_id': self._from_newsfeed_id,
+            'newsfeed_id': self._newsfeed_id,
             'to_newsfeed_id': self._to_newsfeed_id,
             'subscribed_at': self._subscribed_at.timestamp(),
         }
@@ -62,11 +62,11 @@ class SubscriptionFactory:
         assert issubclass(cls, Subscription)
         self._cls = cls
 
-    def create_new(self, from_newsfeed_id, to_newsfeed_id) -> Subscription:
+    def create_new(self, newsfeed_id, to_newsfeed_id) -> Subscription:
         """Create new subscription."""
         return self._cls(
             id=uuid4(),
-            from_newsfeed_id=from_newsfeed_id,
+            newsfeed_id=newsfeed_id,
             to_newsfeed_id=to_newsfeed_id,
             subscribed_at=datetime.utcnow(),
         )
@@ -75,7 +75,7 @@ class SubscriptionFactory:
         """Create subscription from serialized data."""
         return self._cls(
             id=UUID(data['id']),
-            from_newsfeed_id=data['from_newsfeed_id'],
+            newsfeed_id=data['newsfeed_id'],
             to_newsfeed_id=data['to_newsfeed_id'],
             subscribed_at=datetime.utcfromtimestamp(data['subscribed_at']),
         )
@@ -89,8 +89,8 @@ class SubscriptionSpecification:
 
     def is_satisfied_by(self, subscription: Subscription):
         """Check if subscription satisfies specification."""
-        if subscription.from_newsfeed_id == subscription.to_newsfeed_id:
-            raise SelfSubscriptionError(newsfeed_id=subscription.from_newsfeed_id)
+        if subscription.newsfeed_id == subscription.to_newsfeed_id:
+            raise SelfSubscriptionError(newsfeed_id=subscription.newsfeed_id)
         return True
 
 
@@ -170,7 +170,7 @@ class SubscriptionService:
             )
 
         subscription = self._factory.create_new(
-            from_newsfeed_id=newsfeed_id,
+            newsfeed_id=newsfeed_id,
             to_newsfeed_id=to_newsfeed_id,
         )
 
