@@ -5,5 +5,9 @@ clean:
 test: clean
 	py.test
 
+integration-test:
+	python scripts/integration_check.py
+	echo "Tests passed"
+
 lint: clean
 	flake8 newsfeed tests
