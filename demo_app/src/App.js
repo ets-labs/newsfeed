@@ -6,15 +6,25 @@ import "./App.css";
 
 export class App extends React.Component {
   state = {
-    newsFeeds: {
-      "4yrb2ocd25bk17c9n5w": {
-        name: "NF-BBC"
-      },
-      f2iw3ssb4hik1c38ni4: {
-        name: "NF-WP"
-      }
-    }
+    newsFeeds: {}
   };
+
+  componentDidMount() {
+    const newsFeeds = localStorage.getItem("myNewsFeeds")
+      ? Object.entries(JSON.parse(localStorage.getItem("myNewsFeeds")))
+      : [];
+    console.log(newsFeeds);
+    const feedsFromStorage = {}
+    for (const feed of newsFeeds) {
+      let [id, params] = feed
+      feedsFromStorage[id] = params
+    }
+    this.setState(() => {
+      return {
+        newsFeeds: feedsFromStorage
+      };
+    });
+  }
 
   createNewsFeed = () => {
     this.setState(prevState => {
@@ -34,14 +44,7 @@ export class App extends React.Component {
     localStorage.clear();
     this.setState(() => {
       return {
-        newsFeeds: {
-          "4yrb2ocd25bk17c9n5w": {
-            name: "NF-BBC"
-          },
-          f2iw3ssb4hik1c38ni4: {
-            name: "NF-WP"
-          }
-        }
+        newsFeeds: {}
       };
     });
   };
