@@ -1,6 +1,7 @@
 import React from "react";
-import { Card, Icon } from "antd";
-import axios from 'axios';
+import { Card, Icon, Comment, Tooltip, Avatar } from "antd";
+import axios from "axios";
+import moment from "moment";
 import {
   SubmitEventPopover,
   SubscribeEventPopover,
@@ -14,26 +15,8 @@ export class NewsFeed extends React.Component {
   };
 
   componentDidMount() {
-    fetch(`http://127.0.0.1:8000/api/newsfeed/${this.props.index}/events/`)
-      .then(response => response.json())
-      .then(dataJson => {
-        this.setState(() => {
-          return {
-            events: dataJson.results
-          };
-        });
-      });
-    fetch(
-      `http://127.0.0.1:8000/api/newsfeed/${this.props.index}/subscriptions/`
-    )
-      .then(response => response.json())
-      .then(dataJson => {
-        this.setState(() => {
-          return {
-            subscriptions: dataJson.results
-          };
-        });
-      });
+    this.getEvents();
+    this.getSubscriptions();
   }
 
   getEvents = () => {
@@ -123,8 +106,7 @@ export class NewsFeed extends React.Component {
       return false;
     }
     const url = `http://127.0.0.1:8000/api/newsfeed/${this.props.index}/subscriptions/${eventData}/`;
-    axios.delete(url)
-      .catch(error => console.error("Bad request:", error));
+    axios.delete(url).catch(error => console.error("Bad request:", error));
   };
 
   render() {
@@ -153,15 +135,25 @@ export class NewsFeed extends React.Component {
         <div style={{ overflow: "auto", height: 250 }}>
           {this.state.events.map(event => {
             return (
-              <Card
+              <Comment
                 key={event.id}
-                style={{ marginTop: 16 }}
-                type="inner"
-                title="Inner Card title"
-                extra={<p>More</p>}
-              >
-                {event.data.field_1}
-              </Card>
+                // actions={actions}
+                // author={<a>Han Solo</a>}
+                content={<p>{event.data.field_1}</p>}
+                datetime={
+                  <Tooltip
+                    title={moment
+                      .unix(event.published_at)
+                      .format("YYYY-MM-DD HH:mm:ss")}
+                  >
+                    <span>
+                      {moment
+                        .unix(event.published_at)
+                        .format("YYYY-MM-DD HH:mm:ss")}
+                    </span>
+                  </Tooltip>
+                }
+              />
             );
           })}
         </div>
