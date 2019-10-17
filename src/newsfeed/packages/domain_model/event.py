@@ -6,6 +6,8 @@ from datetime import datetime
 
 from newsfeed.packages.infrastructure.event_storages import EventStorage
 
+from .newsfeed_id import NewsfeedIDSpecification
+
 
 class EventFQID:
     """Event fully-qualified identifier."""
@@ -162,11 +164,13 @@ class EventFactory:
 class EventSpecification:
     """Event specification."""
 
-    def __init__(self):
+    def __init__(self, newsfeed_id_specification: NewsfeedIDSpecification):
         """Initialize specification."""
+        self._newsfeed_id_specification = newsfeed_id_specification
 
     def is_satisfied_by(self, event: Event):
         """Check if event satisfies specification."""
+        self._newsfeed_id_specification.is_satisfied_by(event.newsfeed_id)
         return True
 
 

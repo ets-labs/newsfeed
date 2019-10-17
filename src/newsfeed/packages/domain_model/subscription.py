@@ -9,6 +9,8 @@ from newsfeed.packages.infrastructure.subscription_storages import (
     SubscriptionBetweenNotFound,
 )
 
+from .newsfeed_id import NewsfeedIDSpecification
+
 
 class SubscriptionFQID:
     """Subscription fully-qualified identifier."""
@@ -114,13 +116,18 @@ class SubscriptionFactory:
 class SubscriptionSpecification:
     """Subscription specification."""
 
-    def __init__(self):
+    def __init__(self, newsfeed_id_specification: NewsfeedIDSpecification):
         """Initialize specification."""
+        self._newsfeed_id_specification = newsfeed_id_specification
 
     def is_satisfied_by(self, subscription: Subscription):
         """Check if subscription satisfies specification."""
+        self._newsfeed_id_specification.is_satisfied_by(subscription.newsfeed_id)
+        self._newsfeed_id_specification.is_satisfied_by(subscription.to_newsfeed_id)
+
         if subscription.newsfeed_id == subscription.to_newsfeed_id:
             raise SelfSubscriptionError(newsfeed_id=subscription.newsfeed_id)
+
         return True
 
 

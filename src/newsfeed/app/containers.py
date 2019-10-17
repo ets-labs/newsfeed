@@ -31,6 +31,13 @@ class DomainModel(containers.DeclarativeContainer):
 
     infra: Infrastructure = providers.DependenciesContainer()
 
+    # Common
+
+    newsfeed_id_specification = providers.Singleton(
+        domain_model.newsfeed_id.NewsfeedIDSpecification,
+        max_length=128,
+    )
+
     # Subscription
 
     subscription_factory = providers.Factory(
@@ -40,6 +47,7 @@ class DomainModel(containers.DeclarativeContainer):
 
     subscription_specification = providers.Singleton(
         domain_model.subscription.SubscriptionSpecification,
+        newsfeed_id_specification=newsfeed_id_specification,
     )
 
     subscription_repository = providers.Singleton(
@@ -62,7 +70,10 @@ class DomainModel(containers.DeclarativeContainer):
         cls=domain_model.event.Event,
     )
 
-    event_specification = providers.Singleton(domain_model.event.EventSpecification)
+    event_specification = providers.Singleton(
+        domain_model.event.EventSpecification,
+        newsfeed_id_specification=newsfeed_id_specification,
+    )
 
     event_repository = providers.Singleton(
         domain_model.event.EventRepository,

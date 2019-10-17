@@ -18,6 +18,10 @@ class EventQueue:
         """Put event data to queue."""
         raise NotImplementedError()
 
+    async def is_empty(self):
+        """Check if queue is empty."""
+        raise NotImplementedError()
+
 
 class InMemoryEventQueue(EventQueue):
     """Event queue that stores events in memory."""
@@ -37,6 +41,10 @@ class InMemoryEventQueue(EventQueue):
             self._queue.put_nowait(event_data)
         except asyncio.QueueFull:
             raise QueueFull('Event queue is full')
+
+    async def is_empty(self):
+        """Check if queue is empty."""
+        return self._queue.empty()
 
 
 class QueueFull(Exception):
