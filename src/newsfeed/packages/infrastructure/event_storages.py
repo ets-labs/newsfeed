@@ -10,20 +10,20 @@ class EventStorage:
         """Initialize storage."""
         self._config = config
 
-    async def get_newsfeed(self, newsfeed_id):
-        """Get events data from storage."""
+    async def get_by_newsfeed_id(self, newsfeed_id):
+        """Return events of specified newsfeed."""
         raise NotImplementedError()
 
     async def get_by_fqid(self, newsfeed_id, event_id):
-        """Return data of specified event."""
+        """Return event of specified newsfeed."""
         raise NotImplementedError()
 
     async def add(self, event_data):
-        """Add event data to the storage."""
+        """Add event to the storage."""
         raise NotImplementedError()
 
     async def delete_by_fqid(self, newsfeed_id, event_id):
-        """Delete data of specified event."""
+        """Delete specified event."""
         raise NotImplementedError()
 
 
@@ -35,7 +35,7 @@ class InMemoryEventStorage(EventStorage):
         super().__init__(config)
         self._storage = defaultdict(deque)
 
-    async def get_newsfeed(self, newsfeed_id):
+    async def get_by_newsfeed_id(self, newsfeed_id):
         """Get events data from storage."""
         newsfeed_storage = self._storage[newsfeed_id]
         return list(newsfeed_storage)

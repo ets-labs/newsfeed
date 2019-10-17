@@ -24,7 +24,7 @@ class TestInfrastructure(containers.DeclarativeContainer):
     )
 
     subscription_storage = providers.Singleton(
-        infrastructure.subscription_storage.AsyncInMemorySubscriptionStorage,
+        infrastructure.subscription_storages.InMemorySubscriptionStorage,
         config=config.subscription_storage,
     )
 

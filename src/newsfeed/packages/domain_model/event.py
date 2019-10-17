@@ -181,9 +181,9 @@ class EventRepository:
         assert isinstance(storage, EventStorage)
         self._storage = storage
 
-    async def get_all_by_newsfeed_id(self, newsfeed_id):
-        """Return events by newsfeed id."""
-        return await self._storage.get_newsfeed(newsfeed_id)
+    async def get_by_newsfeed_id(self, newsfeed_id):
+        """Return events of specified newsfeed."""
+        return await self._storage.get_by_newsfeed_id(newsfeed_id)
 
     async def get_by_fqid(self, fqid: EventFQID):
         """Return event by its FQID."""
@@ -198,7 +198,7 @@ class EventRepository:
         await self._storage.add(event.serialized_data)
 
     async def delete_by_fqid(self, fqid: EventFQID):
-        """Return event by its FQID."""
+        """Delete event by its FQID."""
         await self._storage.delete_by_fqid(
             newsfeed_id=fqid.newsfeed_id,
             event_id=str(fqid.event_id),
