@@ -6,9 +6,9 @@ from .error import DomainError
 class NewsfeedIDSpecification:
     """Newsfeed id specification."""
 
-    def __init__(self, max_length):
+    def __init__(self, max_length: int):
         """Initialize specification."""
-        self.max_length = max_length
+        self.max_length = int(max_length)
 
     def is_satisfied_by(self, newsfeed_id: str) -> bool:
         """Check if subscription satisfies specification."""

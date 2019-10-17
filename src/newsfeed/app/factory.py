@@ -15,6 +15,9 @@ application_factory = providers.Factory(
     ),
     domain_model=providers.Factory(
         DomainModel,
+        config={
+            'newsfeed_id_length': os.getenv('NEWSFEED_ID_LENGTH'),
+        },
     ),
     web_api=providers.Factory(
         WebApi,

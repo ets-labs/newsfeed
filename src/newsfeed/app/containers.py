@@ -29,13 +29,15 @@ class Infrastructure(containers.DeclarativeContainer):
 class DomainModel(containers.DeclarativeContainer):
     """Domain model container."""
 
+    config = providers.Configuration('domain_model')
+
     infra: Infrastructure = providers.DependenciesContainer()
 
     # Common
 
     newsfeed_id_specification = providers.Singleton(
         domain_model.newsfeed_id.NewsfeedIDSpecification,
-        max_length=128,
+        max_length=config.newsfeed_id_length,
     )
 
     # Subscription
