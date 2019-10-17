@@ -10,10 +10,10 @@ async def get_status_handler(_):
     return web.json_response({'status': 'OK'})
 
 
-async def get_openapi_schema_handler(request):
+async def get_openapi_schema_handler(_, *, base_path: str):
     """Handle OpenAPI schema requests."""
     schema = copy.deepcopy(OPENAPI_SCHEMA)
-    schema['servers'].append({'url': request.query.get('base_path', '/')})
+    schema['servers'].append({'url': base_path})
     return web.json_response(schema)
 
 
@@ -189,10 +189,6 @@ OPENAPI_SCHEMA = {
                         'application/json': {
                             'schema': {
                                 'properties': {
-                                    'from_newsfeed_id': {
-                                        'type': 'string',
-                                        'example': '124',
-                                    },
                                     'to_newsfeed_id': {
                                         'type': 'string',
                                         'example': '123',
@@ -245,6 +241,37 @@ OPENAPI_SCHEMA = {
                 'responses': {
                     '204': {
                         'description': 'Newsfeed subscription has been successfully deleted',
+                    },
+                },
+            },
+        },
+        '/newsfeed/{newsfeed_id}/subscribers/subscriptions/': {
+            'get': {
+                'summary': 'Return newsfeed subscriber subscriptions',
+                'operationId': 'get_newsfeed_subscriber_subscriptions',
+                'tags': [
+                    'Subscriptions',
+                ],
+                'parameters': [
+                    {
+                        'in': 'path',
+                        'name': 'newsfeed_id',
+                        'required': True,
+                        'schema': {
+                            'type': 'string',
+                        },
+                    },
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'List of newsfeed subscriber subscriptions',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    '$ref': '#/components/schemas/NewsfeedSubscriptionsList',
+                                },
+                            },
+                        },
                     },
                 },
             },

@@ -11,17 +11,17 @@ class Infrastructure(containers.DeclarativeContainer):
     config = providers.Configuration('infrastructure')
 
     event_queue = providers.Singleton(
-        infrastructure.event_queues.AsyncInMemoryEventQueue,
+        infrastructure.event_queues.InMemoryEventQueue,
         config=config.event_queue,
     )
 
     event_storage = providers.Singleton(
-        infrastructure.event_storage.AsyncInMemoryEventStorage,
+        infrastructure.event_storages.InMemoryEventStorage,
         config=config.event_storage,
     )
 
     subscription_storage = providers.Singleton(
-        infrastructure.subscription_storage.AsyncInMemorySubscriptionStorage,
+        infrastructure.subscription_storages.InMemorySubscriptionStorage,
         config=config.subscription_storage,
     )
 
@@ -77,8 +77,8 @@ class DomainModel(containers.DeclarativeContainer):
         event_queue=infra.event_queue,
     )
 
-    event_publisher_service = providers.Singleton(
-        domain_model.event_publisher.EventPublisherService,
+    event_processor_service = providers.Singleton(
+        domain_model.event_processor.EventProcessorService,
         event_queue=infra.event_queue,
         event_factory=event_factory,
         event_repository=event_repository,
@@ -89,10 +89,13 @@ class DomainModel(containers.DeclarativeContainer):
 class WebApi(containers.DeclarativeContainer):
     """Web API container."""
 
+    config = providers.Configuration('web_api')
+
     domain: DomainModel = providers.DependenciesContainer()
 
     web_app = providers.Factory(
         webapi.app.create_web_app,
+        base_path=config.base_path,
         routes=[
             # Subscriptions
             webapi.app.route(
@@ -116,6 +119,14 @@ class WebApi(containers.DeclarativeContainer):
                 path='/newsfeed/{newsfeed_id}/subscriptions/{subscription_id}/',
                 handler=providers.Coroutine(
                     webapi.handlers.subscriptions.delete_subscription_handler,
+                    subscription_service=domain.subscription_service,
+                ),
+            ),
+            webapi.app.route(
+                method='GET',
+                path='/newsfeed/{newsfeed_id}/subscribers/subscriptions/',
+                handler=providers.Coroutine(
+                    webapi.handlers.subscriptions.get_subscriber_subscriptions_handler,
                     subscription_service=domain.subscription_service,
                 ),
             ),
@@ -159,6 +170,7 @@ class WebApi(containers.DeclarativeContainer):
                 path='/docs/',
                 handler=providers.Coroutine(
                     webapi.handlers.misc.get_openapi_schema_handler,
+                    base_path=config.base_path,
                 ),
             ),
         ],

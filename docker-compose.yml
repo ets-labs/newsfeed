@@ -4,6 +4,8 @@ services:
 
   newsfeed:
     build: ./
+    environment:
+      API_BASE_PATH: "/api/"
     volumes:
       - './:/code'
 
