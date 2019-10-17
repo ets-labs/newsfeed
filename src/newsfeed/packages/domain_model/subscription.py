@@ -10,6 +10,7 @@ from newsfeed.packages.infrastructure.subscription_storages import (
 )
 
 from .newsfeed_id import NewsfeedIDSpecification
+from .error import DomainError
 
 
 class SubscriptionFQID:
@@ -244,7 +245,7 @@ class SubscriptionService:
             return True
 
 
-class SubscriptionError(Exception):
+class SubscriptionError(DomainError):
     """Subscription-related error."""
 
     @property
