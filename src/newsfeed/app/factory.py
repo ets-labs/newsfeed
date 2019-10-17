@@ -26,4 +26,5 @@ application_factory = providers.Factory(
             'base_path': os.getenv('API_BASE_PATH'),
         },
     ),
+    processor_concurrency=os.getenv('PROCESSOR_CONCURRENCY'),
 )

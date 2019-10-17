@@ -38,7 +38,8 @@ def app():
             config={
                 'base_path': '/',
             },
-        )
+        ),
+        processor_concurrency=1,
     )
 
 
