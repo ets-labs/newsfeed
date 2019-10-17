@@ -11,7 +11,7 @@ class NewsfeedIDSpecification:
         self.max_length = int(max_length)
 
     def is_satisfied_by(self, newsfeed_id: str) -> bool:
-        """Check if subscription satisfies specification."""
+        """Check if newsfeed id satisfies specification."""
         if not isinstance(newsfeed_id, str):
             raise NewsfeedIDTypeError(newsfeed_id)
 
