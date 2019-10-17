@@ -4,7 +4,10 @@ from typing import Type, Sequence
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from newsfeed.packages.infrastructure.subscription_storage import SubscriptionStorage
+from newsfeed.packages.infrastructure.subscription_storages import (
+    SubscriptionStorage,
+    SubscriptionBetweenNotFound,
+)
 
 
 class SubscriptionFQID:
@@ -228,7 +231,7 @@ class SubscriptionService:
                 newsfeed_id=newsfeed_id,
                 to_newsfeed_id=to_newsfeed_id,
             )
-        except RuntimeError:
+        except SubscriptionBetweenNotFound:
             return False
         else:
             return True
