@@ -72,6 +72,11 @@ class InMemorySubscriptionStorage(SubscriptionStorage):
 
     async def get_between(self, newsfeed_id: str, to_newsfeed_id: str):
         """Return subscription between specified newsfeeds."""
+        if newsfeed_id not in self._subscriptions_storage:
+            raise SubscriptionBetweenNotFound(
+                newsfeed_id=newsfeed_id,
+                to_newsfeed_id=to_newsfeed_id,
+            )
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         for subscription_data in newsfeed_subscriptions_storage:
             if subscription_data['to_newsfeed_id'] == to_newsfeed_id:
