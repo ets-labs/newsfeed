@@ -73,6 +73,30 @@ async def test_post_events(web_client, app):
     }
 
 
+async def test_post_event_with_abnormally_long_newsfeed_id(web_client, app):
+    """Check events posting handler."""
+    newsfeed_id_max_length = app.domain_model.newsfeed_id_specification().max_length
+    newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
+
+    response = await web_client.post(
+        f'/newsfeed/{newsfeed_id}/events/',
+        json={
+            'data': {
+                'event_data': 'some_data',
+            },
+        },
+    )
+
+    assert response.status == 400
+    data = await response.json()
+    assert data['message'] == (
+        f'Newsfeed id "{newsfeed_id[:newsfeed_id_max_length]}..." is too long'
+    )
+
+    event_queue = app.infrastructure.event_queue()
+    assert await event_queue.is_empty()
+
+
 async def test_delete_events(web_client, app):
     """Check events deletion handler."""
     newsfeed_id = '123'

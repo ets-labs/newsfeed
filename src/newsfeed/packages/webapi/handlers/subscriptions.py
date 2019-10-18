@@ -5,8 +5,8 @@ from aiohttp import web
 from newsfeed.packages.domain_model.subscription import (
     Subscription,
     SubscriptionService,
-    SubscriptionError,
 )
+from newsfeed.packages.domain_model.error import DomainError
 
 
 async def get_subscriptions_handler(request, *,
@@ -35,7 +35,7 @@ async def post_subscription_handler(request, *,
             newsfeed_id=request.match_info['newsfeed_id'],
             to_newsfeed_id=data['to_newsfeed_id'],
         )
-    except SubscriptionError as exception:
+    except DomainError as exception:
         return web.json_response(
             status=400,
             data={

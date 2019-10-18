@@ -4,6 +4,7 @@ from aiohttp import web
 
 from newsfeed.packages.domain_model.event import EventRepository
 from newsfeed.packages.domain_model.event_dispatcher import EventDispatcherService
+from newsfeed.packages.domain_model.error import DomainError
 
 
 async def get_events_handler(request, *,
@@ -25,10 +26,18 @@ async def post_event_handler(request, *,
     """Handle events posting requests."""
     event_data = await request.json()
 
-    event = await event_dispatcher_service.dispatch_new_event(
-        newsfeed_id=request.match_info['newsfeed_id'],
-        data=event_data['data'],
-    )
+    try:
+        event = await event_dispatcher_service.dispatch_new_event(
+            newsfeed_id=request.match_info['newsfeed_id'],
+            data=event_data['data'],
+        )
+    except DomainError as exception:
+        return web.json_response(
+            status=400,
+            data={
+                'message': exception.message,
+            }
+        )
 
     return web.json_response(
         status=202,

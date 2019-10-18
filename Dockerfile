@@ -2,6 +2,7 @@ FROM python:3.7-alpine3.9
 
 ENV PORT=8000
 ENV API_BASE_PATH="/"
+ENV NEWSFEED_ID_LENGTH="128"
 
 WORKDIR /code
 COPY . /code/
