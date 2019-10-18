@@ -33,7 +33,21 @@ class TestInfrastructure(containers.DeclarativeContainer):
 def app():
     """Create test application."""
     return application_factory(
-        infrastructure=TestInfrastructure(),
+        infrastructure=TestInfrastructure(
+            config={
+                'event_queue': {
+                   'max_size': 1,
+                },
+                'event_storage': {
+                   'max_newsfeeds': 3,
+                   'max_events_per_newsfeed': 5,
+                },
+                'subscription_storage': {
+                   'max_newsfeeds': 3,
+                   'max_subscriptions_per_newsfeed': 5,
+                },
+            },
+        ),
         web_api=WebApi(
             config={
                 'base_path': '/',

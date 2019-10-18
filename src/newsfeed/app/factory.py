@@ -12,6 +12,19 @@ application_factory = providers.Factory(
     Application,
     infrastructure=providers.Factory(
         Infrastructure,
+        config={
+            'event_queue': {
+                'max_size': os.getenv('EVENTS_QUEUE_SIZE'),
+            },
+            'event_storage': {
+                'max_newsfeeds': os.getenv('MAX_NEWSFEEDS'),
+                'max_events_per_newsfeed': os.getenv('EVENTS_PER_NEWSFEED'),
+            },
+            'subscription_storage': {
+                'max_newsfeeds': os.getenv('MAX_NEWSFEEDS'),
+                'max_subscriptions_per_newsfeed': os.getenv('SUBSCRIPTIONS_PER_NEWSFEED'),
+            },
+        },
     ),
     domain_model=providers.Factory(
         DomainModel,
