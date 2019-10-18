@@ -16,4 +16,4 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./swagger:/usr/share/nginx/html/swagger/
-      - ./demo_app:/usr/share/nginx/html/demo_app/
+      - ./demo_app/build/:/usr/share/nginx/html/demo_app/

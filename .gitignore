@@ -114,3 +114,6 @@ demo_app/npm-debug.log*
 demo_app/yarn-debug.log*
 demo_app/yarn-error.log*
 demo_app/node_modules
+
+# misc
+.DS_Store
