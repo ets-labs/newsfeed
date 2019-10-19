@@ -313,6 +313,38 @@ OPENAPI_SCHEMA = {
                         'type': 'string',
                         'format': 'uuid',
                     },
+                    'newsfeed_id': {
+                        'type': 'string',
+                        'example': '123',
+                    },
+                    'data': {
+                        'type': 'object',
+                        'example': {
+                            'payload_id': 835,
+                        },
+                    },
+                    'parent_fqid': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                        },
+                        'example': ['123', '9d75e08f-f73f-4d80-a581-d3f9290520e6'],
+                    },
+                    'child_fqids': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'array',
+                            'example': ['123', '9d75e08f-f73f-4d80-a581-d3f9290520e6'],
+                        },
+                    },
+                    'first_seen_at': {
+                        'type': 'integer',
+                        'example': 1571436411,
+                    },
+                    'published_at': {
+                        'type': 'integer',
+                        'example': 1571436411,
+                    },
                 },
             },
             'NewsfeedEventsList': {
