@@ -79,6 +79,11 @@ class Event:
         return EventFQID(self.newsfeed_id, self.id)
 
     @property
+    def parent_fqid(self):
+        """Return parent FQID."""
+        return self._parent_fqid
+
+    @property
     def child_fqids(self):
         """Return list of child FQIDs."""
         return list(self._child_fqids)
@@ -86,7 +91,17 @@ class Event:
     @property
     def data(self):
         """Return data."""
-        return self._data
+        return dict(self._data)
+
+    @property
+    def first_seen_at(self):
+        """Return first seen time."""
+        return self._first_seen_at
+
+    @property
+    def published_at(self):
+        """Return publishing time."""
+        return self._published_at
 
     def track_publishing_time(self):
         """Track publishing time."""
@@ -187,7 +202,11 @@ class EventRepository:
 
     async def get_by_newsfeed_id(self, newsfeed_id):
         """Return events of specified newsfeed."""
-        return await self._storage.get_by_newsfeed_id(newsfeed_id)
+        newsfeed_events_data = await self._storage.get_by_newsfeed_id(newsfeed_id)
+        return [
+            self._factory.create_from_serialized(event_data)
+            for event_data in newsfeed_events_data
+        ]
 
     async def get_by_fqid(self, fqid: EventFQID):
         """Return event by its FQID."""
