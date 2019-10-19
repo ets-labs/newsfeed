@@ -48,7 +48,7 @@ OPENAPI_SCHEMA = {
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/NewsfeedEventsList',
+                                    '$ref': '#/components/schemas/EventsList',
                                 },
                             },
                         },
@@ -96,7 +96,7 @@ OPENAPI_SCHEMA = {
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/NewsfeedEvent',
+                                    '$ref': '#/components/schemas/Event',
                                 },
                             },
                         },
@@ -160,7 +160,7 @@ OPENAPI_SCHEMA = {
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/NewsfeedSubscriptionsList',
+                                    '$ref': '#/components/schemas/SubscriptionsList',
                                 },
                             },
                         },
@@ -204,7 +204,7 @@ OPENAPI_SCHEMA = {
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/NewsfeedSubscription',
+                                    '$ref': '#/components/schemas/Subscription',
                                 },
                             },
                         },
@@ -268,7 +268,7 @@ OPENAPI_SCHEMA = {
                         'content': {
                             'application/json': {
                                 'schema': {
-                                    '$ref': '#/components/schemas/NewsfeedSubscriptionsList',
+                                    '$ref': '#/components/schemas/SubscriptionsList',
                                 },
                             },
                         },
@@ -307,7 +307,7 @@ OPENAPI_SCHEMA = {
     },
     'components': {
         'schemas': {
-            'NewsfeedEvent': {
+            'Event': {
                 'properties': {
                     'id': {
                         'type': 'string',
@@ -347,17 +347,17 @@ OPENAPI_SCHEMA = {
                     },
                 },
             },
-            'NewsfeedEventsList': {
+            'EventsList': {
                 'properties': {
                     'results': {
                         'type': 'array',
                         'items': {
-                            '$ref': '#/components/schemas/NewsfeedEvent',
+                            '$ref': '#/components/schemas/Event',
                         },
                     },
                 },
             },
-            'NewsfeedSubscription': {
+            'Subscription': {
                 'properties': {
                     'id': {
                         'type': 'string',
@@ -365,12 +365,12 @@ OPENAPI_SCHEMA = {
                     },
                 },
             },
-            'NewsfeedSubscriptionsList': {
+            'SubscriptionsList': {
                 'properties': {
                     'results': {
                         'type': 'array',
                         'items': {
-                            '$ref': '#/components/schemas/NewsfeedSubscription',
+                            '$ref': '#/components/schemas/Subscription',
                         },
                     },
                 },
