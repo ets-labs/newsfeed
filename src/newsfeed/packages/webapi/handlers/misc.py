@@ -363,6 +363,18 @@ OPENAPI_SCHEMA = {
                         'type': 'string',
                         'format': 'uuid',
                     },
+                    'newsfeed_id': {
+                        'type': 'string',
+                        'example': '123',
+                    },
+                    'to_newsfeed_id': {
+                        'type': 'string',
+                        'example': '124',
+                    },
+                    'subscribed_at': {
+                        'type': 'integer',
+                        'example': 1571436411,
+                    },
                 },
             },
             'SubscriptionsList': {
