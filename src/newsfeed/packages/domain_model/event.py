@@ -1,6 +1,6 @@
 """Events module."""
 
-from typing import Type, Mapping, Sequence
+from typing import Type, Mapping, Sequence, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -36,7 +36,7 @@ class Event:
 
     def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_fqid: EventFQID,
                  child_fqids: Sequence[EventFQID], first_seen_at: datetime,
-                 published_at: datetime):
+                 published_at: Optional[datetime]):
         """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
