@@ -39,6 +39,7 @@ class Subscription:
     """Subscription entity."""
 
     def __init__(self, id: UUID, newsfeed_id: str, to_newsfeed_id: str, subscribed_at):
+        """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
 

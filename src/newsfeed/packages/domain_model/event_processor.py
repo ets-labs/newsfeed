@@ -43,7 +43,9 @@ class EventProcessorService:
     async def process_new_event(self, event_data):
         """Process posting of new event."""
         event = self._event_factory.create_from_serialized(event_data)
-        subscriptions = await self._subscription_repository.get_by_to_newsfeed_id(event.newsfeed_id)
+        subscriptions = await self._subscription_repository.get_by_to_newsfeed_id(
+            newsfeed_id=event.newsfeed_id,
+        )
 
         subscriber_events = [
             self._event_factory.create_new(
