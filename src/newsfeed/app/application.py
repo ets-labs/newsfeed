@@ -1,6 +1,7 @@
 """Application module."""
 
 import asyncio
+from typing import List
 
 from aiohttp import web
 
@@ -25,7 +26,7 @@ class Application:
         self.web_api.domain.override(self.domain_model)
 
         self.processor_concurrency = int(processor_concurrency)
-        self.processor_tasks = []
+        self.processor_tasks: List[asyncio.Task] = []
 
     def main(self):
         """Run application."""
@@ -45,12 +46,8 @@ class Application:
         ]
 
     async def _cleanup_background_tasks(self, _: web.Application):
-        await asyncio.gather(
-            *[
-                event_processing_task.cancel()
-                for event_processing_task in self.processor_tasks
-            ]
-        )
+        for event_processing_task in self.processor_tasks:
+            event_processing_task.cancel()
         self.processor_tasks.clear()
 
     async def _event_processor_task(self):
