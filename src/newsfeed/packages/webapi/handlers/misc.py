@@ -1,19 +1,20 @@
 """Miscellaneous handlers."""
 
 import copy
+from typing import Dict
 
 from aiohttp import web
 
 
-async def get_status_handler(_):
+async def get_status_handler(_: web.Request) -> web.Response:
     """Handle status requests."""
     return web.json_response({'status': 'OK'})
 
 
-async def get_openapi_schema_handler(_, *, base_path: str):
+async def get_openapi_schema_handler(_: web.Request, *, base_path: str) -> web.Response:
     """Handle OpenAPI schema requests."""
-    schema = copy.deepcopy(OPENAPI_SCHEMA)
-    schema['servers'].append({'url': base_path})
+    schema: Dict = copy.deepcopy(OPENAPI_SCHEMA)
+    schema['servers'] = [{'url': base_path}]
     return web.json_response(schema)
 
 
@@ -23,7 +24,6 @@ OPENAPI_SCHEMA = {
         'version': '1.0.0',
         'title': 'NewsFeed Microservice',
     },
-    'servers': [],
     'paths': {
         '/newsfeed/{newsfeed_id}/events/': {
             'get': {

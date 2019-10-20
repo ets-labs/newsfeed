@@ -10,8 +10,8 @@ from newsfeed.packages.domain_model.event_dispatcher import EventDispatcherServi
 from newsfeed.packages.domain_model.error import DomainError
 
 
-async def get_events_handler(request, *,
-                             event_repository: EventRepository):
+async def get_events_handler(request: web.Request, *,
+                             event_repository: EventRepository) -> web.Response:
     """Handle events getting requests."""
     newsfeed_id = request.match_info['newsfeed_id']
 
@@ -27,8 +27,8 @@ async def get_events_handler(request, *,
     )
 
 
-async def post_event_handler(request, *,
-                             event_dispatcher_service: EventDispatcherService):
+async def post_event_handler(request: web.Request, *,
+                             event_dispatcher_service: EventDispatcherService) -> web.Response:
     """Handle events posting requests."""
     event_data = await request.json()
 
@@ -51,8 +51,8 @@ async def post_event_handler(request, *,
     )
 
 
-async def delete_event_handler(request, *,
-                               event_dispatcher_service: EventDispatcherService):
+async def delete_event_handler(request: web.Request, *,
+                               event_dispatcher_service: EventDispatcherService) -> web.Response:
     """Handle events posting requests."""
     await event_dispatcher_service.dispatch_event_deletion(
         newsfeed_id=request.match_info['newsfeed_id'],
