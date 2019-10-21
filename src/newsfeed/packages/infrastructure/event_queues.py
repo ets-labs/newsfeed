@@ -57,7 +57,7 @@ class EventQueueError(Exception):
     """Event-queue-related error."""
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return 'Newsfeed event queue error'
 
@@ -65,12 +65,12 @@ class EventQueueError(Exception):
 class QueueFull(EventQueueError):
     """Error indicating situations when queue can not accept messages due to being full."""
 
-    def __init__(self, queue_size):
+    def __init__(self, queue_size: int):
         """Initialize error."""
         self._queue_size = queue_size
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return (
             f'Newsfeed event queue can not accept message because queue size limit exceeds '
