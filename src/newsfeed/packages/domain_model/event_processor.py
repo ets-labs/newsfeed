@@ -1,6 +1,7 @@
 """Event processor module."""
 
 from uuid import UUID
+from typing import Dict, Any
 
 from newsfeed.packages.infrastructure.event_queues import EventQueue
 
@@ -29,7 +30,7 @@ class EventProcessorService:
         assert isinstance(subscription_repository, SubscriptionRepository)
         self._subscription_repository = subscription_repository
 
-    async def process_event(self):
+    async def process_event(self) -> None:
         """Process event."""
         action, data = await self._event_queue.get()
 
@@ -40,7 +41,7 @@ class EventProcessorService:
         else:
             ...
 
-    async def process_new_event(self, event_data):
+    async def process_new_event(self, event_data: Dict[str, Any]) -> None:
         """Process posting of new event."""
         event = self._event_factory.create_from_serialized(event_data)
         subscriptions = await self._subscription_repository.get_by_to_newsfeed_id(
@@ -66,7 +67,7 @@ class EventProcessorService:
             event.track_publishing_time()
             await self._event_repository.add(event)
 
-    async def process_event_deletion(self, data):
+    async def process_event_deletion(self, data: Dict[str, str]) -> None:
         """Process deletion of an existing event."""
         event = await self._event_repository.get_by_fqid(
             EventFQID(
