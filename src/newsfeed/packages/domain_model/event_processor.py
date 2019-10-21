@@ -41,9 +41,9 @@ class EventProcessorService:
         else:
             ...
 
-    async def process_new_event(self, event_data: Dict[str, Any]) -> None:
+    async def process_new_event(self, data: Dict[str, Any]) -> None:
         """Process posting of new event."""
-        event = self._event_factory.create_from_serialized(event_data)
+        event = self._event_factory.create_from_serialized(data)
         subscriptions = await self._subscription_repository.get_by_to_newsfeed_id(
             newsfeed_id=event.newsfeed_id,
         )
@@ -67,11 +67,11 @@ class EventProcessorService:
             event.track_publishing_time()
             await self._event_repository.add(event)
 
-    async def process_event_deletion(self, data: Dict[str, str]) -> None:
+    async def process_event_deletion(self, data: Dict[str, Any]) -> None:
         """Process deletion of an existing event."""
         event = await self._event_repository.get_by_fqid(
             EventFQID(
-                newsfeed_id=data['newsfeed_id'],
+                newsfeed_id=str(data['newsfeed_id']),
                 event_id=UUID(data['event_id']),
             ),
         )
