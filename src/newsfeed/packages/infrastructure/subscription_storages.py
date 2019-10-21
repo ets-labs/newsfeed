@@ -4,7 +4,7 @@ from collections import defaultdict, deque
 from typing import Iterable, Deque, Dict, Union
 
 
-EventData = Dict[str, Union[str, int]]
+SubscriptionData = Dict[str, Union[str, int]]
 
 
 class SubscriptionStorage:
@@ -14,23 +14,23 @@ class SubscriptionStorage:
         """Initialize storage."""
         self._config = config
 
-    async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
+    async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[SubscriptionData]:
         """Return subscriptions of specified newsfeed."""
         raise NotImplementedError()
 
-    async def get_by_to_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
+    async def get_by_to_newsfeed_id(self, newsfeed_id: str) -> Iterable[SubscriptionData]:
         """Return subscriptions to specified newsfeed."""
         raise NotImplementedError()
 
-    async def get_by_fqid(self, newsfeed_id: str, subscription_id: str) -> EventData:
+    async def get_by_fqid(self, newsfeed_id: str, subscription_id: str) -> SubscriptionData:
         """Return subscription of specified newsfeed."""
         raise NotImplementedError()
 
-    async def get_between(self, newsfeed_id: str, to_newsfeed_id: str) -> EventData:
+    async def get_between(self, newsfeed_id: str, to_newsfeed_id: str) -> SubscriptionData:
         """Return subscription between specified newsfeeds."""
         raise NotImplementedError()
 
-    async def add(self, subscription_data: EventData) -> None:
+    async def add(self, subscription_data: SubscriptionData) -> None:
         """Add subscription data to the storage."""
         raise NotImplementedError()
 
@@ -45,24 +45,23 @@ class InMemorySubscriptionStorage(SubscriptionStorage):
     def __init__(self, config: Dict[str, str]):
         """Initialize queue."""
         super().__init__(config)
-        self._subscriptions_storage: Dict[str, Deque[EventData]] = defaultdict(deque)
-        self._subscribers_storage: Dict[str, Deque[EventData]] = defaultdict(deque)
+        self._subscriptions_storage: Dict[str, Deque[SubscriptionData]] = defaultdict(deque)
+        self._subscribers_storage: Dict[str, Deque[SubscriptionData]] = defaultdict(deque)
 
         self._max_newsfeed_ids = int(config['max_newsfeeds'])
         self._max_subscriptions_per_newsfeed = int(config['max_subscriptions_per_newsfeed'])
 
-
-    async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
+    async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[SubscriptionData]:
         """Return subscriptions of specified newsfeed."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         return list(newsfeed_subscriptions_storage)
 
-    async def get_by_to_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
+    async def get_by_to_newsfeed_id(self, newsfeed_id: str) -> Iterable[SubscriptionData]:
         """Return subscriptions to specified newsfeed."""
         newsfeed_subscribers_storage = self._subscribers_storage[newsfeed_id]
         return list(newsfeed_subscribers_storage)
 
-    async def get_by_fqid(self, newsfeed_id: str, subscription_id: str) -> EventData:
+    async def get_by_fqid(self, newsfeed_id: str, subscription_id: str) -> SubscriptionData:
         """Return subscription of specified newsfeed."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         for subscription_data in newsfeed_subscriptions_storage:
@@ -74,7 +73,7 @@ class InMemorySubscriptionStorage(SubscriptionStorage):
                 subscription_id=subscription_id,
             )
 
-    async def get_between(self, newsfeed_id: str, to_newsfeed_id: str) -> EventData:
+    async def get_between(self, newsfeed_id: str, to_newsfeed_id: str) -> SubscriptionData:
         """Return subscription between specified newsfeeds."""
         if newsfeed_id not in self._subscriptions_storage:
             raise SubscriptionBetweenNotFound(
@@ -91,7 +90,7 @@ class InMemorySubscriptionStorage(SubscriptionStorage):
                 to_newsfeed_id=to_newsfeed_id,
             )
 
-    async def add(self, subscription_data: EventData) -> None:
+    async def add(self, subscription_data: SubscriptionData) -> None:
         """Add subscription data to the storage."""
         subscription_id = str(subscription_data['id'])
         newsfeed_id = str(subscription_data['newsfeed_id'])
