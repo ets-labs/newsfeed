@@ -88,7 +88,7 @@ class EventStorageError(Exception):
     """Event-storage-related error."""
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return 'Newsfeed event storage error'
 
@@ -96,13 +96,13 @@ class EventStorageError(Exception):
 class NewsfeedNumberLimitExceeded(EventStorageError):
     """Error indicating situations when number of newsfeeds exceeds maximum."""
 
-    def __init__(self, newsfeed_id, max_newsfeed_ids):
+    def __init__(self, newsfeed_id: str, max_newsfeed_ids: int):
         """Initialize error."""
         self._newsfeed_id = newsfeed_id
         self._max_newsfeed_ids = max_newsfeed_ids
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return (
             f'Newsfeed "{self._newsfeed_id}" could not be added to the storage because limit '
