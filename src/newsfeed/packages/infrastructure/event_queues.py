@@ -1,48 +1,54 @@
 """Infrastructure event queues module."""
 
 import asyncio
+from typing import Dict, Tuple, Union
+
+
+Action = str
+EventData = Dict[str, Union[str, int]]
+Message = Tuple[Action, EventData]
 
 
 class EventQueue:
     """Event queue."""
 
-    def __init__(self, config):
+    def __init__(self, config: Dict[str, str]):
         """Initialize queue."""
         self._config = config
 
-    async def get(self):
-        """Get event data from queue."""
+    async def get(self) -> Message:
+        """Get message from queue."""
         raise NotImplementedError()
 
-    async def put(self, data):
-        """Put event data to queue."""
+    async def put(self, message: Message) -> None:
+        """Put message to queue."""
         raise NotImplementedError()
 
-    async def is_empty(self):
+    async def is_empty(self) -> bool:
         """Check if queue is empty."""
         raise NotImplementedError()
 
 
 class InMemoryEventQueue(EventQueue):
-    """Event queue that stores events in memory."""
+    """Event queue that stores messages in memory."""
 
-    def __init__(self, config):
+    def __init__(self, config: Dict[str, str]):
         """Initialize queue."""
         super().__init__(config)
-        self._queue = asyncio.Queue(maxsize=int(config['max_size']))
+        self._queue: asyncio.Queue[Message] = asyncio.Queue()
 
-    async def get(self):
-        """Get event data from queue."""
+    async def get(self) -> Message:
+        """Get message from queue."""
         return await self._queue.get()
 
-    async def put(self, data):
-        """Put event data to queue."""
+    async def put(self, message: Message) -> None:
+        """Put message to queue."""
         try:
-            self._queue.put_nowait(data)
+            self._queue.put_nowait(message)
         except asyncio.QueueFull:
             raise QueueFull(self._queue.maxsize)
 
-    async def is_empty(self):
+    async def is_empty(self) -> bool:
         """Check if queue is empty."""
         return self._queue.empty()
 
