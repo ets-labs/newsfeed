@@ -1,6 +1,6 @@
 """Subscription handlers."""
 
-from typing import Dict
+from typing import Dict, Union
 
 from aiohttp import web
 
@@ -9,6 +9,15 @@ from newsfeed.packages.domain_model.subscription import (
     SubscriptionService,
 )
 from newsfeed.packages.domain_model.error import DomainError
+
+
+SerializedSubscription = Dict[
+    str,
+    Union[
+        str,
+        int,
+    ],
+]
 
 
 async def get_subscriptions_handler(request: web.Request, *,
@@ -77,7 +86,7 @@ async def get_subscriber_subscriptions_handler(request: web.Request, *,
     )
 
 
-def _serialize_subscription(subscription: Subscription) -> Dict:
+def _serialize_subscription(subscription: Subscription) -> SerializedSubscription:
     return {
         'id': str(subscription.id),
         'newsfeed_id': str(subscription.newsfeed_id),
