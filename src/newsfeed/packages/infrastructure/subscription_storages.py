@@ -45,6 +45,9 @@ class InMemorySubscriptionStorage(SubscriptionStorage):
         self._subscriptions_storage = defaultdict(deque)
         self._subscribers_storage = defaultdict(deque)
 
+        self._max_newsfeed_ids = int(config['max_newsfeeds'])
+        self._max_subscriptions_per_newsfeed = int(config['max_subscriptions_per_newsfeed'])
+
     async def get_by_newsfeed_id(self, newsfeed_id: str):
         """Return subscriptions of specified newsfeed."""
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
@@ -69,6 +72,11 @@ class InMemorySubscriptionStorage(SubscriptionStorage):
 
     async def get_between(self, newsfeed_id: str, to_newsfeed_id: str):
         """Return subscription between specified newsfeeds."""
+        if newsfeed_id not in self._subscriptions_storage:
+            raise SubscriptionBetweenNotFound(
+                newsfeed_id=newsfeed_id,
+                to_newsfeed_id=to_newsfeed_id,
+            )
         newsfeed_subscriptions_storage = self._subscriptions_storage[newsfeed_id]
         for subscription_data in newsfeed_subscriptions_storage:
             if subscription_data['to_newsfeed_id'] == to_newsfeed_id:
@@ -81,11 +89,26 @@ class InMemorySubscriptionStorage(SubscriptionStorage):
 
     async def add(self, subscription_data: Mapping):
         """Add subscription data to the storage."""
+        subscription_id = subscription_data['id']
         newsfeed_id = subscription_data['newsfeed_id']
         to_newsfeed_id = subscription_data['to_newsfeed_id']
 
-        self._subscriptions_storage[newsfeed_id].appendleft(subscription_data)
-        self._subscribers_storage[to_newsfeed_id].appendleft(subscription_data)
+        if len(self._subscriptions_storage) >= self._max_newsfeed_ids:
+            raise NewsfeedNumberLimitExceeded(newsfeed_id, self._max_newsfeed_ids)
+
+        subscriptions_storage = self._subscriptions_storage[newsfeed_id]
+        subscribers_storage = self._subscribers_storage[to_newsfeed_id]
+
+        if len(subscriptions_storage) >= self._max_subscriptions_per_newsfeed:
+            raise SubscriptionNumberLimitExceeded(
+                subscription_id,
+                newsfeed_id,
+                to_newsfeed_id,
+                self._max_subscriptions_per_newsfeed,
+            )
+
+        subscriptions_storage.appendleft(subscription_data)
+        subscribers_storage.appendleft(subscription_data)
 
     async def delete_by_fqid(self, newsfeed_id: str, subscription_id: str):
         """Delete specified subscription."""
@@ -150,4 +173,42 @@ class SubscriptionBetweenNotFound(SubscriptionStorageError):
         return (
             f'Subscription from newsfeed "{self._newsfeed_id}" to "{self._to_newsfeed_id}" '
             f'could not be found'
+        )
+
+
+class NewsfeedNumberLimitExceeded(SubscriptionStorageError):
+    """Error indicating situations when number of newsfeeds exceeds maximum."""
+
+    def __init__(self, newsfeed_id, max_newsfeed_ids):
+        """Initialize error."""
+        self._newsfeed_id = newsfeed_id
+        self._max_newsfeed_ids = max_newsfeed_ids
+
+    @property
+    def message(self):
+        """Return error message."""
+        return (
+            f'Newsfeed "{self._newsfeed_id}" could not be added to the storage because limit '
+            f'of newsfeeds number exceeds maximum {self._max_newsfeed_ids}'
+        )
+
+
+class SubscriptionNumberLimitExceeded(SubscriptionStorageError):
+    """Error indicating situations when number of subscriptions per newsfeed exceeds maximum."""
+
+    def __init__(self, subscription_id: str, newsfeed_id: str, to_newsfeed_id: str,
+                 max_subscriptions_per_newsfeed: int):
+        """Initialize error."""
+        self._subscription_id = subscription_id
+        self._newsfeed_id = newsfeed_id
+        self._to_newsfeed_id = to_newsfeed_id
+        self._max_subscriptions_per_newsfeed = max_subscriptions_per_newsfeed
+
+    @property
+    def message(self):
+        """Return error message."""
+        return (
+            f'Subscriptions "{self._subscription_id}" from newsfeed {self._newsfeed_id} to '
+            f'{self._to_newsfeed_id} could not be added to the storage because limit of '
+            f'subscriptions per newsfeed exceeds maximum {self._max_subscriptions_per_newsfeed}'
         )
