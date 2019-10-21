@@ -27,10 +27,10 @@ async def test_event_publishing(app):
 
     event_repository = app.domain_model.event_repository()
     events = await event_repository.get_by_newsfeed_id(newsfeed_id)
-    assert events[0]['data'] == {
+    assert events[0].data == {
         'event_data': 'some_data_2',
     }
-    assert events[1]['data'] == {
+    assert events[1].data == {
         'event_data': 'some_data_1',
     }
 
@@ -68,18 +68,18 @@ async def test_event_publishing_to_subscriber(app):
 
     event_repository = app.domain_model.event_repository()
     events = await event_repository.get_by_newsfeed_id(newsfeed_id)
-    assert events[0]['data'] == {
+    assert events[0].data == {
         'event_data': 'some_data_2',
     }
-    assert events[1]['data'] == {
+    assert events[1].data == {
         'event_data': 'some_data_1',
     }
 
     subscriber_events = await event_repository.get_by_newsfeed_id(subscriber_newsfeed_id)
-    assert subscriber_events[0]['data'] == {
+    assert subscriber_events[0].data == {
         'event_data': 'some_data_2',
     }
-    assert subscriber_events[1]['data'] == {
+    assert subscriber_events[1].data == {
         'event_data': 'some_data_1',
     }
 
