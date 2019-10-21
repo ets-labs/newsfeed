@@ -1,5 +1,7 @@
 """Event handlers."""
 
+from typing import Dict, List, Tuple, Union, Any
+
 from aiohttp import web
 
 from newsfeed.packages.domain_model.event import (
@@ -8,6 +10,20 @@ from newsfeed.packages.domain_model.event import (
 )
 from newsfeed.packages.domain_model.event_dispatcher import EventDispatcherService
 from newsfeed.packages.domain_model.error import DomainError
+
+
+SerializedEventFQID = Tuple[str, str]
+SerializedEvent = Dict[
+    str,
+    Union[
+        str,
+        int,
+        Dict[Any, Any],
+        SerializedEventFQID,
+        List[SerializedEventFQID],
+        None,
+    ],
+]
 
 
 async def get_events_handler(request: web.Request, *,
@@ -61,18 +77,18 @@ async def delete_event_handler(request: web.Request, *,
     return web.json_response(status=204)
 
 
-def _serialize_event(event: Event):
+def _serialize_event(event: Event) -> SerializedEvent:
     return {
         'id': str(event.id),
         'newsfeed_id': str(event.newsfeed_id),
         'data': dict(event.data),
         'parent_fqid': (
-            [event.parent_fqid.newsfeed_id, str(event.parent_fqid.event_id)]
+            (event.parent_fqid.newsfeed_id, str(event.parent_fqid.event_id))
             if event.parent_fqid
             else None
         ),
         'child_fqids': [
-            [child_fqid.newsfeed_id, str(child_fqid.event_id)]
+            (child_fqid.newsfeed_id, str(child_fqid.event_id))
             for child_fqid in event.child_fqids
         ],
         'first_seen_at': int(event.first_seen_at.timestamp()),
