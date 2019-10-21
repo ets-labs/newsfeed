@@ -1,6 +1,8 @@
 """Subscriptions module."""
 
-from typing import Type, Sequence
+from __future__ import annotations
+
+from typing import Type, Dict, List, Tuple, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -25,12 +27,12 @@ class SubscriptionFQID:
         self.subscription_id = subscription_id
 
     @classmethod
-    def from_serialized_data(cls, data):
+    def from_serialized_data(cls, data: Tuple[str, str]) -> SubscriptionFQID:
         """Create instance from serialized data."""
         return cls(data[0], UUID(data[1]))
 
     @property
-    def serialized_data(self):
+    def serialized_data(self) -> Tuple[str, str]:
         """Return serialized data."""
         return self.newsfeed_id, str(self.subscription_id)
 
@@ -38,7 +40,7 @@ class SubscriptionFQID:
 class Subscription:
     """Subscription entity."""
 
-    def __init__(self, id: UUID, newsfeed_id: str, to_newsfeed_id: str, subscribed_at):
+    def __init__(self, id: UUID, newsfeed_id: str, to_newsfeed_id: str, subscribed_at: datetime):
         """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
@@ -53,32 +55,32 @@ class Subscription:
         self._subscribed_at = subscribed_at
 
     @property
-    def id(self):
+    def id(self) -> UUID:
         """Return id."""
         return self._id
 
     @property
-    def newsfeed_id(self):
+    def newsfeed_id(self) -> str:
         """Return newsfeed id."""
         return self._newsfeed_id
 
     @property
-    def to_newsfeed_id(self):
+    def to_newsfeed_id(self) -> str:
         """Return to newsfeed id."""
         return self._to_newsfeed_id
 
     @property
-    def fqid(self):
+    def fqid(self) -> SubscriptionFQID:
         """Return FQID (Fully-Qualified ID)."""
         return SubscriptionFQID(self.newsfeed_id, self.id)
 
     @property
-    def subscribed_at(self):
+    def subscribed_at(self) -> datetime:
         """Return subscribed at."""
         return self._subscribed_at
 
     @property
-    def serialized_data(self):
+    def serialized_data(self) -> Dict[str, Any]:
         """Return serialized data."""
         return {
             'id': str(self._id),
@@ -96,7 +98,7 @@ class SubscriptionFactory:
         assert issubclass(cls, Subscription)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, to_newsfeed_id) -> Subscription:
+    def create_new(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:
         """Create new subscription."""
         return self._cls(
             id=uuid4(),
@@ -105,7 +107,7 @@ class SubscriptionFactory:
             subscribed_at=datetime.utcnow(),
         )
 
-    def create_from_serialized(self, data) -> Subscription:
+    def create_from_serialized(self, data: Dict[str, Any]) -> Subscription:
         """Create subscription from serialized data."""
         return self._cls(
             id=UUID(data['id']),
@@ -122,7 +124,7 @@ class SubscriptionSpecification:
         """Initialize specification."""
         self._newsfeed_id_specification = newsfeed_id_specification
 
-    def is_satisfied_by(self, subscription: Subscription):
+    def is_satisfied_by(self, subscription: Subscription) -> bool:
         """Check if subscription satisfies specification."""
         self._newsfeed_id_specification.is_satisfied_by(subscription.newsfeed_id)
         self._newsfeed_id_specification.is_satisfied_by(subscription.to_newsfeed_id)
@@ -144,7 +146,7 @@ class SubscriptionRepository:
         assert isinstance(storage, SubscriptionStorage)
         self._storage = storage
 
-    async def get_by_newsfeed_id(self, newsfeed_id: str):
+    async def get_by_newsfeed_id(self, newsfeed_id: str) -> List[Subscription]:
         """Return subscriptions of specified newsfeed."""
         subscriptions_data = await self._storage.get_by_newsfeed_id(newsfeed_id)
         return [
@@ -152,7 +154,7 @@ class SubscriptionRepository:
             for subscription_data in subscriptions_data
         ]
 
-    async def get_by_to_newsfeed_id(self, newsfeed_id: str):
+    async def get_by_to_newsfeed_id(self, newsfeed_id: str) -> List[Subscription]:
         """Return subscriptions to specified newsfeed."""
         subscriptions_data = await self._storage.get_by_to_newsfeed_id(newsfeed_id)
         return [
@@ -170,11 +172,11 @@ class SubscriptionRepository:
         subscription_data = await self._storage.get_between(newsfeed_id, to_newsfeed_id)
         return self._factory.create_from_serialized(subscription_data)
 
-    async def add(self, subscription: Subscription):
+    async def add(self, subscription: Subscription) -> None:
         """Add subscription to repository."""
         await self._storage.add(subscription.serialized_data)
 
-    async def delete_by_fqid(self, fqid: SubscriptionFQID):
+    async def delete_by_fqid(self, fqid: SubscriptionFQID) -> None:
         """Delete subscription by its FQID."""
         await self._storage.delete_by_fqid(
             newsfeed_id=fqid.newsfeed_id,
@@ -199,11 +201,11 @@ class SubscriptionService:
         assert isinstance(repository, SubscriptionRepository)
         self._repository = repository
 
-    async def get_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
+    async def get_subscriptions(self, newsfeed_id: str) -> List[Subscription]:
         """Return list of newsfeed subscriptions."""
         return await self._repository.get_by_newsfeed_id(newsfeed_id)
 
-    async def get_subscriber_subscriptions(self, newsfeed_id: str) -> Sequence[Subscription]:
+    async def get_subscriber_subscriptions(self, newsfeed_id: str) -> List[Subscription]:
         """Return list of newsfeed subscriber subscriptions."""
         return await self._repository.get_by_to_newsfeed_id(newsfeed_id)
 
@@ -229,12 +231,13 @@ class SubscriptionService:
 
         return subscription
 
-    async def delete_subscription(self, newsfeed_id: str, subscription_id: str):
+    async def delete_subscription(self, newsfeed_id: str, subscription_id: str) -> None:
         """Delete newsfeed subscription."""
         subscription = await self._repository.get_by_fqid(newsfeed_id, UUID(subscription_id))
         await self._repository.delete_by_fqid(subscription.fqid)
 
-    async def _check_subscription_exists_between(self, newsfeed_id, to_newsfeed_id):
+    async def _check_subscription_exists_between(self, newsfeed_id: str, to_newsfeed_id: str) \
+            -> bool:
         try:
             _ = await self._repository.get_between(
                 newsfeed_id=newsfeed_id,
@@ -250,7 +253,7 @@ class SubscriptionError(DomainError):
     """Subscription-related error."""
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return 'Newsfeed subscription error'
 
@@ -258,12 +261,12 @@ class SubscriptionError(DomainError):
 class SelfSubscriptionError(SubscriptionError):
     """Error indicating situations when subscription of newsfeed to itself is attempted."""
 
-    def __init__(self, newsfeed_id):
+    def __init__(self, newsfeed_id: str):
         """Initialize error."""
         self._newsfeed_id = newsfeed_id
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return f'Subscription of newsfeed "{self._newsfeed_id}" to itself is restricted'
 
@@ -271,13 +274,13 @@ class SelfSubscriptionError(SubscriptionError):
 class SubscriptionAlreadyExistsError(SubscriptionError):
     """Error indicating situations when subscription between two newsfeeds already exists."""
 
-    def __init__(self, newsfeed_id, to_newsfeed_id):
+    def __init__(self, newsfeed_id: str, to_newsfeed_id: str):
         """Initialize error."""
         self._newsfeed_id = newsfeed_id
         self._to_newsfeed_id = to_newsfeed_id
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return (
             f'Subscription from newsfeed "{self._newsfeed_id}" to "{self._to_newsfeed_id}" '
