@@ -13,7 +13,6 @@ export class App extends React.Component {
     const newsFeeds = localStorage.getItem("myNewsFeeds")
       ? Object.entries(JSON.parse(localStorage.getItem("myNewsFeeds")))
       : [];
-    console.log(newsFeeds);
     const feedsFromStorage = {}
     for (const feed of newsFeeds) {
       let [id, params] = feed
