@@ -13,10 +13,10 @@ export class App extends React.Component {
     const newsFeeds = localStorage.getItem("myNewsFeeds")
       ? Object.entries(JSON.parse(localStorage.getItem("myNewsFeeds")))
       : [];
-    const feedsFromStorage = {}
+    const feedsFromStorage = {};
     for (const feed of newsFeeds) {
-      let [id, params] = feed
-      feedsFromStorage[id] = params
+      let [id, params] = feed;
+      feedsFromStorage[id] = params;
     }
     this.setState(() => {
       return {
@@ -37,6 +37,14 @@ export class App extends React.Component {
         newsFeeds: newsFeeds
       };
     });
+  };
+
+  refreshNewsFeeds = () => {
+    let timeout = 400;
+    for (const [key] of Object.entries(this.refs)) {
+      timeout += 150
+      setTimeout(() => this.refs[key].getEvents(), timeout);
+    }
   };
 
   clearNewsFeedsStorage = () => {
@@ -78,6 +86,8 @@ export class App extends React.Component {
                   key={key}
                   value={value}
                   newsFeeds={this.state.newsFeeds}
+                  refreshNewsFeeds={this.refreshNewsFeeds}
+                  ref={key}
                 />
               </div>
             );

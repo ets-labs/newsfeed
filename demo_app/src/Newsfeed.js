@@ -76,6 +76,7 @@ export class NewsFeed extends React.Component {
               };
             });
           })
+          .then(this.props.refreshNewsFeeds)
           .catch(error => console.error("Bad request:", error)),
       1000
     );
@@ -137,8 +138,6 @@ export class NewsFeed extends React.Component {
             return (
               <Comment
                 key={event.id}
-                // actions={actions}
-                // author={<a>Han Solo</a>}
                 content={<p>{event.data.field_1}</p>}
                 datetime={
                   <Tooltip
