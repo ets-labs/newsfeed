@@ -4,7 +4,7 @@ from pytest import fixture
 from dependency_injector import containers, providers
 
 from newsfeed.app.factory import application_factory
-from newsfeed.app.containers import WebApi
+from newsfeed.app.containers import DomainModel, WebApi
 from newsfeed.packages import infrastructure
 
 
@@ -48,12 +48,17 @@ def app():
                 },
             },
         ),
+        domain_model=DomainModel(
+            config={
+                'newsfeed_id_length': 16,
+                'processor_concurrency': 1,
+            }
+        ),
         web_api=WebApi(
             config={
                 'base_path': '/',
             },
         ),
-        processor_concurrency=1,
     )
 
 
