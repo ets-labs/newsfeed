@@ -1,6 +1,8 @@
 """Events module."""
 
-from typing import Type, Mapping, Sequence
+from __future__ import annotations
+
+from typing import Type, Dict, List, Tuple, Sequence, Optional, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -21,12 +23,12 @@ class EventFQID:
         self.event_id = event_id
 
     @classmethod
-    def from_serialized_data(cls, data):
+    def from_serialized_data(cls, data: Tuple[str, str]) -> EventFQID:
         """Create instance from serialized data."""
         return cls(data[0], UUID(data[1]))
 
     @property
-    def serialized_data(self):
+    def serialized_data(self) -> Tuple[str, str]:
         """Return serialized data."""
         return self.newsfeed_id, str(self.event_id)
 
@@ -34,9 +36,14 @@ class EventFQID:
 class Event:
     """Event entity."""
 
-    def __init__(self, id: UUID, newsfeed_id: str, data: Mapping, parent_fqid: EventFQID,
-                 child_fqids: Sequence[EventFQID], first_seen_at: datetime,
-                 published_at: datetime):
+    def __init__(self,
+                 id: UUID,
+                 newsfeed_id: str,
+                 data: Dict[Any, Any],
+                 parent_fqid: Optional[EventFQID],
+                 child_fqids: Sequence[EventFQID],
+                 first_seen_at: datetime,
+                 published_at: Optional[datetime]):
         """Initialize entity."""
         assert isinstance(id, UUID)
         self._id = id
@@ -44,7 +51,7 @@ class Event:
         assert isinstance(newsfeed_id, str)
         self._newsfeed_id = newsfeed_id
 
-        assert isinstance(data, Mapping)
+        assert isinstance(data, Dict)
         self._data = data
 
         if parent_fqid is not None:
@@ -64,50 +71,50 @@ class Event:
         self._published_at = published_at
 
     @property
-    def id(self):
+    def id(self) -> UUID:
         """Return id."""
         return self._id
 
     @property
-    def newsfeed_id(self):
+    def newsfeed_id(self) -> str:
         """Return newsfeed id."""
         return self._newsfeed_id
 
     @property
-    def fqid(self):
+    def fqid(self) -> EventFQID:
         """Return FQID (Fully-Qualified ID)."""
         return EventFQID(self.newsfeed_id, self.id)
 
     @property
-    def parent_fqid(self):
+    def parent_fqid(self) -> Optional[EventFQID]:
         """Return parent FQID."""
         return self._parent_fqid
 
     @property
-    def child_fqids(self):
+    def child_fqids(self) -> Sequence[EventFQID]:
         """Return list of child FQIDs."""
         return list(self._child_fqids)
 
     @property
-    def data(self):
+    def data(self) -> Dict[Any, Any]:
         """Return data."""
         return dict(self._data)
 
     @property
-    def first_seen_at(self):
+    def first_seen_at(self) -> datetime:
         """Return first seen time."""
         return self._first_seen_at
 
     @property
-    def published_at(self):
+    def published_at(self) -> Optional[datetime]:
         """Return publishing time."""
         return self._published_at
 
-    def track_publishing_time(self):
+    def track_publishing_time(self) -> None:
         """Track publishing time."""
         self._published_at = datetime.utcnow()
 
-    def track_child_fqids(self, child_fqids: Sequence[EventFQID]):
+    def track_child_fqids(self, child_fqids: Sequence[EventFQID]) -> None:
         """Track child FQIDs.
 
         This method accumulates child FQIDs.
@@ -118,7 +125,7 @@ class Event:
         self._child_fqids.extend(child_fqids)
 
     @property
-    def serialized_data(self):
+    def serialized_data(self) -> Dict[str, Any]:
         """Return serialized data."""
         return {
             'id': str(self._id),
@@ -142,7 +149,10 @@ class EventFactory:
         assert issubclass(cls, Event)
         self._cls = cls
 
-    def create_new(self, newsfeed_id, data, parent_fqid=None) -> Event:
+    def create_new(self,
+                   newsfeed_id: str,
+                   data: Dict[Any, Any],
+                   parent_fqid: Optional[EventFQID] = None) -> Event:
         """Create new event."""
         return self._cls(
             id=uuid4(),
@@ -154,7 +164,7 @@ class EventFactory:
             published_at=None,
         )
 
-    def create_from_serialized(self, data) -> Event:
+    def create_from_serialized(self, data: Dict[str, Any]) -> Event:
         """Create event from serialized data."""
         return self._cls(
             id=UUID(data['id']),
@@ -183,7 +193,7 @@ class EventSpecification:
         """Initialize specification."""
         self._newsfeed_id_specification = newsfeed_id_specification
 
-    def is_satisfied_by(self, event: Event):
+    def is_satisfied_by(self, event: Event) -> bool:
         """Check if event satisfies specification."""
         self._newsfeed_id_specification.is_satisfied_by(event.newsfeed_id)
         return True
@@ -200,7 +210,7 @@ class EventRepository:
         assert isinstance(storage, EventStorage)
         self._storage = storage
 
-    async def get_by_newsfeed_id(self, newsfeed_id):
+    async def get_by_newsfeed_id(self, newsfeed_id: str) -> List[Event]:
         """Return events of specified newsfeed."""
         newsfeed_events_data = await self._storage.get_by_newsfeed_id(newsfeed_id)
         return [
@@ -208,7 +218,7 @@ class EventRepository:
             for event_data in newsfeed_events_data
         ]
 
-    async def get_by_fqid(self, fqid: EventFQID):
+    async def get_by_fqid(self, fqid: EventFQID) -> Event:
         """Return event by its FQID."""
         event_data = await self._storage.get_by_fqid(
             newsfeed_id=fqid.newsfeed_id,
@@ -216,11 +226,11 @@ class EventRepository:
         )
         return self._factory.create_from_serialized(event_data)
 
-    async def add(self, event: Event):
+    async def add(self, event: Event) -> None:
         """Add event to repository."""
         await self._storage.add(event.serialized_data)
 
-    async def delete_by_fqid(self, fqid: EventFQID):
+    async def delete_by_fqid(self, fqid: EventFQID) -> None:
         """Delete event by its FQID."""
         await self._storage.delete_by_fqid(
             newsfeed_id=fqid.newsfeed_id,

@@ -1,8 +1,10 @@
 """Event dispatcher module."""
 
+from typing import Dict, Any
+
 from newsfeed.packages.infrastructure.event_queues import EventQueue
 
-from .event import EventFactory, EventSpecification
+from .event import Event, EventFactory, EventSpecification
 
 
 class EventDispatcherService:
@@ -22,7 +24,7 @@ class EventDispatcherService:
         assert isinstance(event_queue, EventQueue)
         self._event_queue = event_queue
 
-    async def dispatch_new_event(self, newsfeed_id: str, data: dict):
+    async def dispatch_new_event(self, newsfeed_id: str, data: Dict[Any, Any]) -> Event:
         """Dispatch posting of new event."""
         event = self._event_factory.create_new(
             newsfeed_id=newsfeed_id,
@@ -32,6 +34,6 @@ class EventDispatcherService:
         await self._event_queue.put(('post', event.serialized_data))
         return event
 
-    async def dispatch_event_deletion(self, newsfeed_id: str, event_id: str):
+    async def dispatch_event_deletion(self, newsfeed_id: str, event_id: str) -> None:
         """Dispatch deletion of existing event."""
         await self._event_queue.put(('delete', {'newsfeed_id': newsfeed_id, 'event_id': event_id}))

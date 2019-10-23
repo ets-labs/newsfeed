@@ -1,6 +1,7 @@
 """Application module."""
 
 import asyncio
+from typing import List
 
 from aiohttp import web
 
@@ -25,9 +26,9 @@ class Application:
         self.web_api.domain.override(self.domain_model)
 
         self.processor_concurrency = int(processor_concurrency)
-        self.processor_tasks = []
+        self.processor_tasks: List[asyncio.Task[None]] = []
 
-    def main(self):
+    def main(self) -> None:
         """Run application."""
         web_app: web.Application = self.web_api.web_app()
 
@@ -36,7 +37,7 @@ class Application:
 
         web.run_app(web_app, port=int(self.web_api.config.port()))
 
-    async def _start_background_tasks(self, _: web.Application):
+    async def _start_background_tasks(self, _: web.Application) -> None:
         loop = asyncio.get_event_loop()
 
         self.processor_tasks = [
@@ -44,16 +45,12 @@ class Application:
             for _ in range(self.processor_concurrency)
         ]
 
-    async def _cleanup_background_tasks(self, _: web.Application):
-        await asyncio.gather(
-            *[
-                event_processing_task.cancel()
-                for event_processing_task in self.processor_tasks
-            ]
-        )
+    async def _cleanup_background_tasks(self, _: web.Application) -> None:
+        for event_processing_task in self.processor_tasks:
+            event_processing_task.cancel()
         self.processor_tasks.clear()
 
-    async def _event_processor_task(self):
+    async def _event_processor_task(self) -> None:
         """Process events."""
         event_processor_service = self.domain_model.event_processor_service()
         while True:

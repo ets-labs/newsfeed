@@ -29,7 +29,7 @@ class NewsfeedIDTypeError(DomainError):
         self._newsfeed_id = newsfeed_id
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return f'Newsfeed id "{self._newsfeed_id}" type is invalid'
 
@@ -43,6 +43,6 @@ class NewsfeedIDTooLongError(DomainError):
         self._max_length = max_length
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return f'Newsfeed id "{self._newsfeed_id[:self._max_length]}..." is too long'

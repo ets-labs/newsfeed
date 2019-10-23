@@ -10,4 +10,5 @@ integration-test:
 	echo "Tests passed"
 
 lint: clean
-	flake8 newsfeed tests
+	flake8 src/newsfeed tests
+	mypy -p newsfeed

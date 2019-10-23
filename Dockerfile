@@ -12,7 +12,7 @@ ENV PROCESSOR_CONCURRENCY="4"
 WORKDIR /code
 COPY . /code/
 
-ENV PYTHONPATH "${PYTHONPATH}:/code/src/"
+ENV PYTHONPATH="${PYTHONPATH}:/code/src/"
 
 RUN apk update \
  && apk upgrade --purge \

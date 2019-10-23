@@ -5,6 +5,6 @@ class DomainError(Exception):
     """Domain error."""
 
     @property
-    def message(self):
+    def message(self) -> str:
         """Return error message."""
         return f'Domain error'
