@@ -40,9 +40,8 @@ export class App extends React.Component {
   };
 
   refreshNewsFeeds = () => {
-    let timeout = 400;
+    let timeout = 750;
     for (const [key] of Object.entries(this.refs)) {
-      timeout += 150
       setTimeout(() => this.refs[key].getEvents(), timeout);
     }
   };

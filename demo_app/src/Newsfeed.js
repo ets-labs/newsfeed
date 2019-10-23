@@ -65,21 +65,7 @@ export class NewsFeed extends React.Component {
       }
     }).catch(error => console.error("Bad request:", error));
 
-    setTimeout(
-      () =>
-        fetch(url)
-          .then(response => response.json())
-          .then(dataJson => {
-            this.setState(() => {
-              return {
-                events: dataJson.results
-              };
-            });
-          })
-          .then(this.props.refreshNewsFeeds)
-          .catch(error => console.error("Bad request:", error)),
-      1000
-    );
+    this.props.refreshNewsFeeds();
   };
 
   handleSubscribe = (event, eventData) => {
