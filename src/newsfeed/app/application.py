@@ -14,8 +14,7 @@ class Application:
     def __init__(self,
                  infrastructure: Infrastructure,
                  domain_model: DomainModel,
-                 web_api: WebApi,
-                 processor_concurrency: int):
+                 web_api: WebApi):
         """Initialize application."""
         self.infrastructure = infrastructure
 
@@ -25,7 +24,6 @@ class Application:
         self.web_api = web_api
         self.web_api.domain.override(self.domain_model)
 
-        self.processor_concurrency = int(processor_concurrency)
         self.processor_tasks: List[asyncio.Task[None]] = []
 
     def main(self) -> None:
@@ -42,7 +40,7 @@ class Application:
 
         self.processor_tasks = [
             loop.create_task(self._event_processor_task())
-            for _ in range(self.processor_concurrency)
+            for _ in range(int(self.domain_model.config.processor_concurrency()))
         ]
 
     async def _cleanup_background_tasks(self, _: web.Application) -> None:
