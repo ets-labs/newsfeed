@@ -56,18 +56,30 @@ export class App extends React.Component {
   };
 
   render() {
+    let button;
     const newsFeeds = localStorage.getItem("myNewsFeeds")
       ? Object.entries(JSON.parse(localStorage.getItem("myNewsFeeds")))
       : [];
+    if (newsFeeds.length < 6) {
+      button = (
+        <button className="btn-minimal" onClick={this.createNewsFeed}>
+          Create NewsFeed
+        </button>
+      );
+    } else {
+      button = (
+        <button className="btn-minimal" disabled>
+          Max created
+        </button>
+      );
+    }
     return (
       <div className="App">
         <div className="row text-center">
-          <div className="col-md-4">
-            <button className="btn-minimal" onClick={this.createNewsFeed}>
-              Create NewsFeed
-            </button>
+          <div className="col-md-5 text-left">
+            {button}
           </div>
-          <div className="col-md-4">
+          <div className="col-md-5 text-left">
             <button
               className="btn-minimal"
               onClick={this.clearNewsFeedsStorage}

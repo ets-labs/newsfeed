@@ -164,16 +164,15 @@ p{
 	color:#202020;
 }
 .intro-text > h1{
-	font-size:56px;
+	font-size:30px;
 	margin:0;
 	margin-bottom:25px;
 	font-weight:300;
 }
 .intro-text > p{
-	font-size:20px;
+	font-size: 14px;
 	margin:0;
-	color:rgba(0,0,0,.4);
-	margin-bottom:55px;
+	margin-bottom: 20px;
 }
 .intro-cols .phone{
 	width:100%;
@@ -182,9 +181,6 @@ p{
 	display: table-cell;
 	vertical-align: middle;
 }
-
-
-
 
 .phone-overlay{
 	display:inline-block;
@@ -269,6 +265,12 @@ a.btn-minimal{
 	color:#FFF;
 	border-color:#202020;
 }
+.btn-minimal:disabled,
+.btn-minimal[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
 
 
 
@@ -349,7 +351,7 @@ a.btn-minimal{
 	font-weight:300;
 	margin-bottom:20px;
 }
-.screen-info-text > p{	
+.screen-info-text > p{
 	font-size:18px;
 	color:rgba(0,0,0,.4);
 	margin:0;
@@ -643,7 +645,7 @@ a.btn-minimal{
 	padding-left:15px;
 	color:#FFF;
 	text-transform:uppercase;
-	letter-spacing:2px;	
+	letter-spacing:2px;
 }
 .hate-spam{
 	color:rgba(255,255,255,.8);

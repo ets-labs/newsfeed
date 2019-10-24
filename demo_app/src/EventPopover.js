@@ -117,11 +117,13 @@ export class SubscribeEventPopover extends React.Component {
             onChange={this.handleInputChange}
           >
             {Object.entries(this.props.newsFeeds).map(([key, value]) => {
-              return (
-                <Select.Option key={key} value={key}>
-                  {value.name}
-                </Select.Option>
-              );
+              if (key !== this.props.newsFeedId) {
+                return (
+                  <Select.Option key={key} value={key}>
+                    {value.name}
+                  </Select.Option>
+                );
+              }
             })}
           </Select>
         </Form.Item>
@@ -135,6 +137,7 @@ export class SubscribeEventPopover extends React.Component {
     return (
       <Popover
         content={content}
+        title="Subscribe"
         trigger="click"
         visible={this.state.visible}
         onVisibleChange={this.handleVisibleChange}
@@ -211,6 +214,7 @@ export class OptionsEventPopover extends React.Component {
     return (
       <Popover
         content={content}
+        title="Handle Subscriptions"
         trigger="click"
         visible={this.state.visible}
         onVisibleChange={this.handleVisibleChange}
