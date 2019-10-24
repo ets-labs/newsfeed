@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Icon, Comment, Tooltip, Avatar } from "antd";
+import { Card, Icon, Comment, Tooltip, Badge } from "antd";
 import axios from "axios";
 import moment from "moment";
 import {
@@ -65,20 +65,13 @@ export class NewsFeed extends React.Component {
       }
     }).catch(error => console.error("Bad request:", error));
 
-    setTimeout(
-      () =>
-        fetch(url)
-          .then(response => response.json())
-          .then(dataJson => {
-            this.setState(() => {
-              return {
-                events: dataJson.results
-              };
-            });
-          })
-          .catch(error => console.error("Bad request:", error)),
-      1000
-    );
+    this.props.refreshNewsFeeds();
+  };
+
+  handleDeleteEvent = eventId => {
+    const url = `http://127.0.0.1:8000/api/newsfeed/${this.props.index}/events/${eventId}/`;
+    axios.delete(url).catch(error => console.error("Bad request:", error));
+    this.props.refreshNewsFeeds();
   };
 
   handleSubscribe = (event, eventData) => {
@@ -114,31 +107,40 @@ export class NewsFeed extends React.Component {
       <Card
         key={this.props.index}
         title={this.props.value.name}
-        extra={<Icon type="sync" onClick={this.getEvents} />}
+        extra={
+          <Badge
+            count={this.state.events.length}
+            showZero={true}
+            style={{
+              backgroundColor: "#fff",
+              color: "#999",
+              boxShadow: "0 0 0 1px #d9d9d9 inset"
+            }}
+          />
+        }
         hoverable={true}
-        style={{ width: 250 }}
+        style={{ width: 220, marginTop: 4 }}
         actions={[
+          <SubmitEventPopover handleSendEvent={this.handleSendEvent} />,
+          <SubscribeEventPopover
+            handleSubscribe={this.handleSubscribe}
+            newsFeeds={this.props.newsFeeds}
+            newsFeedId={this.props.index}
+          />,
           <OptionsEventPopover
             handleSubscribe={this.handleSubscribe}
             subscriptions={this.state.subscriptions}
             getSubscriptions={this.getSubscriptions}
             newsFeeds={this.props.newsFeeds}
             handleUnsubscribe={this.handleUnsubscribe}
-          />,
-          <SubmitEventPopover handleSendEvent={this.handleSendEvent} />,
-          <SubscribeEventPopover
-            handleSubscribe={this.handleSubscribe}
-            newsFeeds={this.props.newsFeeds}
           />
         ]}
       >
-        <div style={{ overflow: "auto", height: 250 }}>
+        <div style={{ overflow: "auto", height: 200 }}>
           {this.state.events.map(event => {
             return (
               <Comment
                 key={event.id}
-                // actions={actions}
-                // author={<a>Han Solo</a>}
                 content={<p>{event.data.field_1}</p>}
                 datetime={
                   <Tooltip
@@ -150,6 +152,18 @@ export class NewsFeed extends React.Component {
                       {moment
                         .unix(event.published_at)
                         .format("YYYY-MM-DD HH:mm:ss")}
+                    </span>
+                    <span>
+                      <Icon
+                        type="delete"
+                        theme="twoTone"
+                        style={{
+                          fontSize: 14,
+                          marginLeft: 15,
+                          cursor: "pointer"
+                        }}
+                        onClick={() => this.handleDeleteEvent(event.id)}
+                      />
                     </span>
                   </Tooltip>
                 }
