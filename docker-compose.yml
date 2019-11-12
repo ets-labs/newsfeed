@@ -5,6 +5,7 @@ services:
   newsfeed:
     build: ./
     environment:
+      LOG_LEVEL: "DEBUG"
       API_BASE_PATH: "/api/"
     volumes:
       - './:/code'

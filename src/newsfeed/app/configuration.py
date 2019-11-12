@@ -4,6 +4,13 @@ import os
 from typing import Dict, Optional
 
 
+def get_core_config() -> Dict[str, Optional[str]]:
+    """Return core configuration."""
+    return {
+        'log_level': os.getenv('LOG_LEVEL'),
+    }
+
+
 def get_infrastructure_config() -> Dict[str, Dict[str, Optional[str]]]:
     """Return infrastructure configuration."""
     return {

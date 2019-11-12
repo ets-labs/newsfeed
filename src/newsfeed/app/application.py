@@ -5,17 +5,20 @@ from typing import List
 
 from aiohttp import web
 
-from .containers import Infrastructure, DomainModel, WebApi
+from .containers import Core, Infrastructure, DomainModel, WebApi
 
 
 class Application:
     """Application."""
 
     def __init__(self,
+                 core: Core,
                  infrastructure: Infrastructure,
                  domain_model: DomainModel,
                  web_api: WebApi):
         """Initialize application."""
+        self.core = core
+
         self.infrastructure = infrastructure
 
         self.domain_model = domain_model
@@ -28,6 +31,8 @@ class Application:
 
     def main(self) -> None:
         """Run application."""
+        self.core.configure_logging()
+
         web_app: web.Application = self.web_api.web_app()
 
         web_app.on_startup.append(self._start_background_tasks)
