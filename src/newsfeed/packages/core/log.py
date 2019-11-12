@@ -27,6 +27,11 @@ def configure_logging(level: str) -> None:
                     'handlers': ['console'],
                     'propagate': False
                 },
+                'asyncio': {
+                    'level': level,
+                    'handlers': ['console'],
+                    'propagate': False
+                },
                 'aiohttp': {
                     'level': level,
                     'handlers': ['console'],
