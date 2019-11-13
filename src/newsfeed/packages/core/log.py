@@ -40,6 +40,11 @@ def configure_logging(level: str) -> None:
                 'aiohttp.access': {
                     'propagate': False,
                 },
+                'newsfeed': {
+                    'level': level,
+                    'handlers': ['console'],
+                    'propagate': False
+                },
             },
         },
     )

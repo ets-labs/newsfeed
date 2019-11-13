@@ -15,6 +15,11 @@ class Core(containers.DeclarativeContainer):
         level=config.log_level,
     )
 
+    configure_event_loop = providers.Callable(
+        core.loop.configure_event_loop,
+        enable_uvloop=config.enable_uvloop,
+    )
+
 
 class Infrastructure(containers.DeclarativeContainer):
     """Infrastructure container."""
