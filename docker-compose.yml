@@ -9,6 +9,9 @@ services:
     volumes:
       - './:/code'
 
+  redis:
+    image: "redis:alpine"
+
   nginx:
     image: nginx
     ports:

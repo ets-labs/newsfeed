@@ -16,7 +16,7 @@ class Infrastructure(containers.DeclarativeContainer):
     )
 
     event_storage = providers.Singleton(
-        infrastructure.event_storages.InMemoryEventStorage,
+        infrastructure.event_storages.RedisEventStorage,
         config=config.event_storage,
     )
 

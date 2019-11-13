@@ -10,6 +10,9 @@ from newsfeed.packages.infrastructure.event_storages import EventStorage
 
 from .newsfeed_id import NewsfeedIDSpecification
 
+import logging
+log = logging.getLogger()
+
 
 class EventFQID:
     """Event fully-qualified identifier."""
