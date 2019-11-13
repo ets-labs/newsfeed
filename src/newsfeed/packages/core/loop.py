@@ -18,7 +18,7 @@ def configure_event_loop(enable_uvloop: bool) -> None:
         else:
             policy = uvloop.EventLoopPolicy()
     else:
-        policy = asyncio.get_event_loop_policy()
+        policy = asyncio.DefaultEventLoopPolicy()
 
     try:
         running_loop = asyncio.get_running_loop()
