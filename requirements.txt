@@ -1,7 +1,5 @@
 dependency-injector>=3.14
 uvloop>=0.14
-aiohttp>=3.5
-cchardet>=2.1
-aiodns>=1.2
+aiohttp[speedups]>=3.6
 
 -r requirements-dev.txt
