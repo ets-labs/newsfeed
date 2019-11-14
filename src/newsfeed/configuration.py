@@ -1,7 +1,6 @@
 """Application configuration module."""
 
 import os
-
 from typing import Dict, Optional, Any
 
 
