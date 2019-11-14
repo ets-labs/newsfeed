@@ -1,7 +1,7 @@
 """Application module."""
 
 import asyncio
-from typing import List
+from typing import List, Dict, Any
 
 from aiohttp import web
 
@@ -11,20 +11,30 @@ from .containers import Core, Infrastructure, DomainModel, WebApi
 class Application:
     """Application."""
 
-    def __init__(self,
-                 core: Core,
-                 infrastructure: Infrastructure,
-                 domain_model: DomainModel,
-                 web_api: WebApi):
+    class Containers:
+        """Application containers."""
+
+        core = Core
+        infrastructure = Infrastructure
+        domain_model = DomainModel
+        web_api = WebApi
+
+    def __init__(self, config: Dict[str, Any]):
         """Initialize application."""
-        self.core = core
+        self.config = config
 
-        self.infrastructure = infrastructure
+        self.core: Core = self.Containers.core()
+        self.core.config.override(self.config.get(self.core.config.get_name()))
 
-        self.domain_model = domain_model
+        self.infrastructure: Infrastructure = self.Containers.infrastructure()
+        self.infrastructure.config.override(self.config.get(self.infrastructure.config.get_name()))
+
+        self.domain_model: DomainModel = self.Containers.domain_model()
+        self.domain_model.config.override(self.config.get(self.domain_model.config.get_name()))
         self.domain_model.infra.override(self.infrastructure)
 
-        self.web_api = web_api
+        self.web_api: WebApi = self.Containers.web_api()
+        self.web_api.config.override(self.config.get(self.web_api.config.get_name()))
         self.web_api.domain.override(self.domain_model)
 
         self.processor_tasks: List[asyncio.Task[None]] = []
