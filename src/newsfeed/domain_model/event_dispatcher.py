@@ -2,7 +2,7 @@
 
 from typing import Dict, Any
 
-from newsfeed.packages.infrastructure.event_queues import EventQueue
+from newsfeed.infrastructure.event_queues import EventQueue
 
 from .event import Event, EventFactory, EventSpecification
 

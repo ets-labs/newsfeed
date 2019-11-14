@@ -4,7 +4,7 @@ from pytest import fixture
 from dependency_injector import containers, providers
 
 from newsfeed.application import Application
-from newsfeed.packages import infrastructure
+from newsfeed import infrastructure
 
 
 class TestInfrastructure(containers.DeclarativeContainer):

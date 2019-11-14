@@ -2,7 +2,7 @@
 
 from dependency_injector import containers, providers
 
-from newsfeed.packages import core, infrastructure, domain_model, webapi
+from newsfeed import core, infrastructure, domain_model, webapi
 
 
 class Core(containers.DeclarativeContainer):
