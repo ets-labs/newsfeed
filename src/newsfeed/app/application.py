@@ -32,6 +32,7 @@ class Application:
     def main(self) -> None:
         """Run application."""
         self.core.configure_logging()
+        self.core.configure_event_loop()
 
         web_app: web.Application = self.web_api.web_app()
 
