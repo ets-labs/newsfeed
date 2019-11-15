@@ -2,7 +2,23 @@
 
 from dependency_injector import containers, providers
 
-from newsfeed.packages import infrastructure, domain_model, webapi
+from newsfeed.packages import core, infrastructure, domain_model, webapi
+
+
+class Core(containers.DeclarativeContainer):
+    """Core container."""
+
+    config = providers.Configuration('core')
+
+    configure_logging = providers.Callable(
+        core.log.configure_logging,
+        level=config.log_level,
+    )
+
+    configure_event_loop = providers.Callable(
+        core.loop.configure_event_loop,
+        enable_uvloop=config.enable_uvloop,
+    )
 
 
 class Infrastructure(containers.DeclarativeContainer):

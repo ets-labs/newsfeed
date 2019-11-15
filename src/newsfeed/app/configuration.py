@@ -1,7 +1,15 @@
 """Configuration module."""
 
 import os
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
+
+
+def get_core_config() -> Dict[str, Union[Optional[str], bool]]:
+    """Return core configuration."""
+    return {
+        'log_level': os.getenv('LOG_LEVEL'),
+        'enable_uvloop': _bool(os.getenv('ENABLE_UVLOOP')),
+    }
 
 
 def get_infrastructure_config() -> Dict[str, Dict[str, Optional[str]]]:
@@ -35,3 +43,9 @@ def get_web_api_config() -> Dict[str, Optional[str]]:
         'port': os.getenv('PORT'),
         'base_path': os.getenv('API_BASE_PATH'),
     }
+
+
+def _bool(value: Optional[str]) -> bool:
+    if not value:
+        return False
+    return str(value).lower() in ('true', '1')
