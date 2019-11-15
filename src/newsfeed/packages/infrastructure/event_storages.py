@@ -10,10 +10,6 @@ import aioredis
 EventData = Dict[str, Union[str, int]]
 
 
-import logging
-log = logging.getLogger()
-
-
 class EventStorage:
     """Event storage."""
 
