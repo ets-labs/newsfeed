@@ -49,7 +49,7 @@ class Application:
         web_app.on_startup.append(self._start_background_tasks)
         web_app.on_cleanup.append(self._cleanup_background_tasks)
 
-        web.run_app(web_app, port=int(self.web_api.config.port()))
+        web.run_app(web_app, port=int(self.web_api.config.port()), print=None)
 
     async def _start_background_tasks(self, _: web.Application) -> None:
         loop = asyncio.get_event_loop()
