@@ -4,11 +4,11 @@ from typing import Dict, Union
 
 from aiohttp import web
 
-from newsfeed.packages.domain_model.subscription import (
+from newsfeed.domain_model.subscription import (
     Subscription,
     SubscriptionService,
 )
-from newsfeed.packages.domain_model.error import DomainError
+from newsfeed.domain_model.error import DomainError
 
 
 SerializedSubscription = Dict[

@@ -11,7 +11,7 @@ ENV SUBSCRIPTIONS_PER_NEWSFEED="1024"
 ENV NEWSFEED_ID_LENGTH="128"
 ENV PROCESSOR_CONCURRENCY="4"
 
-ENV PYTHONUNBUFFERED=0
+ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="${PYTHONPATH}:/code/src/"
 
 WORKDIR /code
@@ -20,12 +20,11 @@ COPY . /code/
 RUN apk update \
  && apk upgrade --purge \
  && apk add build-base \
- && apk add tini \
- && apk add libffi libffi-dev \
+ && apk add libffi-dev \
  && pip install -r requirements.txt \
  && rm -rf /var/cache/apk/* \
  && rm -rf ~/.cache
 
 EXPOSE $PORT
 
-CMD ["python", "-m", "newsfeed.app.main"]
+CMD ["python", "-m", "newsfeed.main"]
