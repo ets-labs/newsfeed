@@ -20,8 +20,7 @@ COPY . /code/
 RUN apk update \
  && apk upgrade --purge \
  && apk add build-base \
- && apk add tini \
- && apk add libffi libffi-dev \
+ && apk add libffi-dev \
  && pip install -r requirements.txt \
  && rm -rf /var/cache/apk/* \
  && rm -rf ~/.cache
