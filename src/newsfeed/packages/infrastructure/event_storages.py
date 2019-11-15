@@ -175,9 +175,9 @@ class RedisEventStorage(EventStorage):
             raise NewsfeedNumberLimitExceeded(newsfeed_id,
                                               self._max_newsfeed_ids)
         # TODO: Test the checker
-        if redis.zcard(f'newsfeed_id:{newsfeed_id}') \
+        if await redis.zcard(f'newsfeed_id:{newsfeed_id}') \
                 >= self._max_events_per_newsfeed_id:
-            redis.zpopmin(f'newsfeed_id:{newsfeed_id}')
+            await redis.zpopmin(f'newsfeed_id:{newsfeed_id}')
 
         await redis.hmset_dict(
             f"event:{event_data['id']}",
@@ -188,7 +188,6 @@ class RedisEventStorage(EventStorage):
             score=event_data['published_at'],
             member=f"event:{event_data['id']}",
         )
-
         # TODO: Move to factory
         redis.close()
         await redis.wait_closed()
