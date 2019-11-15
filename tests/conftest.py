@@ -3,13 +3,12 @@
 from pytest import fixture
 from dependency_injector import containers, providers
 
-from newsfeed.app.factory import application_factory
-from newsfeed.app.containers import DomainModel, WebApi
-from newsfeed.packages import infrastructure
+from newsfeed.application import Application
+from newsfeed import infrastructure
 
 
 class TestInfrastructure(containers.DeclarativeContainer):
-    """Infrastructure container."""
+    """Test infrastructure container."""
 
     config = providers.Configuration('infrastructure')
 
@@ -29,36 +28,41 @@ class TestInfrastructure(containers.DeclarativeContainer):
     )
 
 
+class TestApplication(Application):
+    """Test application."""
+
+    class Containers(Application.Containers):
+        """Application containers."""
+
+        infrastructure = TestInfrastructure
+
+
 @fixture
 def app():
     """Create test application."""
-    return application_factory(
-        infrastructure=TestInfrastructure(
-            config={
+    return TestApplication(
+        config={
+            'infrastructure': {
                 'event_queue': {
-                   'max_size': 1,
+                    'max_size': 1,
                 },
                 'event_storage': {
-                   'max_newsfeeds': 3,
-                   'max_events_per_newsfeed': 5,
+                    'max_newsfeeds': 3,
+                    'max_events_per_newsfeed': 5,
                 },
                 'subscription_storage': {
-                   'max_newsfeeds': 3,
-                   'max_subscriptions_per_newsfeed': 5,
+                    'max_newsfeeds': 3,
+                    'max_subscriptions_per_newsfeed': 5,
                 },
             },
-        ),
-        domain_model=DomainModel(
-            config={
+            'domain_model': {
                 'newsfeed_id_length': 16,
                 'processor_concurrency': 1,
-            }
-        ),
-        web_api=WebApi(
-            config={
+            },
+            'web_api': {
                 'base_path': '/',
             },
-        ),
+        },
     )
 
 

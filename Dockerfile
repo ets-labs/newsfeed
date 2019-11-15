@@ -27,4 +27,4 @@ RUN apk update \
 
 EXPOSE $PORT
 
-CMD ["python", "-m", "newsfeed.app.main"]
+CMD ["python", "-m", "newsfeed.main"]

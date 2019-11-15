@@ -6,7 +6,7 @@ from typing import Type, Dict, List, Tuple, Sequence, Optional, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from newsfeed.packages.infrastructure.event_storages import EventStorage
+from newsfeed.infrastructure.event_storages import EventStorage
 
 from .newsfeed_id import NewsfeedIDSpecification
 

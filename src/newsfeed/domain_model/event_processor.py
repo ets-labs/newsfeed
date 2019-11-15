@@ -3,7 +3,7 @@
 from uuid import UUID
 from typing import Dict, Any
 
-from newsfeed.packages.infrastructure.event_queues import EventQueue
+from newsfeed.infrastructure.event_queues import EventQueue
 
 from .event import EventFactory, EventRepository, EventFQID
 from .subscription import SubscriptionRepository

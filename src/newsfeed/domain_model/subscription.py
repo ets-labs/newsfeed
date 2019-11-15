@@ -6,7 +6,7 @@ from typing import Type, Dict, List, Tuple, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from newsfeed.packages.infrastructure.subscription_storages import (
+from newsfeed.infrastructure.subscription_storages import (
     SubscriptionStorage,
     SubscriptionBetweenNotFound,
 )
