@@ -21,6 +21,7 @@ RUN apk update \
  && apk upgrade --purge \
  && apk add build-base \
  && apk add libffi-dev \
+ && pip install --upgrade pip \
  && pip install -r requirements.txt \
  && rm -rf /var/cache/apk/* \
  && rm -rf ~/.cache
