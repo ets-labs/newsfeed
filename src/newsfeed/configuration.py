@@ -28,7 +28,7 @@ def get_config() -> Dict[str, Any]:
             'newsfeed_id_length': os.getenv('NEWSFEED_ID_LENGTH'),
             'processor_concurrency': os.getenv('PROCESSOR_CONCURRENCY'),
         },
-        'web_api': {
+        'webapi': {
             'port': os.getenv('PORT'),
             'base_path': os.getenv('API_BASE_PATH'),
         },

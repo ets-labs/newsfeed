@@ -118,7 +118,7 @@ class DomainModel(containers.DeclarativeContainer):
 class WebApi(containers.DeclarativeContainer):
     """Web API container."""
 
-    config = providers.Configuration('web_api')
+    config = providers.Configuration('webapi')
 
     domain: DomainModel = providers.DependenciesContainer()
 

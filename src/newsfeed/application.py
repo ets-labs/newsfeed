@@ -17,7 +17,7 @@ class Application:
         core = Core
         infrastructure = Infrastructure
         domain_model = DomainModel
-        web_api = WebApi
+        webapi = WebApi
 
     def __init__(self, config: Dict[str, Any]):
         """Initialize application."""
@@ -33,9 +33,9 @@ class Application:
         self.domain_model.config.override(self.config.get(self.domain_model.config.get_name()))
         self.domain_model.infra.override(self.infrastructure)
 
-        self.web_api: WebApi = self.Containers.web_api()
-        self.web_api.config.override(self.config.get(self.web_api.config.get_name()))
-        self.web_api.domain.override(self.domain_model)
+        self.webapi: WebApi = self.Containers.webapi()
+        self.webapi.config.override(self.config.get(self.webapi.config.get_name()))
+        self.webapi.domain.override(self.domain_model)
 
         self.processor_tasks: List[asyncio.Task[None]] = []
 
@@ -44,12 +44,12 @@ class Application:
         self.core.configure_logging()
         self.core.configure_event_loop()
 
-        web_app: web.Application = self.web_api.web_app()
+        web_app: web.Application = self.webapi.web_app()
 
         web_app.on_startup.append(self._start_background_tasks)
         web_app.on_cleanup.append(self._cleanup_background_tasks)
 
-        web.run_app(web_app, port=int(self.web_api.config.port()), print=None)
+        web.run_app(web_app, port=int(self.webapi.config.port()), print=None)  # type: ignore
 
     async def _start_background_tasks(self, _: web.Application) -> None:
         loop = asyncio.get_event_loop()
