@@ -4,12 +4,12 @@ from typing import Dict, List, Tuple, Union, Any
 
 from aiohttp import web
 
-from newsfeed.domain_model.event import (
+from newsfeed.domainmodel.event import (
     Event,
     EventRepository,
 )
-from newsfeed.domain_model.event_dispatcher import EventDispatcherService
-from newsfeed.domain_model.error import DomainError
+from newsfeed.domainmodel.event_dispatcher import EventDispatcherService
+from newsfeed.domainmodel.error import DomainError
 
 
 SerializedEventFQID = Tuple[str, str]

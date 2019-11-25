@@ -93,7 +93,7 @@ async def test_post_events(web_client, app):
 
 async def test_post_event_with_abnormally_long_newsfeed_id(web_client, app):
     """Check events posting handler."""
-    newsfeed_id_max_length = app.domain_model.newsfeed_id_specification().max_length
+    newsfeed_id_max_length = app.domainmodel.newsfeed_id_specification().max_length
     newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
 
     response = await web_client.post(

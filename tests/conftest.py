@@ -55,7 +55,7 @@ def app():
                     'max_subscriptions_per_newsfeed': 5,
                 },
             },
-            'domain_model': {
+            'domainmodel': {
                 'newsfeed_id_length': 16,
                 'processor_concurrency': 1,
             },

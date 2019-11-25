@@ -24,7 +24,7 @@ def get_config() -> Dict[str, Any]:
                 'max_subscriptions_per_newsfeed': os.getenv('SUBSCRIPTIONS_PER_NEWSFEED'),
             },
         },
-        'domain_model': {
+        'domainmodel': {
             'newsfeed_id_length': os.getenv('NEWSFEED_ID_LENGTH'),
             'processor_concurrency': os.getenv('PROCESSOR_CONCURRENCY'),
         },
