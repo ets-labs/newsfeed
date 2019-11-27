@@ -46,3 +46,9 @@ Service Architecture
 
 .. image:: ./docs/images/service_architecture.svg
     :align: center
+
+Microservices Architecture
+--------------------------
+
+.. image:: ./docs/images/microservices_architecture.svg
+    :align: center
