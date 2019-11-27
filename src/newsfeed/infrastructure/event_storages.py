@@ -95,38 +95,35 @@ class RedisEventStorage(EventStorage):
         """Initialize queue."""
         super().__init__(config)
 
+        self._connection = aioredis.pool.ConnectionsPool(
+            address=aioredis.util.parse_url(config['redis_dsn'])[0],
+            db=aioredis.util.parse_url(config['redis_dsn'])[1]['db'],
+            create_connection_timeout=config['redis_conn_timeout'],
+            encoding='utf-8',
+            minsize=5,
+            maxsize=10,
+        )
         self._max_newsfeed_ids = int(config['max_newsfeeds'])
         self._max_events_per_newsfeed_id = int(config['max_events_per_newsfeed'])
 
     async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
         """Get events data from storage."""
-        # TODO: Move to factory
-        redis = await aioredis.create_redis(
-            'redis://redis',
-            encoding='utf-8',
-        )
-        keys = []
-        newsfeed_storage = []
-        async for key in redis.izscan(f'newsfeed_id:{newsfeed_id}'):
-            keys.append(key)
-
-        # TODO:
-        #  - Check async
-        #  - Write base serializer
-        #  - Is it correct place for ordering?
-        #  - Ordering by `published_at`?
-        for key, _ in keys:
-            event = await redis.hgetall(key)
-            event['parent_fqid'] = ast.literal_eval(event['parent_fqid'])
-            event['child_fqids'] = ast.literal_eval(event['child_fqids'])
-            event['first_seen_at'] = ast.literal_eval(event['first_seen_at'])
-            event['published_at'] = ast.literal_eval(event['published_at'])
-            event['data'] = ast.literal_eval(event['data'])
-            newsfeed_storage.append(event)
-
-        # TODO: Move to factory
-        redis.close()
-        await redis.wait_closed()
+        async with self._connection.get() as connection:
+            redis = aioredis.commands.Redis(connection)
+            newsfeed_storage = []
+            # TODO:
+            #  - Check async
+            #  - Write base serializer
+            #  - Is it correct place for ordering?
+            #  - Ordering by `published_at`?
+            async for key, _ in redis.izscan(f'newsfeed_id:{newsfeed_id}'):
+                event = await redis.hgetall(key)
+                event['parent_fqid'] = ast.literal_eval(event['parent_fqid'])
+                event['child_fqids'] = ast.literal_eval(event['child_fqids'])
+                event['first_seen_at'] = ast.literal_eval(event['first_seen_at'])
+                event['published_at'] = ast.literal_eval(event['published_at'])
+                event['data'] = ast.literal_eval(event['data'])
+                newsfeed_storage.append(event)
 
         return sorted(
             newsfeed_storage,
@@ -136,16 +133,9 @@ class RedisEventStorage(EventStorage):
 
     async def get_by_fqid(self, newsfeed_id: str, event_id: str) -> EventData:
         """Return data of specified event."""
-        # TODO: Move to factory
-        redis = await aioredis.create_redis(
-            'redis://redis',
-            encoding='utf-8',
-        )
-        event = await redis.hgetall(f'event:{event_id}')
-
-        # TODO: Move to factory
-        redis.close()
-        await redis.wait_closed()
+        async with self._connection.get() as connection:
+            redis = aioredis.commands.Redis(connection)
+            event = await redis.hgetall(f'event:{event_id}')
 
         if not event:
             raise EventNotFound(
@@ -164,49 +154,37 @@ class RedisEventStorage(EventStorage):
         """Add event data to the storage."""
         newsfeed_id = str(event_data['newsfeed_id'])
 
-        # TODO: Move to factory
-        redis = await aioredis.create_redis(
-            'redis://redis',
-        )
+        async with self._connection.get() as connection:
+            redis = aioredis.commands.Redis(connection)
 
-        # TODO: Test the checker
-        _, keys = await redis.scan(b'0', match='newsfeed_id:*')
-        if len(keys) >= self._max_newsfeed_ids:
-            raise NewsfeedNumberLimitExceeded(newsfeed_id,
-                                              self._max_newsfeed_ids)
-        # TODO: Test the checker
-        if await redis.zcard(f'newsfeed_id:{newsfeed_id}') \
-                >= self._max_events_per_newsfeed_id:
-            await redis.zpopmin(f'newsfeed_id:{newsfeed_id}')
+            # TODO: Test the checker
+            _, keys = await redis.scan(b'0', match='newsfeed_id:*')
+            if len(keys) >= self._max_newsfeed_ids:
+                raise NewsfeedNumberLimitExceeded(newsfeed_id,
+                                                  self._max_newsfeed_ids)
+            # TODO: Test the checker
+            if await redis.zcard(f'newsfeed_id:{newsfeed_id}') \
+                    >= self._max_events_per_newsfeed_id:
+                await redis.zpopmin(f'newsfeed_id:{newsfeed_id}')
 
-        await redis.hmset_dict(
-            f"event:{event_data['id']}",
-            {key: str(value) for key, value in event_data.items()}
-        )
-        await redis.zadd(
-            key=f'newsfeed_id:{newsfeed_id}',
-            score=event_data['published_at'],
-            member=f"event:{event_data['id']}",
-        )
-        # TODO: Move to factory
-        redis.close()
-        await redis.wait_closed()
+            await redis.hmset_dict(
+                f"event:{event_data['id']}",
+                {key: str(value) for key, value in event_data.items()}
+            )
+            await redis.zadd(
+                key=f'newsfeed_id:{newsfeed_id}',
+                score=event_data['published_at'],
+                member=f"event:{event_data['id']}",
+            )
 
     async def delete_by_fqid(self, newsfeed_id: str, event_id: str) -> None:
         """Delete data of specified event."""
-        # TODO: Move to factory
-        redis = await aioredis.create_redis(
-            'redis://redis',
-            encoding='utf-8',
-        )
-        event = f'event:{event_id}'
-        newsfeed = f'newsfeed_id:{newsfeed_id}'
-        await redis.delete(event)
-        await redis.zrem(newsfeed, event)
-
-        # TODO: Move to factory
-        redis.close()
-        await redis.wait_closed()
+        async with self._connection.get() as connection:
+            redis = aioredis.commands.Redis(connection)
+            event = f'event:{event_id}'
+            newsfeed = f'newsfeed_id:{newsfeed_id}'
+            await redis.delete(event)
+            await redis.zrem(newsfeed, event)
 
 
 class EventStorageError(Exception):
