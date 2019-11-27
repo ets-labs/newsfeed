@@ -55,11 +55,11 @@ def app():
                     'max_subscriptions_per_newsfeed': 5,
                 },
             },
-            'domain_model': {
+            'domainmodel': {
                 'newsfeed_id_length': 16,
                 'processor_concurrency': 1,
             },
-            'web_api': {
+            'webapi': {
                 'base_path': '/',
             },
         },
@@ -69,7 +69,7 @@ def app():
 @fixture
 def web_app(app):
     """Create test web application."""
-    return app.web_api.web_app()
+    return app.webapi.web_app()
 
 
 @fixture

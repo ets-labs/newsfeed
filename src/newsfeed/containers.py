@@ -2,7 +2,7 @@
 
 from dependency_injector import containers, providers
 
-from newsfeed import core, infrastructure, domain_model, webapi
+from newsfeed import core, infrastructure, domainmodel, webapi
 
 
 class Core(containers.DeclarativeContainer):
@@ -45,37 +45,37 @@ class Infrastructure(containers.DeclarativeContainer):
 class DomainModel(containers.DeclarativeContainer):
     """Domain model container."""
 
-    config = providers.Configuration('domain_model')
+    config = providers.Configuration('domainmodel')
 
     infra: Infrastructure = providers.DependenciesContainer()
 
     # Common
 
     newsfeed_id_specification = providers.Singleton(
-        domain_model.newsfeed_id.NewsfeedIDSpecification,
+        domainmodel.newsfeed_id.NewsfeedIDSpecification,
         max_length=config.newsfeed_id_length,
     )
 
     # Subscription
 
     subscription_factory = providers.Factory(
-        domain_model.subscription.SubscriptionFactory,
-        cls=domain_model.subscription.Subscription,
+        domainmodel.subscription.SubscriptionFactory,
+        cls=domainmodel.subscription.Subscription,
     )
 
     subscription_specification = providers.Singleton(
-        domain_model.subscription.SubscriptionSpecification,
+        domainmodel.subscription.SubscriptionSpecification,
         newsfeed_id_specification=newsfeed_id_specification,
     )
 
     subscription_repository = providers.Singleton(
-        domain_model.subscription.SubscriptionRepository,
+        domainmodel.subscription.SubscriptionRepository,
         factory=subscription_factory,
         storage=infra.subscription_storage,
     )
 
     subscription_service = providers.Singleton(
-        domain_model.subscription.SubscriptionService,
+        domainmodel.subscription.SubscriptionService,
         factory=subscription_factory,
         specification=subscription_specification,
         repository=subscription_repository,
@@ -84,30 +84,30 @@ class DomainModel(containers.DeclarativeContainer):
     # Event
 
     event_factory = providers.Factory(
-        domain_model.event.EventFactory,
-        cls=domain_model.event.Event,
+        domainmodel.event.EventFactory,
+        cls=domainmodel.event.Event,
     )
 
     event_specification = providers.Singleton(
-        domain_model.event.EventSpecification,
+        domainmodel.event.EventSpecification,
         newsfeed_id_specification=newsfeed_id_specification,
     )
 
     event_repository = providers.Singleton(
-        domain_model.event.EventRepository,
+        domainmodel.event.EventRepository,
         factory=event_factory,
         storage=infra.event_storage,
     )
 
     event_dispatcher_service = providers.Singleton(
-        domain_model.event_dispatcher.EventDispatcherService,
+        domainmodel.event_dispatcher.EventDispatcherService,
         event_factory=event_factory,
         event_specification=event_specification,
         event_queue=infra.event_queue,
     )
 
     event_processor_service = providers.Singleton(
-        domain_model.event_processor.EventProcessorService,
+        domainmodel.event_processor.EventProcessorService,
         event_queue=infra.event_queue,
         event_factory=event_factory,
         event_repository=event_repository,
@@ -118,7 +118,7 @@ class DomainModel(containers.DeclarativeContainer):
 class WebApi(containers.DeclarativeContainer):
     """Web API container."""
 
-    config = providers.Configuration('web_api')
+    config = providers.Configuration('webapi')
 
     domain: DomainModel = providers.DependenciesContainer()
 

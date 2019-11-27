@@ -5,8 +5,8 @@ async def test_event_deletion(app):
     """Check event deletion."""
     newsfeed_id = '123'
 
-    event_dispatcher_service = app.domain_model.event_dispatcher_service()
-    event_processor_service = app.domain_model.event_processor_service()
+    event_dispatcher_service = app.domainmodel.event_dispatcher_service()
+    event_processor_service = app.domainmodel.event_processor_service()
 
     event_1 = await _process_new_event(
         event_dispatcher_service,
@@ -32,7 +32,7 @@ async def test_event_deletion(app):
         event_id=event_1.id,
     )
 
-    event_repository = app.domain_model.event_repository()
+    event_repository = app.domainmodel.event_repository()
     events = await event_repository.get_by_newsfeed_id(newsfeed_id)
     assert len(events) == 1
     assert events[0].id == event_2.id
@@ -44,14 +44,14 @@ async def test_event_deletion_from_subscriber(app):
     newsfeed_id = '123'
     subscriber_newsfeed_id = '124'
 
-    subscription_service = app.domain_model.subscription_service()
+    subscription_service = app.domainmodel.subscription_service()
     await subscription_service.create_subscription(
         newsfeed_id=subscriber_newsfeed_id,
         to_newsfeed_id=newsfeed_id,
     )
 
-    event_dispatcher_service = app.domain_model.event_dispatcher_service()
-    event_processor_service = app.domain_model.event_processor_service()
+    event_dispatcher_service = app.domainmodel.event_dispatcher_service()
+    event_processor_service = app.domainmodel.event_processor_service()
 
     event_1 = await _process_new_event(
         event_dispatcher_service,
@@ -77,7 +77,7 @@ async def test_event_deletion_from_subscriber(app):
         event_id=event_1.id,
     )
 
-    event_repository = app.domain_model.event_repository()
+    event_repository = app.domainmodel.event_repository()
     events = await event_repository.get_by_newsfeed_id(newsfeed_id)
     assert len(events) == 1
     assert events[0].id == event_2.id
