@@ -7,6 +7,9 @@ from typing import Dict, Deque, Iterable, Union
 
 import aioredis
 
+from .utils import parse_redis_dsn
+
+
 EventData = Dict[str, Union[str, int]]
 
 
@@ -38,7 +41,7 @@ class InMemoryEventStorage(EventStorage):
     """Event storage that stores events in memory."""
 
     def __init__(self, config: Dict[str, str]):
-        """Initialize queue."""
+        """Initialize storage."""
         super().__init__(config)
         self._storage: Dict[str, Deque[EventData]] = defaultdict(deque)
 
@@ -89,26 +92,27 @@ class InMemoryEventStorage(EventStorage):
 
 
 class RedisEventStorage(EventStorage):
-    """Event storage that stores events in memory."""
+    """Event storage that stores events in redis."""
 
     def __init__(self, config: Dict[str, str]):
-        """Initialize queue."""
+        """Initialize storage."""
         super().__init__(config)
 
-        self._connection = aioredis.pool.ConnectionsPool(
-            address=aioredis.util.parse_url(config['redis_dsn'])[0],
-            db=aioredis.util.parse_url(config['redis_dsn'])[1]['db'],
-            create_connection_timeout=config['redis_conn_timeout'],
+        redis_config = parse_redis_dsn(config['event_storage_dsn'])
+        self._pool = aioredis.pool.ConnectionsPool(
+            address=redis_config['address'],
+            db=int(redis_config['db']),
+            create_connection_timeout=int(redis_config['connection_timeout']),
+            minsize=int(redis_config['minsize']),
+            maxsize=int(redis_config['maxsize']),
             encoding='utf-8',
-            minsize=5,
-            maxsize=10,
         )
         self._max_newsfeed_ids = int(config['max_newsfeeds'])
         self._max_events_per_newsfeed_id = int(config['max_events_per_newsfeed'])
 
     async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
         """Get events data from storage."""
-        async with self._connection.get() as connection:
+        async with self._pool.get() as connection:
             redis = aioredis.commands.Redis(connection)
             newsfeed_storage = []
             # TODO:
@@ -133,7 +137,7 @@ class RedisEventStorage(EventStorage):
 
     async def get_by_fqid(self, newsfeed_id: str, event_id: str) -> EventData:
         """Return data of specified event."""
-        async with self._connection.get() as connection:
+        async with self._pool.get() as connection:
             redis = aioredis.commands.Redis(connection)
             event = await redis.hgetall(f'event:{event_id}')
 
@@ -154,7 +158,7 @@ class RedisEventStorage(EventStorage):
         """Add event data to the storage."""
         newsfeed_id = str(event_data['newsfeed_id'])
 
-        async with self._connection.get() as connection:
+        async with self._pool.get() as connection:
             redis = aioredis.commands.Redis(connection)
 
             # TODO: Test the checker
@@ -179,7 +183,7 @@ class RedisEventStorage(EventStorage):
 
     async def delete_by_fqid(self, newsfeed_id: str, event_id: str) -> None:
         """Delete data of specified event."""
-        async with self._connection.get() as connection:
+        async with self._pool.get() as connection:
             redis = aioredis.commands.Redis(connection)
             event = f'event:{event_id}'
             newsfeed = f'newsfeed_id:{newsfeed_id}'

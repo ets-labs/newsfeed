@@ -7,6 +7,7 @@ services:
     environment:
       LOG_LEVEL: "DEBUG"
       API_BASE_PATH: "/api/"
+      EVENT_STORAGE_DSN: "redis://redis:6379?db=0&connection_timeout=5&minsize=5&maxsize=10"
     volumes:
       - './:/code'
 

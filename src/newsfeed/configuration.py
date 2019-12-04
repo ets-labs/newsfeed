@@ -18,8 +18,7 @@ def get_config() -> Dict[str, Any]:
             'event_storage': {
                 'max_newsfeeds': os.getenv('MAX_NEWSFEEDS'),
                 'max_events_per_newsfeed': os.getenv('EVENTS_PER_NEWSFEED'),
-                'redis_dsn': os.getenv('REDIS_DSN', 'redis://redis/0'),
-                'redis_conn_timeout': os.getenv('REDIS_CONN_TIMEOUT', 5),
+                'event_storage_dsn': os.getenv('EVENT_STORAGE_DSN'),
             },
             'subscription_storage': {
                 'max_newsfeeds': os.getenv('MAX_NEWSFEEDS'),
