@@ -18,7 +18,7 @@ def get_config() -> Dict[str, Any]:
             'event_storage': {
                 'max_newsfeeds': os.getenv('MAX_NEWSFEEDS'),
                 'max_events_per_newsfeed': os.getenv('EVENTS_PER_NEWSFEED'),
-                'event_storage_dsn': os.getenv('EVENT_STORAGE_DSN'),
+                'dsn': os.getenv('EVENT_STORAGE_DSN'),
             },
             'subscription_storage': {
                 'max_newsfeeds': os.getenv('MAX_NEWSFEEDS'),

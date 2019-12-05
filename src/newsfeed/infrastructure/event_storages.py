@@ -1,6 +1,7 @@
 """Infrastructure event storages module."""
 
 import ast
+from contextlib import asynccontextmanager
 from collections import defaultdict, deque
 from operator import itemgetter
 from typing import Dict, Deque, Iterable, Union
@@ -98,7 +99,7 @@ class RedisEventStorage(EventStorage):
         """Initialize storage."""
         super().__init__(config)
 
-        redis_config = parse_redis_dsn(config['event_storage_dsn'])
+        redis_config = parse_redis_dsn(config['dsn'])
         self._pool = aioredis.pool.ConnectionsPool(
             address=redis_config['address'],
             db=int(redis_config['db']),
@@ -112,8 +113,7 @@ class RedisEventStorage(EventStorage):
 
     async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
         """Get events data from storage."""
-        async with self._pool.get() as connection:
-            redis = aioredis.commands.Redis(connection)
+        async with self._get_connection() as redis:
             newsfeed_storage = []
             # TODO:
             #  - Check async
@@ -137,8 +137,7 @@ class RedisEventStorage(EventStorage):
 
     async def get_by_fqid(self, newsfeed_id: str, event_id: str) -> EventData:
         """Return data of specified event."""
-        async with self._pool.get() as connection:
-            redis = aioredis.commands.Redis(connection)
+        async with self._get_connection() as redis:
             event = await redis.hgetall(f'event:{event_id}')
 
         if not event:
@@ -158,8 +157,7 @@ class RedisEventStorage(EventStorage):
         """Add event data to the storage."""
         newsfeed_id = str(event_data['newsfeed_id'])
 
-        async with self._pool.get() as connection:
-            redis = aioredis.commands.Redis(connection)
+        async with self._get_connection() as redis:
 
             # TODO: Test the checker
             _, keys = await redis.scan(b'0', match='newsfeed_id:*')
@@ -183,12 +181,17 @@ class RedisEventStorage(EventStorage):
 
     async def delete_by_fqid(self, newsfeed_id: str, event_id: str) -> None:
         """Delete data of specified event."""
-        async with self._pool.get() as connection:
-            redis = aioredis.commands.Redis(connection)
+        async with self._get_connection() as redis:
             event = f'event:{event_id}'
             newsfeed = f'newsfeed_id:{newsfeed_id}'
             await redis.delete(event)
             await redis.zrem(newsfeed, event)
+
+    @asynccontextmanager
+    async def _get_connection(self):
+        async with self._pool.get() as connection:
+            redis = aioredis.commands.Redis(connection)
+            yield redis
 
 
 class EventStorageError(Exception):
