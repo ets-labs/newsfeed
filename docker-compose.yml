@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
 
@@ -8,22 +8,22 @@ services:
       LOG_LEVEL: "DEBUG"
       API_BASE_PATH: "/api/"
     volumes:
-      - './:/code'
+      - "./:/code"
 
   nginx:
     image: nginx
     ports:
-      - '8000:80'
+      - "8000:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./swagger:/usr/share/nginx/html/swagger/
-      - ./demo_app/build/:/usr/share/nginx/html/demo_app/
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./swagger:/usr/share/nginx/html/swagger/"
+      - "./demo_app/build/:/usr/share/nginx/html/demo_app/"
 
   apitests:
     build: tests/api
     environment:
       API_URL: "http://newsfeed:8000/api"
     volumes:
-      - './tests/api:/code'
+      - "./tests/api:/code"
     depends_on:
       - "newsfeed"
