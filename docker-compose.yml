@@ -18,3 +18,12 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./swagger:/usr/share/nginx/html/swagger/
       - ./demo_app/build/:/usr/share/nginx/html/demo_app/
+
+  apitests:
+    build: tests/api
+    environment:
+      API_URL: "http://newsfeed:8000/api"
+    volumes:
+      - './tests/api:/code'
+    depends_on:
+      - "newsfeed"
