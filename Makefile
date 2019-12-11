@@ -3,7 +3,7 @@ clean:
 	find . -type d -name "__pycache__" -delete
 
 test: clean
-	py.test --cov=src/
+	py.test tests/unit --cov=src/
 
 integration-test:
 	python scripts/integration_check.py
