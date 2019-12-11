@@ -108,8 +108,6 @@ class RedisEventStorage(EventStorage):
             maxsize=int(redis_config['maxsize']),
             encoding='utf-8',
         )
-        self._max_newsfeed_ids = int(config['max_newsfeeds'])
-        self._max_events_per_newsfeed_id = int(config['max_events_per_newsfeed'])
 
     async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
         """Get events data from storage."""
@@ -158,17 +156,6 @@ class RedisEventStorage(EventStorage):
         newsfeed_id = str(event_data['newsfeed_id'])
 
         async with self._get_connection() as redis:
-
-            # TODO: Test the checker
-            _, keys = await redis.scan(b'0', match='newsfeed_id:*')
-            if len(keys) >= self._max_newsfeed_ids:
-                raise NewsfeedNumberLimitExceeded(newsfeed_id,
-                                                  self._max_newsfeed_ids)
-            # TODO: Test the checker
-            if await redis.zcard(f'newsfeed_id:{newsfeed_id}') \
-                    >= self._max_events_per_newsfeed_id:
-                await redis.zpopmin(f'newsfeed_id:{newsfeed_id}')
-
             await redis.hmset_dict(
                 f"event:{event_data['id']}",
                 {key: str(value) for key, value in event_data.items()}
