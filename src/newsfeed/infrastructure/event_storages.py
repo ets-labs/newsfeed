@@ -1,6 +1,7 @@
 """Infrastructure event storages module."""
 
 import ast
+import json
 from contextlib import asynccontextmanager
 from collections import defaultdict, deque
 from operator import itemgetter
@@ -115,28 +116,16 @@ class RedisEventStorage(EventStorage):
             newsfeed_storage = []
             # TODO:
             #  - Check async
-            #  - Write base serializer
-            #  - Is it correct place for ordering?
-            #  - Ordering by `published_at`?
-            async for key, _ in redis.izscan(f'newsfeed_id:{newsfeed_id}'):
-                event = await redis.hgetall(key)
-                event['parent_fqid'] = ast.literal_eval(event['parent_fqid'])
-                event['child_fqids'] = ast.literal_eval(event['child_fqids'])
-                event['first_seen_at'] = ast.literal_eval(event['first_seen_at'])
-                event['published_at'] = ast.literal_eval(event['published_at'])
-                event['data'] = ast.literal_eval(event['data'])
-                newsfeed_storage.append(event)
-
-        return sorted(
-            newsfeed_storage,
-            key=itemgetter('published_at'),
-            reverse=True,
-        )
+            for event in await redis.lrange(key=f'newsfeed_id:{newsfeed_id}',
+                                            start=0,
+                                            stop=-1):
+                newsfeed_storage.append(json.loads(event))
+        return newsfeed_storage
 
     async def get_by_fqid(self, newsfeed_id: str, event_id: str) -> EventData:
         """Return data of specified event."""
         async with self._get_connection() as redis:
-            event = await redis.hgetall(f'event:{event_id}')
+            event = await redis.get(f'event:{event_id}')
 
         if not event:
             raise EventNotFound(
@@ -144,35 +133,36 @@ class RedisEventStorage(EventStorage):
                 event_id=event_id,
             )
         else:
-            event['parent_fqid'] = ast.literal_eval(event['parent_fqid'])
-            event['child_fqids'] = ast.literal_eval(event['child_fqids'])
-            event['first_seen_at'] = ast.literal_eval(event['first_seen_at'])
-            event['published_at'] = ast.literal_eval(event['published_at'])
-            event['data'] = ast.literal_eval(event['data'])
-            return event
+            return json.loads(event)
 
     async def add(self, event_data: EventData) -> None:
         """Add event data to the storage."""
         newsfeed_id = str(event_data['newsfeed_id'])
 
         async with self._get_connection() as redis:
-            await redis.hmset_dict(
-                f"event:{event_data['id']}",
-                {key: str(value) for key, value in event_data.items()}
-            )
-            await redis.zadd(
+            await redis.lpush(
                 key=f'newsfeed_id:{newsfeed_id}',
-                score=event_data['published_at'],
-                member=f"event:{event_data['id']}",
+                value=json.dumps(event_data),
+            )
+            await redis.append(
+                key=f"event:{event_data['id']}",
+                value=json.dumps(event_data),
             )
 
     async def delete_by_fqid(self, newsfeed_id: str, event_id: str) -> None:
         """Delete data of specified event."""
         async with self._get_connection() as redis:
-            event = f'event:{event_id}'
+            event_key = f'event:{event_id}'
             newsfeed = f'newsfeed_id:{newsfeed_id}'
-            await redis.delete(event)
-            await redis.zrem(newsfeed, event)
+            event = await redis.get(event_key)
+            if not event:
+                raise EventNotFound(
+                    newsfeed_id=newsfeed_id,
+                    event_id=event_id,
+                )
+            else:
+                await redis.lrem(newsfeed, 1, event)
+                await redis.delete(event_key)
 
     @asynccontextmanager
     async def _get_connection(self):
