@@ -112,8 +112,6 @@ class RedisEventStorage(EventStorage):
         """Get events data from storage."""
         async with self._get_connection() as redis:
             newsfeed_storage = []
-            # TODO:
-            #  - Check async
             for event in await redis.lrange(key=f'newsfeed_id:{newsfeed_id}',
                                             start=0,
                                             stop=-1):

@@ -37,7 +37,7 @@ class Infrastructure(containers.DeclarativeContainer):
     )
 
     subscription_storage = providers.Singleton(
-        infrastructure.subscription_storages.InMemorySubscriptionStorage,
+        infrastructure.subscription_storages.RedisSubscriptionStorage,
         config=config.subscription_storage,
     )
 
