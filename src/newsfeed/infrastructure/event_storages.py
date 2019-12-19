@@ -1,7 +1,14 @@
 """Infrastructure event storages module."""
 
+import json
+from contextlib import asynccontextmanager
 from collections import defaultdict, deque
 from typing import Dict, Deque, Iterable, Union
+
+import aioredis
+
+from .utils import parse_redis_dsn
+
 
 EventData = Dict[str, Union[str, int]]
 
@@ -34,7 +41,7 @@ class InMemoryEventStorage(EventStorage):
     """Event storage that stores events in memory."""
 
     def __init__(self, config: Dict[str, str]):
-        """Initialize queue."""
+        """Initialize storage."""
         super().__init__(config)
         self._storage: Dict[str, Deque[EventData]] = defaultdict(deque)
 
@@ -82,6 +89,84 @@ class InMemoryEventStorage(EventStorage):
                 break
         if event_index is not None:
             del newsfeed_storage[event_index]
+
+
+class RedisEventStorage(EventStorage):
+    """Event storage that stores events in redis."""
+
+    def __init__(self, config: Dict[str, str]):
+        """Initialize storage."""
+        super().__init__(config)
+
+        redis_config = parse_redis_dsn(config['dsn'])
+        self._pool = aioredis.pool.ConnectionsPool(
+            address=redis_config['address'],
+            db=int(redis_config['db']),
+            create_connection_timeout=int(redis_config['connection_timeout']),
+            minsize=int(redis_config['minsize']),
+            maxsize=int(redis_config['maxsize']),
+            encoding='utf-8',
+        )
+
+    async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
+        """Get events data from storage."""
+        async with self._get_connection() as redis:
+            newsfeed_storage = []
+            # TODO:
+            #  - Check async
+            for event in await redis.lrange(key=f'newsfeed_id:{newsfeed_id}',
+                                            start=0,
+                                            stop=-1):
+                newsfeed_storage.append(json.loads(event))
+        return newsfeed_storage
+
+    async def get_by_fqid(self, newsfeed_id: str, event_id: str) -> EventData:
+        """Return data of specified event."""
+        async with self._get_connection() as redis:
+            event = await redis.get(f'event:{event_id}')
+
+        if not event:
+            raise EventNotFound(
+                newsfeed_id=newsfeed_id,
+                event_id=event_id,
+            )
+        else:
+            return json.loads(event)
+
+    async def add(self, event_data: EventData) -> None:
+        """Add event data to the storage."""
+        newsfeed_id = str(event_data['newsfeed_id'])
+
+        async with self._get_connection() as redis:
+            await redis.lpush(
+                key=f'newsfeed_id:{newsfeed_id}',
+                value=json.dumps(event_data),
+            )
+            await redis.append(
+                key=f"event:{event_data['id']}",
+                value=json.dumps(event_data),
+            )
+
+    async def delete_by_fqid(self, newsfeed_id: str, event_id: str) -> None:
+        """Delete data of specified event."""
+        async with self._get_connection() as redis:
+            event_key = f'event:{event_id}'
+            newsfeed = f'newsfeed_id:{newsfeed_id}'
+            event = await redis.get(event_key)
+            if not event:
+                raise EventNotFound(
+                    newsfeed_id=newsfeed_id,
+                    event_id=event_id,
+                )
+            else:
+                await redis.lrem(newsfeed, 1, event)
+                await redis.delete(event_key)
+
+    @asynccontextmanager
+    async def _get_connection(self) -> aioredis.commands.Redis:
+        async with self._pool.get() as connection:
+            redis = aioredis.commands.Redis(connection)
+            yield redis
 
 
 class EventStorageError(Exception):

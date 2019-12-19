@@ -91,6 +91,7 @@ class IntegrationTest1:
             newsfeed_id=newsfeed_123,
             event_id=event_123_1['id'],
         )
+        await asyncio.sleep(0.1)
         assert event_123_1_deleted is True
 
         newsfeed_123_events = await self._api_client.get_events(newsfeed_id=newsfeed_123)
@@ -116,9 +117,11 @@ class IntegrationTest2:
             subscriber_124=subscriber_124,
             subscriber_125=subscriber_125,
         )
+        await asyncio.sleep(0.1)
 
         # Add event
         event_123_1 = await self._publish_event(newsfeed_id=newsfeed_123)
+        await asyncio.sleep(0.1)
 
         # Assert event publishing
         await self._assert_event_published_to_all_newsfeeds(
@@ -155,6 +158,7 @@ class IntegrationTest2:
             newsfeed_id=newsfeed_123,
             event=event_123_1,
         )
+        await asyncio.sleep(0.1)
 
         # Assert that all events are deleted
         await self._assert_no_events(newsfeed_123, subscriber_124, subscriber_125)
