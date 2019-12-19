@@ -1,10 +1,8 @@
 """Infrastructure event storages module."""
 
-import ast
 import json
 from contextlib import asynccontextmanager
 from collections import defaultdict, deque
-from operator import itemgetter
 from typing import Dict, Deque, Iterable, Union
 
 import aioredis
@@ -165,7 +163,7 @@ class RedisEventStorage(EventStorage):
                 await redis.delete(event_key)
 
     @asynccontextmanager
-    async def _get_connection(self):
+    async def _get_connection(self) -> aioredis.commands.Redis:
         async with self._pool.get() as connection:
             redis = aioredis.commands.Redis(connection)
             yield redis
