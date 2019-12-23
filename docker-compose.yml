@@ -27,7 +27,7 @@ services:
   apitests:
     build: tests/api
     environment:
-      API_URL: "http://newsfeed:8000/api"
+      API_URL: "http://newsfeed:8000/api/"
     volumes:
       - "./tests/api:/code"
     depends_on:

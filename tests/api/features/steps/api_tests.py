@@ -1,28 +1,30 @@
+
 import json
+import os
 
 from behave import *
 from hamcrest import *
 import requests
 
 
-base_url = "http://127.0.0.1:8000/api/"
+BASE_URL = os.getenv('API_URL')
 
 
 @given('delete all from "{endpoint}"')
 def get_current_id(context, endpoint):
-    context.response = requests.get(base_url + endpoint)
+    context.response = requests.get(f'{BASE_URL}{endpoint}')
     response_json = context.response.json()
     current_list = response_json["results"]
     if current_list is not None:
         for item in current_list:
             current_id = item["id"]
-            context.response = requests.delete(base_url+endpoint+current_id+"/")
+            context.response = requests.delete(BASE_URL+endpoint+current_id+"/")
 
 
 @when('get request to "{endpoint}" is received')
 @then('get request to "{endpoint}" is received')
 def step_impl(context, endpoint):
-    context.response = requests.get(base_url + endpoint)
+    context.response = requests.get(BASE_URL + endpoint)
 
 
 @then('response status should be {status}')
@@ -52,7 +54,7 @@ def step_impl(context):
 @when('post request to "{endpoint}" is received with body')
 def step_impl(context, endpoint):
     data = json.dumps({"data": {row['key']: row['value'] for row in context.table}})
-    context.response = requests.post(url=base_url + endpoint, data=data)
+    context.response = requests.post(url=BASE_URL + endpoint, data=data)
     context.event_id = context.response.json()["id"]
 
 
@@ -60,7 +62,7 @@ def step_impl(context, endpoint):
 @when('post request to "{endpoint}" is received')
 def step_impl(context, endpoint):
     data_subscription = json.dumps({row['key']: row['value'] for row in context.table})
-    context.response = requests.post(url=base_url + endpoint, data=data_subscription)
+    context.response = requests.post(url=BASE_URL + endpoint, data=data_subscription)
     context.subscription_id = context.response.json()["id"]
 
 
@@ -93,7 +95,7 @@ def step_impl(context):
 
 @when('delete request to "{endpoint}" with event id is received')
 def step_impl(context, endpoint):
-    context.response = requests.delete(base_url+endpoint+context.event_id+"/")
+    context.response = requests.delete(BASE_URL+endpoint+context.event_id+"/")
 
 
 @then('this event should be absent')
@@ -104,22 +106,22 @@ def step_impl(context):
 
 @when('send delete request to "{endpoint}" with subscription id')
 def step_impl(context, endpoint):
-    context.response = requests.delete(base_url+endpoint+context.subscription_id+"/")
+    context.response = requests.delete(BASE_URL+endpoint+context.subscription_id+"/")
 
 
 @when('post request to "{endpoint}" is received without data key')
 def step_impl(context, endpoint):
     data = json.dumps([{"data": [row['key'] for row in context.table]}])
-    context.response = requests.post(url=base_url + endpoint, data=data)
+    context.response = requests.post(url=BASE_URL + endpoint, data=data)
 
 
 @when('post request to "{endpoint}" is received with empty fields')
 def step_impl(context, endpoint):
     data = json.dumps({})
-    context.response = requests.post(url=base_url + endpoint, data=data)
+    context.response = requests.post(url=BASE_URL + endpoint, data=data)
 
 
 @when('post request to "{endpoint}" is received in incorrect type')
 def step_impl(context, endpoint):
     data = json.dumps([{"data": {row['key']: row['value'] for row in context.table}}])
-    context.response = requests.post(url=base_url + endpoint, data=data)
+    context.response = requests.post(url=BASE_URL + endpoint, data=data)
