@@ -23,7 +23,7 @@ def get_config() -> Dict[str, Any]:
             'subscription_storage': {
                 'max_newsfeeds': os.getenv('MAX_NEWSFEEDS'),
                 'max_subscriptions_per_newsfeed': os.getenv('SUBSCRIPTIONS_PER_NEWSFEED'),
-                'dsn': os.getenv('SUBSCRIPTIONS_STORAGE_DSN'),
+                'dsn': os.getenv('SUBSCRIPTION_STORAGE_DSN'),
             },
         },
         'domainmodel': {
