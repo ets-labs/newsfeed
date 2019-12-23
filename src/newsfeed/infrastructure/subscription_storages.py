@@ -200,7 +200,7 @@ class RedisSubscriptionStorage(SubscriptionStorage):
         """Return subscription between specified newsfeeds."""
         async with self._get_connection() as redis:
             subscription = await redis.get(
-                f"subscription_between:{newsfeed_id}{to_newsfeed_id}"
+                f'subscription_between:{newsfeed_id}{to_newsfeed_id}'
             )
 
         if not subscription:
