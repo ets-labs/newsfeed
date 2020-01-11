@@ -110,8 +110,8 @@ class RedisEventStorage(EventStorage):
 
     async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[EventData]:
         """Get events data from storage."""
+        newsfeed_storage = []
         async with self._get_connection() as redis:
-            newsfeed_storage = []
             for event in await redis.lrange(key=f'newsfeed_id:{newsfeed_id}',
                                             start=0,
                                             stop=-1):
@@ -128,8 +128,8 @@ class RedisEventStorage(EventStorage):
                 newsfeed_id=newsfeed_id,
                 event_id=event_id,
             )
-        else:
-            return json.loads(event)
+
+        return json.loads(event)
 
     async def add(self, event_data: EventData) -> None:
         """Add event data to the storage."""
@@ -151,14 +151,15 @@ class RedisEventStorage(EventStorage):
             event_key = f'event:{event_id}'
             newsfeed = f'newsfeed_id:{newsfeed_id}'
             event = await redis.get(event_key)
+
             if not event:
                 raise EventNotFound(
                     newsfeed_id=newsfeed_id,
                     event_id=event_id,
                 )
-            else:
-                await redis.lrem(newsfeed, 1, event)
-                await redis.delete(event_key)
+
+            await redis.lrem(newsfeed, 1, event)
+            await redis.delete(event_key)
 
     @asynccontextmanager
     async def _get_connection(self) -> aioredis.commands.Redis:

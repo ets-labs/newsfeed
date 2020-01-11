@@ -161,8 +161,8 @@ class RedisSubscriptionStorage(SubscriptionStorage):
 
     async def get_by_newsfeed_id(self, newsfeed_id: str) -> Iterable[SubscriptionData]:
         """Return subscriptions of specified newsfeed."""
+        subscriptions_storage = []
         async with self._get_connection() as redis:
-            subscriptions_storage = []
             for subscription in await redis.lrange(
                     key=f'subscriptions:{newsfeed_id}',
                     start=0,
@@ -173,8 +173,8 @@ class RedisSubscriptionStorage(SubscriptionStorage):
 
     async def get_by_to_newsfeed_id(self, newsfeed_id: str) -> Iterable[SubscriptionData]:
         """Return subscriptions to specified newsfeed."""
+        subscribers_storage = []
         async with self._get_connection() as redis:
-            subscribers_storage = []
             for subscriber in await redis.lrange(
                     key=f'subscribers:{newsfeed_id}',
                     start=0,
@@ -193,8 +193,8 @@ class RedisSubscriptionStorage(SubscriptionStorage):
                 newsfeed_id=newsfeed_id,
                 subscription_id=subscription_id,
             )
-        else:
-            return json.loads(subscription)
+
+        return json.loads(subscription)
 
     async def get_between(self, newsfeed_id: str, to_newsfeed_id: str) -> SubscriptionData:
         """Return subscription between specified newsfeeds."""
@@ -208,8 +208,8 @@ class RedisSubscriptionStorage(SubscriptionStorage):
                 newsfeed_id=newsfeed_id,
                 to_newsfeed_id=to_newsfeed_id,
             )
-        else:
-            return json.loads(subscription)
+
+        return json.loads(subscription)
 
     async def add(self, subscription_data: SubscriptionData) -> None:
         """Add subscription data to the storage."""
@@ -240,23 +240,24 @@ class RedisSubscriptionStorage(SubscriptionStorage):
         async with self._get_connection() as redis:
             subscription_key = f'subscription:{subscription_id}'
             subscription = await redis.get(subscription_key)
+
             if not subscription:
                 raise SubscriptionNotFound(
                     newsfeed_id=newsfeed_id,
                     subscription_id=subscription_id,
                 )
-            else:
-                subscription_data = json.loads(subscription)
-                to_newsfeed_id = subscription_data['to_newsfeed_id']
-                subscriptions = f'subscriptions:{newsfeed_id}'
-                subscribers = f'subscribers:{to_newsfeed_id}'
-                subscription_between = \
-                    f'subscription_between:{newsfeed_id}{to_newsfeed_id}'
 
-                await redis.lrem(subscriptions, 1, subscription)
-                await redis.lrem(subscribers, 1, subscription)
-                await redis.delete(subscription_between)
-                await redis.delete(subscription_key)
+            subscription_data = json.loads(subscription)
+            to_newsfeed_id = subscription_data['to_newsfeed_id']
+            subscriptions = f'subscriptions:{newsfeed_id}'
+            subscribers = f'subscribers:{to_newsfeed_id}'
+            subscription_between = \
+                f'subscription_between:{newsfeed_id}{to_newsfeed_id}'
+
+            await redis.lrem(subscriptions, 1, subscription)
+            await redis.lrem(subscribers, 1, subscription)
+            await redis.delete(subscription_between)
+            await redis.delete(subscription_key)
 
     @asynccontextmanager
     async def _get_connection(self) -> aioredis.commands.Redis:
