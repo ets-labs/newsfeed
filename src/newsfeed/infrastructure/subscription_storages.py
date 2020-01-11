@@ -226,11 +226,11 @@ class RedisSubscriptionStorage(SubscriptionStorage):
                 key=f'subscribers:{to_newsfeed_id}',
                 value=json.dumps(subscription_data),
             )
-            await redis.append(
+            await redis.set(
                 key=f'subscription:{subscription_id}',
                 value=json.dumps(subscription_data),
             )
-            await redis.append(
+            await redis.set(
                 key=f'subscription_between:{newsfeed_id}{to_newsfeed_id}',
                 value=json.dumps(subscription_data),
             )

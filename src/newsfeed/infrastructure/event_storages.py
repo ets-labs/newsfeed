@@ -140,7 +140,7 @@ class RedisEventStorage(EventStorage):
                 key=f'newsfeed_id:{newsfeed_id}',
                 value=json.dumps(event_data),
             )
-            await redis.append(
+            await redis.set(
                 key=f"event:{event_data['id']}",
                 value=json.dumps(event_data),
             )
