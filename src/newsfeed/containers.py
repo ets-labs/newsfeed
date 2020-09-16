@@ -47,10 +47,7 @@ class Container(containers.DeclarativeContainer):
 
     # Domain model -> Subscriptions
 
-    subscription_factory = providers.Factory(
-        domainmodel.subscription.SubscriptionFactory,
-        cls=domainmodel.subscription.Subscription,
-    )
+    subscription_factory = providers.Factory(domainmodel.subscription.SubscriptionFactory)
 
     subscription_specification = providers.Singleton(
         domainmodel.subscription.SubscriptionSpecification,
@@ -72,10 +69,7 @@ class Container(containers.DeclarativeContainer):
 
     # Domain model -> Events
 
-    event_factory = providers.Factory(
-        domainmodel.event.EventFactory,
-        cls=domainmodel.event.Event,
-    )
+    event_factory = providers.Factory(domainmodel.event.EventFactory)
 
     event_specification = providers.Singleton(
         domainmodel.event.EventSpecification,

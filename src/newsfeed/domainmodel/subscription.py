@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Type, Dict, List, Tuple, Any
+from typing import  Dict, List, Tuple, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -10,7 +10,6 @@ from newsfeed.infrastructure.subscription_storages import (
     SubscriptionStorage,
     SubscriptionBetweenNotFound,
 )
-
 from .newsfeed_id import NewsfeedIDSpecification
 from .error import DomainError
 
@@ -89,18 +88,25 @@ class Subscription:
             'subscribed_at': self._subscribed_at.timestamp(),
         }
 
+    @classmethod
+    def create_from_serialized(cls, data: Dict[str, Any]) -> Subscription:
+        """Create instance from serialized data."""
+        return cls(
+            id=UUID(data['id']),
+            newsfeed_id=data['newsfeed_id'],
+            to_newsfeed_id=data['to_newsfeed_id'],
+            subscribed_at=datetime.utcfromtimestamp(data['subscribed_at']),
+        )
+
 
 class SubscriptionFactory:
     """Subscription entity factory."""
 
-    def __init__(self, cls: Type[Subscription]):
-        """Initialize factory."""
-        assert issubclass(cls, Subscription)
-        self._cls = cls
+    cls = Subscription
 
     def create_new(self, newsfeed_id: str, to_newsfeed_id: str) -> Subscription:
-        """Create new subscription."""
-        return self._cls(
+        """Create new instance."""
+        return self.cls(
             id=uuid4(),
             newsfeed_id=newsfeed_id,
             to_newsfeed_id=to_newsfeed_id,
@@ -108,13 +114,8 @@ class SubscriptionFactory:
         )
 
     def create_from_serialized(self, data: Dict[str, Any]) -> Subscription:
-        """Create subscription from serialized data."""
-        return self._cls(
-            id=UUID(data['id']),
-            newsfeed_id=data['newsfeed_id'],
-            to_newsfeed_id=data['to_newsfeed_id'],
-            subscribed_at=datetime.utcfromtimestamp(data['subscribed_at']),
-        )
+        """Create instance from serialized data."""
+        return self.cls.create_from_serialized(data)
 
 
 class SubscriptionSpecification:

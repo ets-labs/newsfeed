@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Type, Dict, List, Tuple, Sequence, Optional, Any
+from typing import Dict, List, Tuple, Sequence, Optional, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 
 from newsfeed.infrastructure.event_storages import EventStorage
-
 from .newsfeed_id import NewsfeedIDSpecification
 
 
@@ -140,33 +139,10 @@ class Event:
             'published_at': self._published_at.timestamp() if self._published_at else None,
         }
 
-
-class EventFactory:
-    """Event entity factory."""
-
-    def __init__(self, cls: Type[Event]):
-        """Initialize factory."""
-        assert issubclass(cls, Event)
-        self._cls = cls
-
-    def create_new(self,
-                   newsfeed_id: str,
-                   data: Dict[Any, Any],
-                   parent_fqid: Optional[EventFQID] = None) -> Event:
-        """Create new event."""
-        return self._cls(
-            id=uuid4(),
-            newsfeed_id=newsfeed_id,
-            data=data,
-            parent_fqid=parent_fqid,
-            child_fqids=[],
-            first_seen_at=datetime.utcnow(),
-            published_at=None,
-        )
-
-    def create_from_serialized(self, data: Dict[str, Any]) -> Event:
-        """Create event from serialized data."""
-        return self._cls(
+    @classmethod
+    def create_from_serialized(cls, data: Dict[str, Any]) -> Event:
+        """Create instance from serialized data."""
+        return cls(
             id=UUID(data['id']),
             newsfeed_id=data['newsfeed_id'],
             data=data['data'],
@@ -184,6 +160,31 @@ class EventFactory:
                 datetime.utcfromtimestamp(data['published_at']) if data['published_at'] else None
             ),
         )
+
+
+class EventFactory:
+    """Event entity factory."""
+
+    cls = Event
+
+    def create_new(self,
+                   newsfeed_id: str,
+                   data: Dict[Any, Any],
+                   parent_fqid: Optional[EventFQID] = None) -> Event:
+        """Create new instance."""
+        return self.cls(
+            id=uuid4(),
+            newsfeed_id=newsfeed_id,
+            data=data,
+            parent_fqid=parent_fqid,
+            child_fqids=[],
+            first_seen_at=datetime.utcnow(),
+            published_at=None,
+        )
+
+    def create_from_serialized(self, data: Dict[str, Any]) -> Event:
+        """Create instance from serialized data."""
+        return self.cls.create_from_serialized(data)
 
 
 class EventSpecification:
