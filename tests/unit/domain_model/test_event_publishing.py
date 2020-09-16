@@ -1,12 +1,12 @@
 """Event publishing tests."""
 
 
-async def test_event_publishing(app):
+async def test_event_publishing(container):
     """Check event publishing."""
     newsfeed_id = '123'
 
-    event_dispatcher_service = app.domainmodel.event_dispatcher_service()
-    event_processor_service = app.domainmodel.event_processor_service()
+    event_dispatcher_service = container.event_dispatcher_service()
+    event_processor_service = container.event_processor_service()
 
     await _process_event(
         event_dispatcher_service,
@@ -25,7 +25,7 @@ async def test_event_publishing(app):
         },
     )
 
-    event_repository = app.domainmodel.event_repository()
+    event_repository = container.event_repository()
     events = await event_repository.get_by_newsfeed_id(newsfeed_id)
     assert events[0].data == {
         'event_data': 'some_data_2',
@@ -35,19 +35,19 @@ async def test_event_publishing(app):
     }
 
 
-async def test_event_publishing_to_subscriber(app):
+async def test_event_publishing_to_subscriber(container):
     """Check event publishing."""
     newsfeed_id = '123'
     subscriber_newsfeed_id = '124'
 
-    subscription_service = app.domainmodel.subscription_service()
+    subscription_service = container.subscription_service()
     await subscription_service.create_subscription(
         newsfeed_id=subscriber_newsfeed_id,
         to_newsfeed_id=newsfeed_id,
     )
 
-    event_dispatcher_service = app.domainmodel.event_dispatcher_service()
-    event_processor_service = app.domainmodel.event_processor_service()
+    event_dispatcher_service = container.event_dispatcher_service()
+    event_processor_service = container.event_processor_service()
 
     await _process_event(
         event_dispatcher_service,
@@ -66,7 +66,7 @@ async def test_event_publishing_to_subscriber(app):
         },
     )
 
-    event_repository = app.domainmodel.event_repository()
+    event_repository = container.event_repository()
     events = await event_repository.get_by_newsfeed_id(newsfeed_id)
     assert events[0].data == {
         'event_data': 'some_data_2',

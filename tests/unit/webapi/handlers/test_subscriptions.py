@@ -4,11 +4,11 @@ import uuid
 import datetime
 
 
-async def test_get_subscriptions(web_client, app):
+async def test_get_subscriptions(web_client, container):
     """Check subscriptions getting handler."""
     newsfeed_id = '123'
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     await subscription_storage.add(
         {
             'id': str(uuid.uuid4()),
@@ -51,7 +51,7 @@ async def test_get_subscriptions(web_client, app):
     assert int(subscription_2['subscribed_at'])
 
 
-async def test_post_subscriptions(web_client, app):
+async def test_post_subscriptions(web_client, container):
     """Check subscriptions posting handler."""
     newsfeed_id = '124'
 
@@ -66,14 +66,14 @@ async def test_post_subscriptions(web_client, app):
     data = await response.json()
     assert uuid.UUID(data['id'])
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     subscriptions = await subscription_storage.get_by_to_newsfeed_id(newsfeed_id='123')
     assert len(subscriptions) == 1
     assert subscriptions[0]['newsfeed_id'] == '124'
     assert subscriptions[0]['to_newsfeed_id'] == '123'
 
 
-async def test_post_subscription_to_self(web_client, app):
+async def test_post_subscription_to_self(web_client, container):
     """Check subscriptions posting handler."""
     newsfeed_id = '124'
 
@@ -88,14 +88,14 @@ async def test_post_subscription_to_self(web_client, app):
     data = await response.json()
     assert data['message'] == f'Subscription of newsfeed "{newsfeed_id}" to itself is restricted'
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     subscriptions = await subscription_storage.get_by_newsfeed_id(newsfeed_id=newsfeed_id)
     assert len(subscriptions) == 0
 
 
-async def test_post_subscription_with_abnormally_long_newsfeed_id(web_client, app):
+async def test_post_subscription_with_abnormally_long_newsfeed_id(web_client, container):
     """Check subscriptions posting handler."""
-    newsfeed_id_max_length = app.domainmodel.newsfeed_id_specification().max_length
+    newsfeed_id_max_length = container.newsfeed_id_specification().max_length
     newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
 
     response = await web_client.post(
@@ -111,16 +111,16 @@ async def test_post_subscription_with_abnormally_long_newsfeed_id(web_client, ap
         f'Newsfeed id "{newsfeed_id[:newsfeed_id_max_length]}..." is too long'
     )
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     subscriptions = await subscription_storage.get_by_newsfeed_id(newsfeed_id=newsfeed_id)
     assert len(subscriptions) == 0
 
 
-async def test_post_subscription_with_abnormally_long_to_newsfeed_id(web_client, app):
+async def test_post_subscription_with_abnormally_long_to_newsfeed_id(web_client, container):
     """Check subscriptions posting handler."""
     newsfeed_id = '124'
 
-    newsfeed_id_max_length = app.domainmodel.newsfeed_id_specification().max_length
+    newsfeed_id_max_length = container.newsfeed_id_specification().max_length
     to_newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
 
     response = await web_client.post(
@@ -136,17 +136,17 @@ async def test_post_subscription_with_abnormally_long_to_newsfeed_id(web_client,
         f'Newsfeed id "{to_newsfeed_id[:newsfeed_id_max_length]}..." is too long'
     )
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     subscriptions = await subscription_storage.get_by_newsfeed_id(newsfeed_id=newsfeed_id)
     assert len(subscriptions) == 0
 
 
-async def test_post_multiple_subscriptions_to_the_same_feed(web_client, app):
+async def test_post_multiple_subscriptions_to_the_same_feed(web_client, container):
     """Check subscriptions posting handler."""
     newsfeed_id = '123'
     to_newsfeed_id = '124'
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     await subscription_storage.add(
         {
             'id': str(uuid.uuid4()),
@@ -169,14 +169,14 @@ async def test_post_multiple_subscriptions_to_the_same_feed(web_client, app):
         f'Subscription from newsfeed "{newsfeed_id}" to "{to_newsfeed_id}" already exists'
     )
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     subscriptions = await subscription_storage.get_by_to_newsfeed_id(newsfeed_id=to_newsfeed_id)
     assert len(subscriptions) == 1
     assert subscriptions[0]['newsfeed_id'] == newsfeed_id
     assert subscriptions[0]['to_newsfeed_id'] == to_newsfeed_id
 
 
-async def test_delete_subscriptions(web_client, app):
+async def test_delete_subscriptions(web_client, container):
     """Check subscriptions deleting handler."""
     newsfeed_id = '123'
 
@@ -184,7 +184,7 @@ async def test_delete_subscriptions(web_client, app):
     subscription_id_2 = uuid.uuid4()
     subscription_id_3 = uuid.uuid4()
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     await subscription_storage.add(
         {
             'id': str(subscription_id_1),
@@ -224,11 +224,11 @@ async def test_delete_subscriptions(web_client, app):
     assert len(await subscription_storage.get_by_to_newsfeed_id('126')) == 1
 
 
-async def test_get_subscriber_subscriptions(web_client, app):
+async def test_get_subscriber_subscriptions(web_client, container):
     """Check subscriber subscriptions getting handler."""
     newsfeed_id = '123'
 
-    subscription_storage = app.infrastructure.subscription_storage()
+    subscription_storage = container.subscription_storage()
     await subscription_storage.add(
         {
             'id': str(uuid.uuid4()),

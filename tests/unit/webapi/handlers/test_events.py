@@ -4,7 +4,7 @@ import datetime
 import uuid
 
 
-async def test_get_events(web_client, app):
+async def test_get_events(web_client, container):
     """Check events posting handler."""
     newsfeed_id = '123'
     event_1 = {
@@ -33,7 +33,7 @@ async def test_get_events(web_client, app):
         'published_at': datetime.datetime.utcnow().timestamp(),
     }
 
-    event_storage = app.infrastructure.event_storage()
+    event_storage = container.event_storage()
     await event_storage.add(event_1)
     await event_storage.add(event_2)
 
@@ -65,7 +65,7 @@ async def test_get_events(web_client, app):
     }
 
 
-async def test_post_events(web_client, app):
+async def test_post_events(web_client, container):
     """Check events posting handler."""
     newsfeed_id = '123'
 
@@ -82,7 +82,7 @@ async def test_post_events(web_client, app):
     data = await response.json()
     assert uuid.UUID(data['id'])
 
-    event_queue = app.infrastructure.event_queue()
+    event_queue = container.event_queue()
     action, event_data = await event_queue.get()
     assert action == 'post'
     assert event_data['newsfeed_id'] == '123'
@@ -91,9 +91,9 @@ async def test_post_events(web_client, app):
     }
 
 
-async def test_post_event_with_abnormally_long_newsfeed_id(web_client, app):
+async def test_post_event_with_abnormally_long_newsfeed_id(web_client, container):
     """Check events posting handler."""
-    newsfeed_id_max_length = app.domainmodel.newsfeed_id_specification().max_length
+    newsfeed_id_max_length = container.newsfeed_id_specification().max_length
     newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
 
     response = await web_client.post(
@@ -111,11 +111,11 @@ async def test_post_event_with_abnormally_long_newsfeed_id(web_client, app):
         f'Newsfeed id "{newsfeed_id[:newsfeed_id_max_length]}..." is too long'
     )
 
-    event_queue = app.infrastructure.event_queue()
+    event_queue = container.event_queue()
     assert await event_queue.is_empty()
 
 
-async def test_delete_events(web_client, app):
+async def test_delete_events(web_client, container):
     """Check events deletion handler."""
     newsfeed_id = '123'
     event_id = uuid.uuid4()
@@ -124,7 +124,7 @@ async def test_delete_events(web_client, app):
 
     assert response.status == 204
 
-    event_queue = app.infrastructure.event_queue()
+    event_queue = container.event_queue()
     action, event_data = await event_queue.get()
     assert action == 'delete'
     assert event_data['newsfeed_id'] == newsfeed_id

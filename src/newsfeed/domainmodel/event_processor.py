@@ -1,7 +1,9 @@
 """Event processor module."""
 
+import asyncio
+import dataclasses
 from uuid import UUID
-from typing import Dict, Any
+from typing import List, Dict, Any
 
 from newsfeed.infrastructure.event_queues import EventQueue
 
@@ -9,30 +11,33 @@ from .event import EventFactory, EventRepository, EventFQID
 from .subscription import SubscriptionRepository
 
 
+@dataclasses.dataclass
 class EventProcessorService:
-    """Event processor service."""
 
-    def __init__(self,
-                 event_queue: EventQueue,
-                 event_factory: EventFactory,
-                 event_repository: EventRepository,
-                 subscription_repository: SubscriptionRepository):
-        """Initialize service."""
-        assert isinstance(event_queue, EventQueue)
-        self._event_queue = event_queue
+    event_queue: EventQueue
+    event_factory: EventFactory
+    event_repository: EventRepository
+    subscription_repository: SubscriptionRepository
+    concurrency: int
 
-        assert isinstance(event_factory, EventFactory)
-        self._event_factory = event_factory
+    _tasks: List[asyncio.Task] = dataclasses.field(default_factory=list)
 
-        assert isinstance(event_repository, EventRepository)
-        self._event_repository = event_repository
+    def start_processing(self) -> None:
+        loop = asyncio.get_event_loop()
 
-        assert isinstance(subscription_repository, SubscriptionRepository)
-        self._subscription_repository = subscription_repository
+        self._tasks = [
+            loop.create_task(self._processor_loop())
+            for _ in range(int(self.concurrency))
+        ]
+
+    def stop_processing(self) -> None:
+        for task in self._tasks:
+            task.cancel()
+        self._tasks.clear()
 
     async def process_event(self) -> None:
         """Process event."""
-        action, data = await self._event_queue.get()
+        action, data = await self.event_queue.get()
 
         if action == 'post':
             await self.process_new_event(data)
@@ -43,13 +48,13 @@ class EventProcessorService:
 
     async def process_new_event(self, data: Dict[str, Any]) -> None:
         """Process posting of new event."""
-        event = self._event_factory.create_from_serialized(data)
-        subscriptions = await self._subscription_repository.get_by_to_newsfeed_id(
+        event = self.event_factory.create_from_serialized(data)
+        subscriptions = await self.subscription_repository.get_by_to_newsfeed_id(
             newsfeed_id=event.newsfeed_id,
         )
 
         subscriber_events = [
-            self._event_factory.create_new(
+            self.event_factory.create_new(
                 newsfeed_id=subscription.newsfeed_id,
                 data=event.data,
                 parent_fqid=event.fqid,
@@ -65,11 +70,11 @@ class EventProcessorService:
 
         for event in [event] + subscriber_events:
             event.track_publishing_time()
-            await self._event_repository.add(event)
+            await self.event_repository.add(event)
 
     async def process_event_deletion(self, data: Dict[str, Any]) -> None:
         """Process deletion of an existing event."""
-        event = await self._event_repository.get_by_fqid(
+        event = await self.event_repository.get_by_fqid(
             EventFQID(
                 newsfeed_id=str(data['newsfeed_id']),
                 event_id=UUID(data['event_id']),
@@ -77,6 +82,10 @@ class EventProcessorService:
         )
 
         for child_event_fqid in event.child_fqids:
-            await self._event_repository.delete_by_fqid(child_event_fqid)
+            await self.event_repository.delete_by_fqid(child_event_fqid)
 
-        await self._event_repository.delete_by_fqid(event.fqid)
+        await self.event_repository.delete_by_fqid(event.fqid)
+
+    async def _processor_loop(self) -> None:
+        while True:
+            await self.process_event()

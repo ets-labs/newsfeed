@@ -1,46 +1,14 @@
 """Application test fixtures."""
 
 from pytest import fixture
-from dependency_injector import containers, providers
 
-from newsfeed.application import Application
-from newsfeed import infrastructure
-
-
-class TestInfrastructure(containers.DeclarativeContainer):
-    """Test infrastructure container."""
-
-    config = providers.Configuration('infrastructure')
-
-    event_queue = providers.Singleton(
-        infrastructure.event_queues.InMemoryEventQueue,
-        config=config.event_queue,
-    )
-
-    event_storage = providers.Singleton(
-        infrastructure.event_storages.InMemoryEventStorage,
-        config=config.event_storage,
-    )
-
-    subscription_storage = providers.Singleton(
-        infrastructure.subscription_storages.InMemorySubscriptionStorage,
-        config=config.subscription_storage,
-    )
-
-
-class TestApplication(Application):
-    """Test application."""
-
-    class Containers(Application.Containers):
-        """Application containers."""
-
-        infrastructure = TestInfrastructure
+from newsfeed.containers import Container
+from newsfeed.routes import setup_routes
 
 
 @fixture
-def app():
-    """Create test application."""
-    return TestApplication(
+def container():
+    return Container(
         config={
             'infrastructure': {
                 'event_queue': {
@@ -67,12 +35,12 @@ def app():
 
 
 @fixture
-def web_app(app):
-    """Create test web application."""
-    return app.webapi.web_app()
+def web_app(container):
+    web_app = container.web_app()
+    setup_routes(web_app, container)
+    return web_app
 
 
 @fixture
 async def web_client(aiohttp_client, web_app):
-    """Create test application client."""
     return await aiohttp_client(web_app)
