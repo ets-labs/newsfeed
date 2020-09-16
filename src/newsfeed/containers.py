@@ -9,7 +9,7 @@ from newsfeed import core, infrastructure, domainmodel, webapi
 
 class Container(containers.DeclarativeContainer):
 
-    config = providers.Configuration('core')
+    config = providers.Configuration()
 
     configure_logging = providers.Callable(
         core.log.configure_logging,
