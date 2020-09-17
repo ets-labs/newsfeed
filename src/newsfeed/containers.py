@@ -1,8 +1,8 @@
 """Containers module."""
 
+from aiohttp import web
 from dependency_injector import containers, providers
 from dependency_injector.ext import aiohttp
-from aiohttp import web
 
 from newsfeed import core, infrastructure, domainmodel, webapi
 
@@ -149,7 +149,7 @@ class Container(containers.DeclarativeContainer):
         event_dispatcher_service=event_dispatcher_service,
     )
 
-    # Web API -> Events
+    # Web API -> Miscellaneous
 
     get_status_view = aiohttp.View(webapi.handlers.misc.get_status_handler)
 
