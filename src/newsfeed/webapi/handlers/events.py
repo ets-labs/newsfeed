@@ -3,11 +3,13 @@
 from typing import Dict, List, Tuple, Union, Any
 
 from aiohttp import web
+from dependency_injector.wiring import Provide
 
 from newsfeed.domainmodel.event import (
     Event,
     EventRepository,
 )
+from newsfeed.containers import Container
 from newsfeed.domainmodel.event_dispatcher import EventDispatcherService
 from newsfeed.domainmodel.error import DomainError
 
@@ -26,8 +28,10 @@ SerializedEvent = Dict[
 ]
 
 
-async def get_events_handler(request: web.Request, *,
-                             event_repository: EventRepository) -> web.Response:
+async def get_events_handler(
+        request: web.Request, *,
+        event_repository: EventRepository = Provide[Container.event_repository],
+) -> web.Response:
     """Handle events getting requests."""
     newsfeed_id = request.match_info['newsfeed_id']
 
@@ -43,8 +47,10 @@ async def get_events_handler(request: web.Request, *,
     )
 
 
-async def post_event_handler(request: web.Request, *,
-                             event_dispatcher_service: EventDispatcherService) -> web.Response:
+async def post_event_handler(
+        request: web.Request, *,
+        event_dispatcher_service: EventDispatcherService = Provide[Container.event_dispatcher_service],
+) -> web.Response:
     """Handle events posting requests."""
     event_data = await request.json()
 
@@ -67,8 +73,10 @@ async def post_event_handler(request: web.Request, *,
     )
 
 
-async def delete_event_handler(request: web.Request, *,
-                               event_dispatcher_service: EventDispatcherService) -> web.Response:
+async def delete_event_handler(
+        request: web.Request, *,
+        event_dispatcher_service: EventDispatcherService = Provide[Container.event_dispatcher_service],
+) -> web.Response:
     """Handle events posting requests."""
     await event_dispatcher_service.dispatch_event_deletion(
         newsfeed_id=request.match_info['newsfeed_id'],

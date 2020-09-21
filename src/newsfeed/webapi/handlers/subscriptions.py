@@ -3,12 +3,14 @@
 from typing import Dict, Union
 
 from aiohttp import web
+from dependency_injector.wiring import Provide
 
 from newsfeed.domainmodel.subscription import (
     Subscription,
     SubscriptionService,
 )
 from newsfeed.domainmodel.error import DomainError
+from newsfeed.containers import Container
 
 
 SerializedSubscription = Dict[
@@ -20,8 +22,10 @@ SerializedSubscription = Dict[
 ]
 
 
-async def get_subscriptions_handler(request: web.Request, *,
-                                    subscription_service: SubscriptionService) -> web.Response:
+async def get_subscriptions_handler(
+        request: web.Request, *,
+        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+) -> web.Response:
     """Handle subscriptions getting requests."""
     newsfeed_subscriptions = await subscription_service.get_subscriptions(
         newsfeed_id=request.match_info['newsfeed_id'],
@@ -36,8 +40,10 @@ async def get_subscriptions_handler(request: web.Request, *,
     )
 
 
-async def post_subscription_handler(request: web.Request, *,
-                                    subscription_service: SubscriptionService) -> web.Response:
+async def post_subscription_handler(
+        request: web.Request, *,
+        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+) -> web.Response:
     """Handle subscriptions posting requests."""
     data = await request.json()
 
@@ -60,8 +66,10 @@ async def post_subscription_handler(request: web.Request, *,
     )
 
 
-async def delete_subscription_handler(request: web.Request, *,
-                                      subscription_service: SubscriptionService) -> web.Response:
+async def delete_subscription_handler(
+        request: web.Request, *,
+        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+) -> web.Response:
     """Handle subscriptions deleting requests."""
     await subscription_service.delete_subscription(
         newsfeed_id=request.match_info['newsfeed_id'],
@@ -70,8 +78,10 @@ async def delete_subscription_handler(request: web.Request, *,
     return web.json_response(status=204)
 
 
-async def get_subscriber_subscriptions_handler(request: web.Request, *,
-                                               subscription_service: SubscriptionService) -> web.Response:  # noqa
+async def get_subscriber_subscriptions_handler(
+        request: web.Request, *,
+        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+) -> web.Response:  # noqa
     """Handle subscriber subscriptions getting requests."""
     newsfeed_subscriptions = await subscription_service.get_subscriber_subscriptions(
         newsfeed_id=request.match_info['newsfeed_id'],

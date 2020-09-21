@@ -3,8 +3,8 @@
 from aiohttp import web
 
 from .configuration import get_config
-from .routes import setup_routes
 from .containers import Container
+from . import webapi
 
 
 def main():
@@ -12,10 +12,9 @@ def main():
 
     container.configure_logging()
     container.configure_event_loop()
+    container.wire(packages=[webapi])
 
-    web_app = container.web_app()
-    setup_routes(web_app, container)
-
+    web_app = webapi.app.create_app()
     event_processor = container.event_processor_service()
 
     @web_app.on_startup.append
@@ -26,7 +25,7 @@ def main():
     async def _on_cleanup(_: web.Application) -> None:
         event_processor.stop_processing()
 
-    container.run_web_app(web_app, print=None)
+    web.run_app(web_app, port=int(container.config.webapi.port()))
 
 
 if __name__ == '__main__':

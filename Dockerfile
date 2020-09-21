@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.9
+FROM python:3.7-buster
 
 ENV PORT=8000
 ENV LOG_LEVEL="INFO"
@@ -19,14 +19,8 @@ ENV PYTHONPATH="${PYTHONPATH}:/code/src/"
 WORKDIR /code
 COPY . /code/
 
-RUN apk update \
- && apk upgrade --purge \
- && apk add build-base \
- && apk add libffi-dev \
- && pip install --upgrade pip \
- && pip install -r requirements.txt \
- && rm -rf /var/cache/apk/* \
- && rm -rf ~/.cache
+RUN pip install --upgrade pip \
+ && pip install -r requirements.txt
 
 EXPOSE $PORT
 

@@ -1,3 +1,3 @@
 """Web API package."""
 
-from . import handlers  # noqa: F401
+from . import app  # noqa: F401

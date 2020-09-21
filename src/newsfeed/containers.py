@@ -1,10 +1,8 @@
 """Containers module."""
 
-from aiohttp import web
 from dependency_injector import containers, providers
-from dependency_injector.ext import aiohttp
 
-from newsfeed import core, infrastructure, domainmodel, webapi
+from newsfeed import core, infrastructure, domainmodel
 
 
 class Container(containers.DeclarativeContainer):
@@ -98,62 +96,4 @@ class Container(containers.DeclarativeContainer):
         event_repository=event_repository,
         subscription_repository=subscription_repository,
         concurrency=config.domainmodel.processor_concurrency.as_int(),
-    )
-
-    # Web API
-
-    web_app = aiohttp.Application(web.Application)
-
-    run_web_app = providers.Callable(
-        web.run_app,
-        port=config.webapi.port.as_int(),
-        print=None,
-    )
-
-    # Web API -> Subscriptions
-
-    get_subscriptions_view = aiohttp.View(
-        webapi.handlers.subscriptions.get_subscriptions_handler,
-        subscription_service=subscription_service,
-    )
-
-    add_subscription_view = aiohttp.View(
-        webapi.handlers.subscriptions.post_subscription_handler,
-        subscription_service=subscription_service,
-    )
-
-    delete_subscription_view = aiohttp.View(
-        webapi.handlers.subscriptions.delete_subscription_handler,
-        subscription_service=subscription_service,
-    )
-
-    get_subscribers_view = aiohttp.View(
-        webapi.handlers.subscriptions.get_subscriber_subscriptions_handler,
-        subscription_service=subscription_service,
-    )
-
-    # Web API -> Events
-
-    get_events_view = aiohttp.View(
-        webapi.handlers.events.get_events_handler,
-        event_repository=event_repository,
-    )
-
-    add_event_view = aiohttp.View(
-        webapi.handlers.events.post_event_handler,
-        event_dispatcher_service=event_dispatcher_service,
-    )
-
-    delete_event_view = aiohttp.View(
-        webapi.handlers.events.delete_event_handler,
-        event_dispatcher_service=event_dispatcher_service,
-    )
-
-    # Web API -> Miscellaneous
-
-    get_status_view = aiohttp.View(webapi.handlers.misc.get_status_handler)
-
-    get_docs_handler = aiohttp.View(
-        webapi.handlers.misc.get_openapi_schema_handler,
-        base_path=config.base_path,
     )

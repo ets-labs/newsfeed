@@ -2,53 +2,53 @@
 
 from aiohttp import web
 
-from .containers import Container
+from .handlers import subscriptions, events, misc
 
 
-def setup_routes(app: web.Application, container: Container) -> None:
+def setup_routes(app: web.Application) -> None:
     app.add_routes([
         # Subscriptions
 
         web.get(
             path='/newsfeed/{newsfeed_id}/subscriptions/',
-            handler=container.get_subscriptions_view.as_view(),
+            handler=subscriptions.get_subscriptions_handler,
         ),
         web.post(
             path='/newsfeed/{newsfeed_id}/subscriptions/',
-            handler=container.add_subscription_view.as_view(),
+            handler=subscriptions.post_subscription_handler,
         ),
         web.delete(
             path='/newsfeed/{newsfeed_id}/subscriptions/{subscription_id}/',
-            handler=container.delete_subscription_view.as_view(),
+            handler=subscriptions.delete_subscription_handler,
         ),
         web.get(
             path='/newsfeed/{newsfeed_id}/subscribers/subscriptions/',
-            handler=container.get_subscribers_view.as_view(),
+            handler=subscriptions.get_subscriber_subscriptions_handler,
         ),
 
         # Events
 
         web.get(
             path='/newsfeed/{newsfeed_id}/events/',
-            handler=container.get_events_view.as_view(),
+            handler=events.get_events_handler,
         ),
         web.post(
             path='/newsfeed/{newsfeed_id}/events/',
-            handler=container.add_event_view.as_view(),
+            handler=events.post_event_handler,
         ),
         web.delete(
             path='/newsfeed/{newsfeed_id}/events/{event_id}/',
-            handler=container.delete_event_view.as_view(),
+            handler=events.delete_event_handler,
         ),
 
         # Miscellaneous
 
         web.get(
             path='/status/',
-            handler=container.get_status_view.as_view(),
+            handler=misc.get_status_handler,
         ),
         web.get(
             path='/docs/',
-            handler=container.get_docs_handler.as_view(),
+            handler=misc.get_openapi_schema_handler,
         ),
     ])
