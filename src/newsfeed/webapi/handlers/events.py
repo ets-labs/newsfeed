@@ -5,13 +5,13 @@ from typing import Dict, List, Tuple, Union, Any
 from aiohttp import web
 from dependency_injector.wiring import Provide
 
-from newsfeed.domainmodel.event import (
+from newsfeed.domain.event import (
     Event,
     EventRepository,
 )
 from newsfeed.containers import Container
-from newsfeed.domainmodel.event_dispatcher import EventDispatcherService
-from newsfeed.domainmodel.error import DomainError
+from newsfeed.domain.event_dispatcher import EventDispatcherService
+from newsfeed.domain.error import DomainError
 
 
 SerializedEventFQID = Tuple[str, str]

@@ -5,11 +5,11 @@ from typing import Dict, Union
 from aiohttp import web
 from dependency_injector.wiring import Provide
 
-from newsfeed.domainmodel.subscription import (
+from newsfeed.domain.subscription import (
     Subscription,
     SubscriptionService,
 )
-from newsfeed.domainmodel.error import DomainError
+from newsfeed.domain.error import DomainError
 from newsfeed.containers import Container
 
 

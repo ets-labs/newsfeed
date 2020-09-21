@@ -22,7 +22,7 @@ def config():
                 'max_subscriptions_per_newsfeed': 5,
             },
         },
-        'domainmodel': {
+        'domain': {
             'newsfeed_id_length': 16,
             'processor_concurrency': 1,
         },

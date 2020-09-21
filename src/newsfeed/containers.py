@@ -2,7 +2,7 @@
 
 from dependency_injector import containers, providers
 
-from newsfeed import core, infrastructure, domainmodel
+from newsfeed import core, infrastructure, domain
 
 
 class Container(containers.DeclarativeContainer):
@@ -39,27 +39,27 @@ class Container(containers.DeclarativeContainer):
     # Domain model
 
     newsfeed_id_specification = providers.Singleton(
-        domainmodel.newsfeed_id.NewsfeedIDSpecification,
-        max_length=config.domainmodel.newsfeed_id_length,
+        domain.newsfeed_id.NewsfeedIDSpecification,
+        max_length=config.domain.newsfeed_id_length,
     )
 
     # Domain model -> Subscriptions
 
-    subscription_factory = providers.Factory(domainmodel.subscription.SubscriptionFactory)
+    subscription_factory = providers.Factory(domain.subscription.SubscriptionFactory)
 
     subscription_specification = providers.Singleton(
-        domainmodel.subscription.SubscriptionSpecification,
+        domain.subscription.SubscriptionSpecification,
         newsfeed_id_specification=newsfeed_id_specification,
     )
 
     subscription_repository = providers.Singleton(
-        domainmodel.subscription.SubscriptionRepository,
+        domain.subscription.SubscriptionRepository,
         factory=subscription_factory,
         storage=subscription_storage,
     )
 
     subscription_service = providers.Singleton(
-        domainmodel.subscription.SubscriptionService,
+        domain.subscription.SubscriptionService,
         factory=subscription_factory,
         specification=subscription_specification,
         repository=subscription_repository,
@@ -67,15 +67,15 @@ class Container(containers.DeclarativeContainer):
 
     # Domain model -> Events
 
-    event_factory = providers.Factory(domainmodel.event.EventFactory)
+    event_factory = providers.Factory(domain.event.EventFactory)
 
     event_specification = providers.Singleton(
-        domainmodel.event.EventSpecification,
+        domain.event.EventSpecification,
         newsfeed_id_specification=newsfeed_id_specification,
     )
 
     event_repository = providers.Singleton(
-        domainmodel.event.EventRepository,
+        domain.event.EventRepository,
         factory=event_factory,
         storage=event_storage,
     )
@@ -83,17 +83,17 @@ class Container(containers.DeclarativeContainer):
     # Domain model -> Services
 
     event_dispatcher_service = providers.Factory(
-        domainmodel.event_dispatcher.EventDispatcherService,
+        domain.event_dispatcher.EventDispatcherService,
         event_factory=event_factory,
         event_specification=event_specification,
         event_queue=event_queue,
     )
 
     event_processor_service = providers.Factory(
-        domainmodel.event_processor.EventProcessorService,
+        domain.event_processor.EventProcessorService,
         event_queue=event_queue,
         event_factory=event_factory,
         event_repository=event_repository,
         subscription_repository=subscription_repository,
-        concurrency=config.domainmodel.processor_concurrency.as_int(),
+        concurrency=config.domain.processor_concurrency.as_int(),
     )
