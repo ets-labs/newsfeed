@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import  Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any
 from uuid import UUID, uuid4
 from datetime import datetime
 

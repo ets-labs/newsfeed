@@ -94,7 +94,7 @@ async def test_post_events(web_client, container):
 async def test_post_event_with_abnormally_long_newsfeed_id(web_client, container):
     """Check events posting handler."""
     newsfeed_id_max_length = container.newsfeed_id_specification().max_length
-    newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
+    newsfeed_id = 'x' * (newsfeed_id_max_length + 1)
 
     response = await web_client.post(
         f'/newsfeed/{newsfeed_id}/events/',

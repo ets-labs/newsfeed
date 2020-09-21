@@ -96,7 +96,7 @@ async def test_post_subscription_to_self(web_client, container):
 async def test_post_subscription_with_abnormally_long_newsfeed_id(web_client, container):
     """Check subscriptions posting handler."""
     newsfeed_id_max_length = container.newsfeed_id_specification().max_length
-    newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
+    newsfeed_id = 'x' * (newsfeed_id_max_length + 1)
 
     response = await web_client.post(
         f'/newsfeed/{newsfeed_id}/subscriptions/',
@@ -121,7 +121,7 @@ async def test_post_subscription_with_abnormally_long_to_newsfeed_id(web_client,
     newsfeed_id = '124'
 
     newsfeed_id_max_length = container.newsfeed_id_specification().max_length
-    to_newsfeed_id = 'x'*(newsfeed_id_max_length + 1)
+    to_newsfeed_id = 'x' * (newsfeed_id_max_length + 1)
 
     response = await web_client.post(
         f'/newsfeed/{newsfeed_id}/subscriptions/',
