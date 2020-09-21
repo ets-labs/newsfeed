@@ -20,7 +20,7 @@ class EventProcessorService:
     subscription_repository: SubscriptionRepository
     concurrency: int
 
-    _tasks: List[asyncio.Task] = dataclasses.field(default_factory=list)
+    _tasks: List['asyncio.Task[None]'] = dataclasses.field(default_factory=list)
 
     def start_processing(self) -> None:
         loop = asyncio.get_event_loop()

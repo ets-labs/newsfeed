@@ -3,7 +3,7 @@
 import json
 from contextlib import asynccontextmanager
 from collections import defaultdict, deque
-from typing import Dict, Deque, Iterable, Union
+from typing import Dict, Deque, Iterable, Union, cast
 
 import aioredis
 
@@ -131,7 +131,7 @@ class RedisEventStorage(EventStorage):
                 event_id=event_id,
             )
         else:
-            return json.loads(event)
+            return cast(EventData, json.loads(event))
 
     async def add(self, event_data: EventData) -> None:
         """Add event data to the storage."""

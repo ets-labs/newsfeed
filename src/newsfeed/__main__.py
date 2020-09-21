@@ -7,7 +7,7 @@ from .containers import Container
 from . import webapi
 
 
-def main():
+def main() -> None:
     container = Container(config=get_config())
 
     container.configure_logging()
