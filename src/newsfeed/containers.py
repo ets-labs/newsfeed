@@ -4,7 +4,8 @@ import logging.config
 
 from dependency_injector import containers, providers
 
-from newsfeed import core, infrastructure, domain
+from newsfeed import infrastructure, domain
+from .loop import configure_event_loop
 
 
 class Container(containers.DeclarativeContainer):
@@ -17,7 +18,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     configure_event_loop = providers.Callable(
-        core.loop.configure_event_loop,
+        configure_event_loop,
         enable_uvloop=config.enable_uvloop,
     )
 

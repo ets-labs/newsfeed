@@ -1,4 +1,4 @@
-"""Miscellaneous handlers."""
+"""Miscellaneous API handlers."""
 
 import copy
 from typing import Dict, Any, AnyStr

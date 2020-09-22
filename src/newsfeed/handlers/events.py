@@ -1,4 +1,4 @@
-"""Event handlers."""
+"""Event API handlers."""
 
 from typing import Dict, List, Tuple, Union, Any
 

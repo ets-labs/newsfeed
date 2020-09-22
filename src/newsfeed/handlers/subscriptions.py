@@ -1,4 +1,4 @@
-"""Subscription handlers."""
+"""Subscription API handlers."""
 
 from typing import Dict, Union
 
