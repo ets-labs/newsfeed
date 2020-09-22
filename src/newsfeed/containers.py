@@ -1,5 +1,7 @@
 """Containers module."""
 
+import logging.config
+
 from dependency_injector import containers, providers
 
 from newsfeed import core, infrastructure, domain
@@ -10,8 +12,8 @@ class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     configure_logging = providers.Callable(
-        core.log.configure_logging,
-        level=config.log_level,
+        logging.config.dictConfig,
+        config=config.logging,
     )
 
     configure_event_loop = providers.Callable(

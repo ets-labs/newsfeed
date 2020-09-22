@@ -2,16 +2,21 @@
 
 from aiohttp import web
 
-from .configuration import get_config
 from .containers import Container
 from . import webapi
 
 
 def main() -> None:
-    container = Container(config=get_config())
+    container = Container()
+
+    container.config.from_yaml('config/newsfeed.yml')
+    container.config.from_yaml('config/newsfeed.local.yml')
+    container.config.logging.from_yaml('config/logging.yml')
+    container.config.logging.from_yaml('config/logging.local.yml')
 
     container.configure_logging()
     container.configure_event_loop()
+
     container.wire(packages=[webapi])
 
     web_app = webapi.app.create_app()
@@ -25,7 +30,11 @@ def main() -> None:
     async def _on_cleanup(_: web.Application) -> None:
         event_processor.stop_processing()
 
-    web.run_app(web_app, port=int(container.config.webapi.port()))
+    web.run_app(
+        web_app,
+        port=int(container.config.webapi.port()),
+        print=lambda *_: None,
+    )
 
 
 if __name__ == '__main__':

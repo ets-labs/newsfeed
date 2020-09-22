@@ -4,9 +4,8 @@ services:
 
   newsfeed:
     build: ./
+    image: newsfeed
     environment:
-      LOG_LEVEL: "DEBUG"
-      API_BASE_PATH: "/api/"
       EVENT_STORAGE_DSN: "redis://redis:6379?db=0&connection_timeout=5&minsize=1&maxsize=4"
     volumes:
       - "./:/code"

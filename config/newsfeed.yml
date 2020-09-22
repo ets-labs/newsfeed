@@ -1,0 +1,23 @@
+core:
+  enable_uvloop: True
+
+infrastructure:
+  event_queue:
+    max_size: 16
+
+  event_storage:
+    dsn: ${EVENT_STORAGE_DSN}
+    max_newsfeeds: 1024
+    max_events_per_newsfeed: 1024
+
+  subscription_storage:
+    max_newsfeeds: 1024
+    max_subscriptions_per_newsfeed: 1024
+
+domain:
+  newsfeed_id_length: 128
+  processor_concurrency: 4
+
+webapi:
+  port: ${PORT}
+  base_path: "/api"
