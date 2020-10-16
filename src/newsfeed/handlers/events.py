@@ -30,13 +30,13 @@ SerializedEvent = Dict[
 
 async def get_events_handler(
         request: web.Request, *,
-        event_repository: EventRepository = Provide[Container.event_repository],
+        event_repository: EventRepository = Provide[
+            Container.event_repository
+        ],
 ) -> web.Response:
     """Handle events getting requests."""
     newsfeed_id = request.match_info['newsfeed_id']
-
     newsfeed_events = await event_repository.get_by_newsfeed_id(newsfeed_id)
-
     return web.json_response(
         data={
             'results': [
@@ -49,7 +49,9 @@ async def get_events_handler(
 
 async def post_event_handler(
         request: web.Request, *,
-        event_dispatcher_service: EventDispatcherService = Provide[Container.event_dispatcher_service],
+        event_dispatcher_service: EventDispatcherService = Provide[
+            Container.event_dispatcher_service
+        ],
 ) -> web.Response:
     """Handle events posting requests."""
     event_data = await request.json()
@@ -75,7 +77,9 @@ async def post_event_handler(
 
 async def delete_event_handler(
         request: web.Request, *,
-        event_dispatcher_service: EventDispatcherService = Provide[Container.event_dispatcher_service],
+        event_dispatcher_service: EventDispatcherService = Provide[
+            Container.event_dispatcher_service
+        ],
 ) -> web.Response:
     """Handle events posting requests."""
     await event_dispatcher_service.dispatch_event_deletion(

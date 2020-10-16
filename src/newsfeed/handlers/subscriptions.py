@@ -24,7 +24,9 @@ SerializedSubscription = Dict[
 
 async def get_subscriptions_handler(
         request: web.Request, *,
-        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+        subscription_service: SubscriptionService = Provide[
+            Container.subscription_service
+        ],
 ) -> web.Response:
     """Handle subscriptions getting requests."""
     newsfeed_subscriptions = await subscription_service.get_subscriptions(
@@ -42,7 +44,9 @@ async def get_subscriptions_handler(
 
 async def post_subscription_handler(
         request: web.Request, *,
-        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+        subscription_service: SubscriptionService = Provide[
+            Container.subscription_service
+        ],
 ) -> web.Response:
     """Handle subscriptions posting requests."""
     data = await request.json()
@@ -68,7 +72,9 @@ async def post_subscription_handler(
 
 async def delete_subscription_handler(
         request: web.Request, *,
-        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+        subscription_service: SubscriptionService = Provide[
+            Container.subscription_service
+        ],
 ) -> web.Response:
     """Handle subscriptions deleting requests."""
     await subscription_service.delete_subscription(
@@ -80,7 +86,9 @@ async def delete_subscription_handler(
 
 async def get_subscriber_subscriptions_handler(
         request: web.Request, *,
-        subscription_service: SubscriptionService = Provide[Container.subscription_service],
+        subscription_service: SubscriptionService = Provide[
+            Container.subscription_service
+        ],
 ) -> web.Response:  # noqa
     """Handle subscriber subscriptions getting requests."""
     newsfeed_subscriptions = await subscription_service.get_subscriber_subscriptions(

@@ -16,7 +16,9 @@ async def get_status_handler(_: web.Request) -> web.Response:
 
 async def get_openapi_schema_handler(
         _: web.Request, *,
-        base_path: AnyStr = Provide[Container.config.webapi.base_path],
+        base_path: AnyStr = Provide[
+            Container.config.webapi.base_path
+        ],
 ) -> web.Response:
     """Handle OpenAPI schema requests."""
     schema: Dict[str, Any] = copy.deepcopy(OPENAPI_SCHEMA)
