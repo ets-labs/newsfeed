@@ -1,4 +1,4 @@
-dependency-injector>=4.0.0a
+dependency-injector>=4.0
 pyyaml>=5.3
 uvloop>=0.14
 aiohttp>=3.6
